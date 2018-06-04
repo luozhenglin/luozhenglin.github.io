@@ -1,0 +1,887 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="openstack," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="目录结构：glanceApi V2 代码解读  glanceApi V2 代码解读 还是以image create为例，首先debug一下，看下都是发出了哪些restful请求：  本来是要截图的，网络出了点问题，云环境暂时用不了，直接写吧，发出了三个restful请求： 1. GET /v2/schemas/image   2. POST /v2/images  3. PUT /v2/image">
+<meta name="keywords" content="openstack">
+<meta property="og:type" content="article">
+<meta property="og:title" content="openstack系列--glanceApi 源代码解读(三)">
+<meta property="og:url" content="https://zhangchenchen.github.io/2016/12/16/glance-api-sourcecode-explain-3/index.html">
+<meta property="og:site_name" content="Solar">
+<meta property="og:description" content="目录结构：glanceApi V2 代码解读  glanceApi V2 代码解读 还是以image create为例，首先debug一下，看下都是发出了哪些restful请求：  本来是要截图的，网络出了点问题，云环境暂时用不了，直接写吧，发出了三个restful请求： 1. GET /v2/schemas/image   2. POST /v2/images  3. PUT /v2/image">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-05-28T07:57:22.522Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="openstack系列--glanceApi 源代码解读(三)">
+<meta name="twitter:description" content="目录结构：glanceApi V2 代码解读  glanceApi V2 代码解读 还是以image create为例，首先debug一下，看下都是发出了哪些restful请求：  本来是要截图的，网络出了点问题，云环境暂时用不了，直接写吧，发出了三个restful请求： 1. GET /v2/schemas/image   2. POST /v2/images  3. PUT /v2/image">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://zhangchenchen.github.io/2016/12/16/glance-api-sourcecode-explain-3/"/>
+
+
+
+
+
+  <title> openstack系列--glanceApi 源代码解读(三) | Solar </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-92407570-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Solar</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle"></p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="https://zhangchenchen.github.io/2016/12/16/glance-api-sourcecode-explain-3/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="pekingzcc">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Solar">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Solar" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                openstack系列--glanceApi 源代码解读(三)
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-12-16T10:08:25+08:00">
+                2016-12-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/12/16/glance-api-sourcecode-explain-3/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/12/16/glance-api-sourcecode-explain-3/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="目录结构："><a href="#目录结构：" class="headerlink" title="目录结构："></a>目录结构：</h2><p><a href="#A">glanceApi V2 代码解读</a></p>
+<p><a name="A"></a></p>
+<h2 id="glanceApi-V2-代码解读"><a href="#glanceApi-V2-代码解读" class="headerlink" title="glanceApi V2 代码解读"></a>glanceApi V2 代码解读</h2><ul>
+<li>还是以image create为例，首先debug一下，看下都是发出了哪些restful请求：</li>
+</ul>
+<p>本来是要截图的，网络出了点问题，云环境暂时用不了，直接写吧，发出了三个restful请求：</p>
+<pre><code>1. GET /v2/schemas/image 
+
+2. POST /v2/images
+
+3. PUT /v2/images/xxxxxxxxxxxxxxxx/file
+</code></pre><p>大致猜出第二，三个请求分别是image metedata的数据库操作请求，上传镜像的操作请求。接下来逐一分析：</p>
+<ul>
+<li>先看下GET /v2/schemas/image 请求，根据路由的规则router.py找到对应的执行函数：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">API</span><span class="params">(wsgi.Router)</span>:</span></span><br><span class="line"></span><br><span class="line">    <span class="string">"""WSGI router for Glance v2 API requests."""</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, mapper)</span>:</span></span><br><span class="line">        <span class="comment">#默认scheme的property就几个，</span></span><br><span class="line">        <span class="comment">#如果自己增加的话需要写在一个schema-image.json文件中，通过此函数load</span></span><br><span class="line">        custom_image_properties = images.load_custom_properties()</span><br><span class="line"></span><br><span class="line">        reject_method_resource = wsgi.Resource(wsgi.RejectMethodController())</span><br><span class="line">        <span class="comment">#根据配置文件create 一个controller，看下文分析</span></span><br><span class="line">        schemas_resource = schemas.create_resource(custom_image_properties)</span><br><span class="line">        mapper.connect(<span class="string">'/schemas/image'</span>,</span><br><span class="line">                       controller=schemas_resource,</span><br><span class="line">                       action=<span class="string">'image'</span>,</span><br><span class="line">                       conditions=&#123;<span class="string">'method'</span>: [<span class="string">'GET'</span>]&#125;,</span><br><span class="line">                       body_reject=<span class="keyword">True</span>)</span><br><span class="line">        mapper.connect(<span class="string">'/schemas/image'</span>,</span><br><span class="line">                       controller=reject_method_resource,</span><br><span class="line">                       action=<span class="string">'reject'</span>,</span><br><span class="line">                       allowed_methods=<span class="string">'GET'</span>)</span><br><span class="line">        mapper.connect(<span class="string">'/schemas/images'</span>,</span><br><span class="line">                       controller=schemas_resource,</span><br><span class="line">                       action=<span class="string">'images'</span>,</span><br><span class="line">                       conditions=&#123;<span class="string">'method'</span>: [<span class="string">'GET'</span>]&#125;,</span><br><span class="line">                       body_reject=<span class="keyword">True</span>)</span><br><span class="line">        ............................................</span><br></pre></td></tr></table></figure>
+<p>schemas.create_resource，看下该方法的实现：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">create_resource</span><span class="params">(custom_image_properties=None)</span>:</span></span><br><span class="line">    controller = Controller(custom_image_properties)</span><br><span class="line">    <span class="keyword">return</span> wsgi.Resource(controller)</span><br></pre></td></tr></table></figure>
+<p>可以看到该方法初始化了一个Controller,然后封装成一个WSGI APP，看下初始化：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Controller</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, custom_image_properties=None)</span>:</span></span><br><span class="line">        <span class="comment">#创建一个image_schema</span></span><br><span class="line">        self.image_schema = images.get_schema(custom_image_properties)</span><br><span class="line">        self.image_collection_schema = images.get_collection_schema(</span><br><span class="line">            custom_image_properties)</span><br><span class="line">        self.member_schema = image_members.get_schema()</span><br><span class="line">        self.member_collection_schema = image_members.get_collection_schema()</span><br><span class="line">        self.task_schema = tasks.get_task_schema()</span><br><span class="line">        self.task_collection_schema = tasks.get_collection_schema()</span><br><span class="line"></span><br><span class="line">        <span class="comment"># Metadef schemas</span></span><br><span class="line">        self.metadef_namespace_schema = metadef_namespaces.get_schema()</span><br><span class="line">        self.metadef_namespace_collection_schema = (</span><br><span class="line">            metadef_namespaces.get_collection_schema())</span><br><span class="line"></span><br><span class="line">        self.metadef_resource_type_schema = metadef_resource_types.get_schema()</span><br><span class="line">        self.metadef_resource_type_collection_schema = (</span><br><span class="line">            metadef_resource_types.get_collection_schema())</span><br><span class="line"></span><br><span class="line">        self.metadef_property_schema = metadef_properties.get_schema()</span><br><span class="line">        self.metadef_property_collection_schema = (</span><br><span class="line">            metadef_properties.get_collection_schema())</span><br><span class="line"></span><br><span class="line">        self.metadef_object_schema = metadef_objects.get_schema()</span><br><span class="line">        self.metadef_object_collection_schema = (</span><br><span class="line">            metadef_objects.get_collection_schema())</span><br><span class="line"></span><br><span class="line">        self.metadef_tag_schema = metadef_tags.get_schema()</span><br><span class="line">        self.metadef_tag_collection_schema = (</span><br><span class="line">            metadef_tags.get_collection_schema())</span><br><span class="line">    <span class="comment">#调用此image方法，并最终返回image_schema.raw()的对象</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">image</span><span class="params">(self, req)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> self.image_schema.raw()</span><br></pre></td></tr></table></figure>
+<p>看下创建image_schema的方法images.get_schema：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_schema</span><span class="params">(custom_properties=None)</span>:</span></span><br><span class="line">    <span class="comment">#获取描述一个image的基本property，id,name ,status,owner等</span></span><br><span class="line">    properties = get_base_properties()</span><br><span class="line">    links = _get_base_links()</span><br><span class="line">    <span class="comment">#根据配置文件创建Schema,allow_additional_image_properties默认True,</span></span><br><span class="line">    <span class="comment">#区别是PermissiveSchema多设置了links参数 </span></span><br><span class="line">    <span class="keyword">if</span> CONF.allow_additional_image_properties:</span><br><span class="line">        schema = glance.schema.PermissiveSchema(<span class="string">'image'</span>, properties, links)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        schema = glance.schema.Schema(<span class="string">'image'</span>, properties)</span><br><span class="line">    <span class="comment">#如果是自己定制的property,需要做合并操作</span></span><br><span class="line">    <span class="keyword">if</span> custom_properties:</span><br><span class="line">        <span class="keyword">for</span> property_value <span class="keyword">in</span> custom_properties.values():</span><br><span class="line">            property_value[<span class="string">'is_base'</span>] = <span class="keyword">False</span></span><br><span class="line">        schema.merge_properties(custom_properties)</span><br><span class="line">    <span class="keyword">return</span> schema</span><br></pre></td></tr></table></figure>
+<p>最后看下Schema对象包含什么内容</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Schema</span><span class="params">(object)</span>:</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, name, properties=None, links=None, required=None,</span></span></span><br><span class="line"><span class="function"><span class="params">                 definitions=None)</span>:</span></span><br><span class="line">        self.name = name</span><br><span class="line">        <span class="keyword">if</span> properties <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            properties = &#123;&#125;</span><br><span class="line">        self.properties = properties</span><br><span class="line">        self.links = links</span><br><span class="line">        self.required = required</span><br><span class="line">        self.definitions = definitions</span><br><span class="line">        .........................</span><br><span class="line">    <span class="comment">#该方法返回一个dick</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">raw</span><span class="params">(self)</span>:</span></span><br><span class="line">            raw = &#123;</span><br><span class="line">                <span class="string">'name'</span>: self.name,</span><br><span class="line">                <span class="string">'properties'</span>: self.properties,</span><br><span class="line">                <span class="string">'additionalProperties'</span>: <span class="keyword">False</span>,</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> self.definitions:</span><br><span class="line">                raw[<span class="string">'definitions'</span>] = self.definitions</span><br><span class="line">            <span class="keyword">if</span> self.required:</span><br><span class="line">                raw[<span class="string">'required'</span>] = self.required</span><br><span class="line">            <span class="keyword">if</span> self.links:</span><br><span class="line">                raw[<span class="string">'links'</span>] = self.links</span><br><span class="line">            <span class="keyword">return</span> raw</span><br><span class="line"> <span class="comment">#Schema的子类 ，分析同上</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PermissiveSchema</span><span class="params">(Schema)</span>:</span></span><br><span class="line"><span class="meta">    @staticmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_filter_func</span><span class="params">(properties, key)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">True</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">raw</span><span class="params">(self)</span>:</span></span><br><span class="line">        raw = super(PermissiveSchema, self).raw()</span><br><span class="line">        raw[<span class="string">'additionalProperties'</span>] = &#123;<span class="string">'type'</span>: <span class="string">'string'</span>&#125;</span><br><span class="line">        <span class="keyword">return</span> raw</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">minimal</span><span class="params">(self)</span>:</span></span><br><span class="line">        minimal = super(PermissiveSchema, self).raw()</span><br><span class="line">        <span class="keyword">return</span> minimal</span><br></pre></td></tr></table></figure>
+<p>第一个请求的分析结束，所以该请求的目的就是获取镜像所支持的属性字典定义，接下来就该根据这些信息来验证用户输入参数。</p>
+<ul>
+<li>看下第二条请求，路由到glance/api/v2/images.py.ImagesController.create方法：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@utils.mutating</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">create</span><span class="params">(self, req, image, extra_properties, tags)</span>:</span></span><br><span class="line">        <span class="comment">#责任链的模式，</span></span><br><span class="line">        <span class="comment">#分别创建image_factory,image_repo对象</span></span><br><span class="line">        image_factory = self.gateway.get_image_factory(req.context)</span><br><span class="line">        image_repo = self.gateway.get_repo(req.context)</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            image = image_factory.new_image(extra_properties=extra_properties,</span><br><span class="line">                                            tags=tags, **image)</span><br><span class="line">            image_repo.add(image)</span><br><span class="line">        <span class="keyword">except</span> (exception.DuplicateLocation,</span><br><span class="line">                exception.Invalid) <span class="keyword">as</span> e:</span><br><span class="line">            <span class="keyword">raise</span> webob.exc.HTTPBadRequest(explanation=e.msg)</span><br><span class="line">        <span class="keyword">except</span> (exception.ReservedProperty,</span><br><span class="line">                exception.ReadonlyProperty) <span class="keyword">as</span> e:</span><br><span class="line">            <span class="keyword">raise</span> webob.exc.HTTPForbidden(explanation=e.msg)</span><br><span class="line">        <span class="keyword">except</span> exception.Forbidden <span class="keyword">as</span> e:</span><br><span class="line">            LOG.debug(<span class="string">"User not permitted to create image"</span>)</span><br><span class="line">            <span class="keyword">raise</span> webob.exc.HTTPForbidden(explanation=e.msg)</span><br><span class="line">        <span class="keyword">except</span> exception.LimitExceeded <span class="keyword">as</span> e:</span><br><span class="line">            LOG.warn(encodeutils.exception_to_unicode(e))</span><br><span class="line">            <span class="keyword">raise</span> webob.exc.HTTPRequestEntityTooLarge(</span><br><span class="line">                explanation=e.msg, request=req, content_type=<span class="string">'text/plain'</span>)</span><br><span class="line">        <span class="keyword">except</span> exception.Duplicate <span class="keyword">as</span> e:</span><br><span class="line">            <span class="keyword">raise</span> webob.exc.HTTPConflict(explanation=e.msg)</span><br><span class="line">        <span class="keyword">except</span> exception.NotAuthenticated <span class="keyword">as</span> e:</span><br><span class="line">            <span class="keyword">raise</span> webob.exc.HTTPUnauthorized(explanation=e.msg)</span><br><span class="line">        <span class="keyword">except</span> TypeError <span class="keyword">as</span> e:</span><br><span class="line">            LOG.debug(encodeutils.exception_to_unicode(e))</span><br><span class="line">            <span class="keyword">raise</span> webob.exc.HTTPBadRequest(explanation=e)</span><br><span class="line">        <span class="comment">#返回一个 image对象</span></span><br><span class="line">        <span class="keyword">return</span> image</span><br></pre></td></tr></table></figure>
+<p>关于责任链模式，<a href="http://www.cnblogs.com/ejiyuan/archive/2012/07/26/2610238.html" target="_blank" rel="noopener">check this</a></p>
+<p>先看下gateway.get_image_factory方法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Gateway</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, db_api=None, store_api=None, notifier=None,</span></span></span><br><span class="line"><span class="function"><span class="params">                 policy_enforcer=None)</span>:</span></span><br><span class="line">        self.db_api = db_api <span class="keyword">or</span> glance.db.get_api()</span><br><span class="line">        self.store_api = store_api <span class="keyword">or</span> glance_store</span><br><span class="line">        self.store_utils = store_utils</span><br><span class="line">        self.notifier = notifier <span class="keyword">or</span> glance.notifier.Notifier()</span><br><span class="line">        self.policy = policy_enforcer <span class="keyword">or</span> policy.Enforcer()</span><br><span class="line">    <span class="comment">#这里可以清晰地看出是责任链模式，</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_image_factory</span><span class="params">(self, context)</span>:</span></span><br><span class="line">        image_factory = glance.domain.ImageFactory()</span><br><span class="line">        <span class="comment">#对location的检验</span></span><br><span class="line">        store_image_factory = glance.location.ImageFactoryProxy(</span><br><span class="line">            image_factory, context, self.store_api, self.store_utils)</span><br><span class="line">        <span class="comment">#对quota的检验</span></span><br><span class="line">        quota_image_factory = glance.quota.ImageFactoryProxy(</span><br><span class="line">            store_image_factory, context, self.db_api, self.store_utils)</span><br><span class="line">        <span class="comment">#policy检验</span></span><br><span class="line">        policy_image_factory = policy.ImageFactoryProxy(</span><br><span class="line">            quota_image_factory, context, self.policy)</span><br><span class="line">        notifier_image_factory = glance.notifier.ImageFactoryProxy(</span><br><span class="line">            policy_image_factory, context, self.notifier)</span><br><span class="line">        <span class="keyword">if</span> property_utils.is_property_protection_enabled():</span><br><span class="line">            property_rules = property_utils.PropertyRules(self.policy)</span><br><span class="line">            pif = property_protections.ProtectedImageFactoryProxy(</span><br><span class="line">                notifier_image_factory, context, property_rules)</span><br><span class="line">            authorized_image_factory = authorization.ImageFactoryProxy(</span><br><span class="line">                pif, context)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            authorized_image_factory = authorization.ImageFactoryProxy(</span><br><span class="line">                notifier_image_factory, context)</span><br><span class="line">        <span class="keyword">return</span> authorized_image_factory</span><br></pre></td></tr></table></figure>
+<p>可以看出<em>ImageFactoryProxy类都继承自glance/domain/proxy.py.ImageFactory，通过类名可以大致猜出其功能：镜像工厂，那就是用来创建封装镜像对象的；各个子类也分别实现:权限检查、消息通知、策略检查、配额检查等。<br>另外各个</em>ImageFactoryProxy类都依赖于<em>ImageProxy类。而各</em>ImageProxy类都继承自glance/domain/proxy.py.Image，该类描述的是镜像的属性信息，包括：name，image_id, status等。各*ImageProxy类是对Image的扩展。</p>
+<p>关于这个责任链的代码一直没搞清楚，感兴趣的话，看这篇文章吧，<a href="http://ceph.org.cn/2016/06/01/openstack-liberty-glance%E4%B8%8A%E4%BC%A0%E9%95%9C%E5%83%8F%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" target="_blank" rel="noopener">Openstack liberty Glance上传镜像源码分析</a>,以后有机会再去解读。</p>
+<p>按照上述给出的那篇参考文章的解释，new_image()方法和add()方法，类似一个封包，一个解包的过程，主要完成权限检查，配额检查，策略检查，发布通知以及记录数据库等操作。下面来看看镜像文件的上传过程。</p>
+<ul>
+<li>第三条请求，路由到glance/api/v2/image_data.py/ImageDataController.upload方法：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@utils.mutating</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">upload</span><span class="params">(self, req, image_id, data, size)</span>:</span></span><br><span class="line">        image_repo = self.gateway.get_repo(req.context)</span><br><span class="line">        image = <span class="keyword">None</span></span><br><span class="line">        refresher = <span class="keyword">None</span></span><br><span class="line">        cxt = req.context</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            <span class="comment">#get方法与前述的add方法类似，首先从数据库取出image_id指向的条目，</span></span><br><span class="line">            <span class="comment">#封装成`domain/__init__.py/Image`对象，</span></span><br><span class="line">            <span class="comment">#然后经过层层封装返回 `authorization/ImageProxy`对象 </span></span><br><span class="line">            image = image_repo.get(image_id)</span><br><span class="line">            <span class="comment">#更新镜像状态为saving - ‘保存中’</span></span><br><span class="line">            image.status = <span class="string">'saving'</span></span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                <span class="keyword">if</span> CONF.data_api == <span class="string">'glance.db.registry.api'</span>:</span><br><span class="line">                    <span class="comment"># create a trust if backend is registry</span></span><br><span class="line">                    <span class="keyword">try</span>:</span><br><span class="line">                        <span class="comment"># request user plugin for current token</span></span><br><span class="line">                        user_plugin = req.environ.get(<span class="string">'keystone.token_auth'</span>)</span><br><span class="line">                        roles = []</span><br><span class="line">                        <span class="comment"># use roles from request environment because they</span></span><br><span class="line">                        <span class="comment"># are not transformed to lower-case unlike cxt.roles</span></span><br><span class="line">                        <span class="keyword">for</span> role_info <span class="keyword">in</span> req.environ.get(</span><br><span class="line">                                <span class="string">'keystone.token_info'</span>)[<span class="string">'token'</span>][<span class="string">'roles'</span>]:</span><br><span class="line">                            roles.append(role_info[<span class="string">'name'</span>])</span><br><span class="line">                        refresher = trust_auth.TokenRefresher(user_plugin,</span><br><span class="line">                                                              cxt.tenant,</span><br><span class="line">                                                              roles)</span><br><span class="line">                    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">                        LOG.info(_LI(<span class="string">"Unable to create trust: %s "</span></span><br><span class="line">                                     <span class="string">"Use the existing user token."</span>),</span><br><span class="line">                                 encodeutils.exception_to_unicode(e))</span><br><span class="line">                <span class="comment">#和上面的save方法相似的处理方式，逐层调用`ImageProxy`的set_data，</span></span><br><span class="line">                <span class="comment">#在该过程中会检查用户配额，发送通知，</span></span><br><span class="line">                <span class="comment">#最后根据glance-api.conf文件中配置存储后端上传镜像文件（通过add方法）到指定地方存储 </span></span><br><span class="line">                image_repo.save(image, from_state=<span class="string">'queued'</span>)</span><br><span class="line">                <span class="comment">#镜像上传成功后（在`location.py/set_data方法中上传文件成功后，</span></span><br><span class="line">                <span class="comment">#修改状态为active），更新数据库状态为active（这个时候可以在 </span></span><br><span class="line">                <span class="comment">#Dashboard上看到状态为'运行中'）</span></span><br><span class="line">                image.set_data(data, size)</span><br><span class="line"></span><br><span class="line">                <span class="keyword">try</span>:</span><br><span class="line">                    image_repo.save(image, from_state=<span class="string">'saving'</span>)</span><br><span class="line">                <span class="keyword">except</span> exception.NotAuthenticated:</span><br><span class="line">                    <span class="keyword">if</span> refresher <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</span><br><span class="line">                        <span class="comment"># request a new token to update an image in database</span></span><br><span class="line">                        cxt.auth_token = refresher.refresh_token()</span><br><span class="line">                        image_repo = self.gateway.get_repo(req.context)</span><br><span class="line">                        image_repo.save(image, from_state=<span class="string">'saving'</span>)</span><br><span class="line">                    <span class="keyword">else</span>:</span><br><span class="line">                        <span class="keyword">raise</span></span><br><span class="line">         </span><br><span class="line">            .........................................</span><br></pre></td></tr></table></figure>
+<p>主体代码也是责任链的模式，太蛋疼了，看不明白。</p>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a href="https://book.douban.com/subject/26374647/" target="_blank" rel="noopener">openstack 设计与实现</a></p>
+<p><a href="http://blog.csdn.net/lzw06061139/article/details/51540456" target="_blank" rel="noopener">Openstack liberty Glance上传镜像源码分析</a></p>
+<p><strong><em>本篇文章由<a href="https://zhangchenchen.github.io/">pekingzcc</a>采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可,转载请注明。</em></strong></p>
+<p> <strong><em>END</em></strong></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/openstack/" rel="tag"># openstack</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/12/15/glance-api-sourcecode-explain-2/" rel="next" title="openstack系列--glanceApi 源代码解读(二)">
+                <i class="fa fa-chevron-left"></i> openstack系列--glanceApi 源代码解读(二)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/12/20/ceph-command-1/" rel="prev" title="ceph系列-- ceph 运维(一)-----常用命令">
+                ceph系列-- ceph 运维(一)-----常用命令 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="pekingzcc" />
+          <p class="site-author-name" itemprop="name">pekingzcc</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">96</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">44</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/zhangchenchen" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons" />
+            </a>
+          </div>
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#目录结构："><span class="nav-number">1.</span> <span class="nav-text">目录结构：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#glanceApi-V2-代码解读"><span class="nav-number">2.</span> <span class="nav-text">glanceApi V2 代码解读</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文章"><span class="nav-number">3.</span> <span class="nav-text">参考文章</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">pekingzcc</span>
+</div>
+
+
+<div class="powered-by">
+  powered by <a class="theme-link" href="https://hexo.io">Hexo</a> 
+</div>
+
+<div class="theme-info">
+  theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'pekingzcc';
+      var disqus_identifier = '2016/12/16/glance-api-sourcecode-explain-3/';
+
+      var disqus_title = "openstack系列--glanceApi 源代码解读(三)";
+
+
+      function run_disqus_script(disqus_script) {
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+
+      
+        var disqus_config = function () {
+            this.page.url = disqus_url;
+            this.page.identifier = disqus_identifier;
+            this.page.title = disqus_title;
+        };
+        run_disqus_script('embed.js');
+      
+
+    </script>
+  
+
+
+
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+      search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+      $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = $( "entry", xmlResponse ).map(function() {
+            return {
+              title: $( "title", this ).text(),
+              content: $("content",this).text(),
+              url: $( "url" , this).text()
+            };
+          }).get();
+          var $input = document.getElementById(search_id);
+          var $resultContent = document.getElementById(content_id);
+          $input.addEventListener('input', function(){
+            var matchcounts = 0;
+            var str='<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length > 1) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var content_index = [];
+                var data_title = data.title.trim().toLowerCase();
+                var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                var data_url = decodeURIComponent(data.url);
+                var index_title = -1;
+                var index_content = -1;
+                var first_occur = -1;
+                // only match artiles with not empty titles and contents
+                if(data_title != '') {
+                  keywords.forEach(function(keyword, i) {
+                    index_title = data_title.indexOf(keyword);
+                    index_content = data_content.indexOf(keyword);
+                    if( index_title >= 0 || index_content >= 0 ){
+                      isMatch = true;
+                      if (i == 0) {
+                        first_occur = index_content;
+                      }
+                    }
+
+                  });
+                }
+                // show search results
+                if (isMatch) {
+                  matchcounts += 1;
+                  str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                  var content = data.content.trim().replace(/<[^>]+>/g,"");
+                  if (first_occur >= 0) {
+                    // cut out 100 characters
+                    var start = first_occur - 20;
+                    var end = first_occur + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if(start == 0){
+                      end = 50;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    var match_content = content.substring(start, end);
+                    // highlight all keywords
+                    keywords.forEach(function(keyword){
+                      var regS = new RegExp(keyword, "gi");
+                      match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                    });
+
+                    str += "<p class=\"search-result\">" + match_content +"...</p>"
+                  }
+                  str += "</li>";
+                }
+              })};
+            str += "</ul>";
+            if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+            if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+            $resultContent.innerHTML = str;
+          });
+          proceedsearch();
+        }
+      });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>

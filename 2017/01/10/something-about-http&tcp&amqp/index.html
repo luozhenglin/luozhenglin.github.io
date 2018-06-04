@@ -1,0 +1,876 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="web," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="目录结构：为什么TCP是可以保持长连接的，而基于TCP的HTTP却不能  AMQP VS HTTP  为什么TCP是可以保持长连接的，而基于TCP的HTTP却不能 可能这个问题本身表述就不是很清楚，但我也想不出其他合适的词汇了。直接上例子吧：我们在做web应用的时候有时会碰到需要实时推送的情况，但是HTTP协议本身是不支持长时间的连接的，因为HTTP本身是request/response型的协议，">
+<meta name="keywords" content="web">
+<meta property="og:type" content="article">
+<meta property="og:title" content="web系列--关于http，tcp,amqp的一些思考">
+<meta property="og:url" content="https://zhangchenchen.github.io/2017/01/10/something-about-http&tcp&amqp/index.html">
+<meta property="og:site_name" content="Solar">
+<meta property="og:description" content="目录结构：为什么TCP是可以保持长连接的，而基于TCP的HTTP却不能  AMQP VS HTTP  为什么TCP是可以保持长连接的，而基于TCP的HTTP却不能 可能这个问题本身表述就不是很清楚，但我也想不出其他合适的词汇了。直接上例子吧：我们在做web应用的时候有时会碰到需要实时推送的情况，但是HTTP协议本身是不支持长时间的连接的，因为HTTP本身是request/response型的协议，">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-05-28T07:57:22.523Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="web系列--关于http，tcp,amqp的一些思考">
+<meta name="twitter:description" content="目录结构：为什么TCP是可以保持长连接的，而基于TCP的HTTP却不能  AMQP VS HTTP  为什么TCP是可以保持长连接的，而基于TCP的HTTP却不能 可能这个问题本身表述就不是很清楚，但我也想不出其他合适的词汇了。直接上例子吧：我们在做web应用的时候有时会碰到需要实时推送的情况，但是HTTP协议本身是不支持长时间的连接的，因为HTTP本身是request/response型的协议，">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://zhangchenchen.github.io/2017/01/10/something-about-http&tcp&amqp/"/>
+
+
+
+
+
+  <title> web系列--关于http，tcp,amqp的一些思考 | Solar </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-92407570-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Solar</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle"></p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="https://zhangchenchen.github.io/2017/01/10/something-about-http&tcp&amqp/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="pekingzcc">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Solar">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Solar" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                web系列--关于http，tcp,amqp的一些思考
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-01-10T10:17:25+08:00">
+                2017-01-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/01/10/something-about-http&tcp&amqp/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/01/10/something-about-http&tcp&amqp/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="目录结构："><a href="#目录结构：" class="headerlink" title="目录结构："></a>目录结构：</h2><p><a href="#A">为什么TCP是可以保持长连接的，而基于TCP的HTTP却不能 </a></p>
+<p><a href="#B">AMQP VS HTTP</a></p>
+<p><a name="A"></a></p>
+<h2 id="为什么TCP是可以保持长连接的，而基于TCP的HTTP却不能"><a href="#为什么TCP是可以保持长连接的，而基于TCP的HTTP却不能" class="headerlink" title="为什么TCP是可以保持长连接的，而基于TCP的HTTP却不能"></a>为什么TCP是可以保持长连接的，而基于TCP的HTTP却不能</h2><ul>
+<li>可能这个问题本身表述就不是很清楚，但我也想不出其他合适的词汇了。直接上例子吧：我们在做web应用的时候有时会碰到需要实时推送的情况，但是HTTP协议本身是不支持长时间的连接的，因为HTTP本身是request/response型的协议，可以理解为半双工通讯。而TCP 是支持长连接的，是通过heartbeat来进行连接的保持。这样，就引出我上面提到的问题了。</li>
+<li>在解答这个问题之前，还有几点是要说明的：http1.1中其实也有长连接的概念，具体到header参数就是keep-alive，但是这个keep-alive是一个数值，比如20s,就是这个http连接对应的tcp连接会保持20S,这个时间段过来的http连接会复用上次的tcp连接。如果没有的话，那么会开启一个新的tcp连接。而tcp协议里面的keep-alive就是heartbeat发送的包内容，表示“我还活着”。</li>
+<li>接下来回答一下上面那个问题：其实很简单，我们混淆了“基于TCP协议”这个概念，TCP本身是一个传输层的协议，就是用来作数据传输的，也决定了它必然是全双工，可以保持连接的特性。再来看下http协议，一种request/response型的协议，为什么要做成request/response这种类型呢，因为server端要服务的client太多了，如果每一个连接都保持而不断开，那么服务器的IO很快就会被堵死了。所以http基于tcp,并非就是全部利用的tcp的特性，在http连接建立之前，的确是需要tcp三次握手建立tcp连接，然后利用这个tcp连接传输http包数据，服务端收到请求的数据后，发送对应的response,之后便关闭了这个tcp连接（如果没有keep-alive）。</li>
+<li>再回到刚才的例子：其实现在解决这种实时推送的方案还是很丰富的，比较主流的应该是利用websocket协议来实现。当然，其他的比如：ajax实现的轮询等。就不细讲了，感兴趣就自行Google吧。</li>
+</ul>
+<p><a name="B"></a></p>
+<h2 id="AMQP-VS-HTTP"><a href="#AMQP-VS-HTTP" class="headerlink" title="AMQP VS HTTP"></a>AMQP VS HTTP</h2><p>其实这个问题应该这样描述：在做一个SOA服务时，用HTTP好还是AMQP好？</p>
+<p>该问题的提出主要是因为openstack的内部通信中主要包含rest和Rabbimq两种通信方式，所以不禁对于两种方式的优劣提出了疑问，经过一番思考以及搜索资料后，找到了相对满意的答案：</p>
+<p>主要参考<a href="https://hashnode.com/post/when-designing-service-oriented-architectures-which-one-do-you-use-http-or-amqp-ciibz8flr01drj3xt1ga99f3w" target="_blank" rel="noopener">When designing Service Oriented Architectures, which one do you use - HTTP or AMQP?</a></p>
+<ul>
+<li>AMQP is damn awesome! 确实，amqp更快，可定制性更强，可以实现异步传输，相对于http来说，作为SOA的信息传输协议真是再好不过了。简单列举下AMQP碾压HTTP 的优点，此处以rabbitmq为例：<ol>
+<li>rabbitmq可以提供面向连接，可靠的信息传递。</li>
+<li>rabbitmq提供过载保护：比如设置queue的timeout,限制 message rate,甚至转移message到别的queue.</li>
+<li>http需要有一个service discovery 机制，rabbitmq 不用。</li>
+<li>rabbitmq 的loadbalance 使用非常简单</li>
+<li>rabbitmq 的后端如果做了热备，如果一个后端节点挂掉，会自动切换到另一节点。</li>
+</ol>
+</li>
+<li>再说下http的优点，毕竟年岁要长一些，SOA的框架非常成熟，学习的曲线也不高，lz之前用过阿里出品的dubbo框架，简单易用。更重要的是，http作为一种成熟的协议标准，想要满足任何需求基本都会有对应的中间件，而且scale up 的成本低。</li>
+<li>综上所述，不难看出，在真正用到SOA时，还是需要取决于实际情况来取舍。如果只是一个内部的系统，交互的模块相对紧密的话推荐用AMQP。如果是一个大型的web系统，与外部交互比较多，而且是多部门协作完成多个模块的开发，那么模块件的交互还是使用标准的http吧。</li>
+<li>对应到openstack也可以看出一二：模块之间交互都是使用http/rest,比如nova与keystone的认证交互，因为每个独立的模块都是一个项目，都有独立的开发团队。而在模块内部，比如，Nova内部，nova-api与nova-scheduler,nova-scheduler与nova-compute 都是使用amqp来实现。</li>
+</ul>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a href="http://www.amqp.org/product/solve" target="_blank" rel="noopener">The Problem We Solve</a></p>
+<p><a href="https://www.v2ex.com/t/170762" target="_blank" rel="noopener">用两条 HTTP 请求就可以实现双向实时通讯吧？为什么还需要 WebSocket</a></p>
+<p><a href="http://blog.csdn.net/jdk2006/article/details/51695416" target="_blank" rel="noopener">微服务与SOA之间差了一个ESB</a></p>
+<p><a href="https://hashnode.com/post/when-designing-service-oriented-architectures-which-one-do-you-use-http-or-amqp-ciibz8flr01drj3xt1ga99f3w" target="_blank" rel="noopener">When designing Service Oriented Architectures, which one do you use - HTTP or AMQP?</a></p>
+<p><a href="https://www.ibm.com/developerworks/cn/opensource/os-cn-rabbit-mq/" target="_blank" rel="noopener">关于 RabbitMQ 的实时消息推送</a></p>
+<p><strong><em>本篇文章由<a href="https://zhangchenchen.github.io/">pekingzcc</a>采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可,转载请注明。</em></strong></p>
+<p> <strong><em>END</em></strong></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/web/" rel="tag"># web</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/12/30/python-decorator/" rel="next" title="python系列--python decorator 简 记">
+                <i class="fa fa-chevron-left"></i> python系列--python decorator 简 记
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/01/12/openstack-pasteDeploy&route&application/" rel="prev" title="openstack 系列--nova-api 的paste&route的简单抽象">
+                openstack 系列--nova-api 的paste&route的简单抽象 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="pekingzcc" />
+          <p class="site-author-name" itemprop="name">pekingzcc</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">96</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">44</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/zhangchenchen" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons" />
+            </a>
+          </div>
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#目录结构："><span class="nav-number">1.</span> <span class="nav-text">目录结构：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么TCP是可以保持长连接的，而基于TCP的HTTP却不能"><span class="nav-number">2.</span> <span class="nav-text">为什么TCP是可以保持长连接的，而基于TCP的HTTP却不能</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AMQP-VS-HTTP"><span class="nav-number">3.</span> <span class="nav-text">AMQP VS HTTP</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文章"><span class="nav-number">4.</span> <span class="nav-text">参考文章</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">pekingzcc</span>
+</div>
+
+
+<div class="powered-by">
+  powered by <a class="theme-link" href="https://hexo.io">Hexo</a> 
+</div>
+
+<div class="theme-info">
+  theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'pekingzcc';
+      var disqus_identifier = '2017/01/10/something-about-http&tcp&amqp/';
+
+      var disqus_title = "web系列--关于http，tcp,amqp的一些思考";
+
+
+      function run_disqus_script(disqus_script) {
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+
+      
+        var disqus_config = function () {
+            this.page.url = disqus_url;
+            this.page.identifier = disqus_identifier;
+            this.page.title = disqus_title;
+        };
+        run_disqus_script('embed.js');
+      
+
+    </script>
+  
+
+
+
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+      search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+      $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = $( "entry", xmlResponse ).map(function() {
+            return {
+              title: $( "title", this ).text(),
+              content: $("content",this).text(),
+              url: $( "url" , this).text()
+            };
+          }).get();
+          var $input = document.getElementById(search_id);
+          var $resultContent = document.getElementById(content_id);
+          $input.addEventListener('input', function(){
+            var matchcounts = 0;
+            var str='<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length > 1) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var content_index = [];
+                var data_title = data.title.trim().toLowerCase();
+                var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                var data_url = decodeURIComponent(data.url);
+                var index_title = -1;
+                var index_content = -1;
+                var first_occur = -1;
+                // only match artiles with not empty titles and contents
+                if(data_title != '') {
+                  keywords.forEach(function(keyword, i) {
+                    index_title = data_title.indexOf(keyword);
+                    index_content = data_content.indexOf(keyword);
+                    if( index_title >= 0 || index_content >= 0 ){
+                      isMatch = true;
+                      if (i == 0) {
+                        first_occur = index_content;
+                      }
+                    }
+
+                  });
+                }
+                // show search results
+                if (isMatch) {
+                  matchcounts += 1;
+                  str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                  var content = data.content.trim().replace(/<[^>]+>/g,"");
+                  if (first_occur >= 0) {
+                    // cut out 100 characters
+                    var start = first_occur - 20;
+                    var end = first_occur + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if(start == 0){
+                      end = 50;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    var match_content = content.substring(start, end);
+                    // highlight all keywords
+                    keywords.forEach(function(keyword){
+                      var regS = new RegExp(keyword, "gi");
+                      match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                    });
+
+                    str += "<p class=\"search-result\">" + match_content +"...</p>"
+                  }
+                  str += "</li>";
+                }
+              })};
+            str += "</ul>";
+            if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+            if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+            $resultContent.innerHTML = str;
+          });
+          proceedsearch();
+        }
+      });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>

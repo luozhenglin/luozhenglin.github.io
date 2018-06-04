@@ -1,0 +1,961 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="saltstack,devops," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="SaltStalk是什么salt官网给出的介绍简洁明了：  一个配置管理系统，能够维护预定义状态的远程节点(比如，确保指定的报被安装，指定的服务在运行) 一个分布式远程执行系统，用来在远程节点（可以是单个节点，也可以是任意规则挑选出来的节点）上执行命令和查询数据。开发其的目的是为远程执行提供最好的解决方案，并使远程执行变得更好，更快，更简单。  其实，除了saltstack,还有其他的同类型软件">
+<meta name="keywords" content="saltstack,devops">
+<meta property="og:type" content="article">
+<meta property="og:title" content="devops系列-- 运维利器SaltStalk介绍">
+<meta property="og:url" content="https://zhangchenchen.github.io/2016/11/03/2016-11-3-intro-to-salt/index.html">
+<meta property="og:site_name" content="Solar">
+<meta property="og:description" content="SaltStalk是什么salt官网给出的介绍简洁明了：  一个配置管理系统，能够维护预定义状态的远程节点(比如，确保指定的报被安装，指定的服务在运行) 一个分布式远程执行系统，用来在远程节点（可以是单个节点，也可以是任意规则挑选出来的节点）上执行命令和查询数据。开发其的目的是为远程执行提供最好的解决方案，并使远程执行变得更好，更快，更简单。  其实，除了saltstack,还有其他的同类型软件">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20161107external-job-cache.png">
+<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20161107master-job-cache.png">
+<meta property="og:updated_time" content="2018-05-28T07:57:22.520Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="devops系列-- 运维利器SaltStalk介绍">
+<meta name="twitter:description" content="SaltStalk是什么salt官网给出的介绍简洁明了：  一个配置管理系统，能够维护预定义状态的远程节点(比如，确保指定的报被安装，指定的服务在运行) 一个分布式远程执行系统，用来在远程节点（可以是单个节点，也可以是任意规则挑选出来的节点）上执行命令和查询数据。开发其的目的是为远程执行提供最好的解决方案，并使远程执行变得更好，更快，更简单。  其实，除了saltstack,还有其他的同类型软件">
+<meta name="twitter:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20161107external-job-cache.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://zhangchenchen.github.io/2016/11/03/2016-11-3-intro-to-salt/"/>
+
+
+
+
+
+  <title> devops系列-- 运维利器SaltStalk介绍 | Solar </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-92407570-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Solar</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle"></p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="https://zhangchenchen.github.io/2016/11/03/2016-11-3-intro-to-salt/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="pekingzcc">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Solar">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Solar" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                devops系列-- 运维利器SaltStalk介绍
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-11-03T13:06:25+08:00">
+                2016-11-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/11/03/2016-11-3-intro-to-salt/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/11/03/2016-11-3-intro-to-salt/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><a name="A"></a></p>
+<h2 id="SaltStalk是什么"><a href="#SaltStalk是什么" class="headerlink" title="SaltStalk是什么"></a>SaltStalk是什么</h2><p>salt官网给出的介绍简洁明了：</p>
+<ul>
+<li>一个配置管理系统，能够维护预定义状态的远程节点(比如，确保指定的报被安装，指定的服务在运行)</li>
+<li>一个分布式远程执行系统，用来在远程节点（可以是单个节点，也可以是任意规则挑选出来的节点）上执行命令和查询数据。开发其的目的是为远程执行提供最好的解决方案，并使远程执行变得更好，更快，更简单。</li>
+</ul>
+<p>其实，除了saltstack,还有其他的同类型软件供我们选择，比如puppet、chef、ansible、fabric等,关于其中的区别以及优劣势可以参考这里，<a href="http://blog.takipi.com/deployment-management-tools-chef-vs-puppet-vs-ansible-vs-saltstack-vs-fabric/" target="_blank" rel="noopener">Ansible vs. Chef vs. Fabric vs. Puppet vs. SaltStack</a><br>稍微总结下：chef,puppet 是出现时间比较早的系统，对于比较重视成熟性和稳定性的公司来说比较合适。ansible与saltstack比较适合快速灵活的生产部署环境，且适合没有太多额外要求，生产环境操作系统一致的情况下。fabric比较适合规模比较小的环境，属于入门级别的配置管理系统。</p>
+<p>这里有一个视频更细粒度的（可用性，互操作性，扩展性等）比较了一下，<a href="https://www.youtube.com/watch?v=OmRxKQHtDbY&amp;t=1060s" target="_blank" rel="noopener">Chef vs Puppet vs Ansible vs SaltStack | Configuration Management Tools Comparison </a></p>
+<p><a name="B"></a></p>
+<h2 id="SaltStalk-安装"><a href="#SaltStalk-安装" class="headerlink" title="SaltStalk 安装"></a>SaltStalk 安装</h2><p>安装比较简单，<a href="http://docs.saltstack.cn/topics/installation/index.html" target="_blank" rel="noopener">check this</a>,不再赘述。</p>
+<p><a name="C"></a></p>
+<h2 id="SaltStalk-配置"><a href="#SaltStalk-配置" class="headerlink" title="SaltStalk 配置"></a>SaltStalk 配置</h2><p>saltstalk是典型的CS架构，主要分两种角色，master和minions,master负责minions的配置管理以及远程执行。一般来说，master的配置文件位于/etc/salt/master，minion的配置文件在相应机器的/etc/salt/minion,只需在minion配置文件中指定master指向即可运行。</p>
+<p><a href="http://docs.saltstack.cn/ref/configuration/master.html" target="_blank" rel="noopener">master的配置项</a>非常多，大致包括以下几项：</p>
+<ul>
+<li>主要配置：包括网络接口，提供服务的端口，master id,最大打开文件数，工作线程个数，返回端口，缓存目录，各种缓存配置（minions数据缓存，作业缓存等）</li>
+<li>master 安全相关配置：主要是针对PKI验证的一些配置。</li>
+<li>master模块管理相关配置</li>
+<li>master state system 相关配置</li>
+<li>pillar 相关配置</li>
+<li>日志相关配置</li>
+<li>windows软件源相关配置</li>
+</ul>
+<p><a href="http://docs.saltstack.cn/ref/configuration/minion.html" target="_blank" rel="noopener">minion的配置项</a>跟master大致类似，不再赘述。</p>
+<p>其他：</p>
+<ul>
+<li>新版saltstack 中minion有一个minion_blackout的配置，该选项设为true后，该minion不会执行除saltutil.refresh_pillar之外的其他所有命令。</li>
+<li>saltstack有一个访问控制系统对于非admin用户进行细粒度的访问控制。<a href="http://docs.saltstack.cn/topics/eauth/access_control.html" target="_blank" rel="noopener">check this</a></li>
+<li>job管理器：可以实现对minion job的发送信号，定时调度等</li>
+<li>job 返回数据管理：系统默认返回数据存储在Job cache（默认是在/var/cache/salt/master/jobs目录）中，还有其他两种存储模式：一种是External Job Cache，如下图</li>
+</ul>
+<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161107external-job-cache.png" alt="External Job Cache"></p>
+<p>另一种是Master Job Cache，如下图：</p>
+<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161107master-job-cache.png" alt="Master Job Cache"></p>
+<ul>
+<li>returner: 我们可以在master端执行远程指令时指定returner,这样minion返回的数据不仅会返回到master，也会返回到我们指定的returner。而且我们也可以按照要求实现一个returner，来替换我们的Default Job Cache。</li>
+</ul>
+<p><a name="D"></a></p>
+<h2 id="SaltStalk-一些概念解释"><a href="#SaltStalk-一些概念解释" class="headerlink" title="SaltStalk 一些概念解释"></a>SaltStalk 一些概念解释</h2><h3 id="sls-文件"><a href="#sls-文件" class="headerlink" title="sls 文件"></a>sls 文件</h3><p>salt state 文件的简称，saltstalk实现配置管理的核心部分，描述了系统的目标状态，一般遵循yaml格式，参考<a href="http://www.ruanyifeng.com/blog/2016/07/yaml.html" target="_blank" rel="noopener">YAML 语言教程</a>。</p>
+<p>首先是配置管理的入口文件top.sls，默认在/srv/salt/目录下。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">base:</span>          <span class="comment"># 默认环境变量</span></span><br><span class="line">  <span class="string">'*'</span><span class="string">:</span>         <span class="comment"># 通过正则进行匹配minion</span></span><br><span class="line"><span class="bullet">    -</span> <span class="string">apache</span>    <span class="comment"># 需要自己写的state.sls模块名 </span></span><br><span class="line">  </span><br><span class="line"><span class="attr">  my_group:</span>             <span class="comment">#通过分组名去进行匹配 须定义match:nodegroup</span></span><br><span class="line"><span class="attr">    - match:</span> <span class="string">nodegroup</span>  </span><br><span class="line"><span class="bullet">    -</span> <span class="string">nginx</span></span><br><span class="line"></span><br><span class="line">  <span class="string">'os:CentOs'</span><span class="string">:</span>        <span class="comment">#通过grains模块去匹配，须定义match:grain</span></span><br><span class="line"><span class="attr">    - match:</span> <span class="string">grain</span></span><br><span class="line"><span class="bullet">    -</span> <span class="string">nginx</span></span><br></pre></td></tr></table></figure>
+<p>再看下需要自己写的webserver.sls文件，默认位于/srv/salt/apache.sls。当然，还有其他组织形式，常用的还有/srv/salt/apache/init.sls 形式。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apache:</span>           <span class="comment"># 标签定义</span></span><br><span class="line"><span class="attr">  pkg:</span>               <span class="comment"># 状态定义，这里使用（pkg state module）</span></span><br><span class="line"><span class="bullet">    -</span> <span class="string">installed</span>      <span class="comment"># 安装nginx（yum安装）</span></span><br><span class="line">  <span class="string">service.running:</span>   <span class="comment"># 保持服务是启动状态</span></span><br><span class="line"><span class="attr">    - enable:</span> <span class="literal">True</span></span><br><span class="line"><span class="attr">    - reload:</span> <span class="literal">True</span></span><br><span class="line"><span class="attr">    - require:</span></span><br><span class="line"><span class="attr">      - file:</span> <span class="string">/etc/init.d/httpd</span></span><br><span class="line"><span class="attr">    - watch:</span>                 <span class="comment">#检测下面配置文件，有变动，立马执行上述/etc/init.d/httpd 命令reload操作</span></span><br><span class="line"><span class="attr">      - file:</span> <span class="string">/etc/apache/httpd.conf</span></span><br><span class="line"><span class="attr">      - pkg:</span> <span class="string">nginx</span></span><br></pre></td></tr></table></figure>
+<p>state 之间的逻辑关系一般有三种：</p>
+<ul>
+<li>require :依赖某个state，在运行此state前，先运行依赖的state，依赖可以有多个</li>
+<li>watch :在某个state变化时运行此模块，watch除具备require功能外，还增了关注状态的功能.</li>
+<li>order：优先级比require和watch低，有order指定的state比没有order指定的优先级高</li>
+</ul>
+<p>一般对某个minion执行具体state的时候，我们可以执行<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ salt minion-1 state.sls apache</span><br></pre></td></tr></table></figure></p>
+<p>当然，如果是执行所有的sts文件，则是如下命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ salt minion-1 state.highstate   <span class="comment"># test=True 参数可以测试安装，并不真正安装</span></span><br></pre></td></tr></table></figure>
+<h3 id="grain-vs-pillar-vs-mine"><a href="#grain-vs-pillar-vs-mine" class="headerlink" title="grain vs pillar vs mine"></a>grain vs pillar vs mine</h3><p>如果说sls文件是配置管理的骨架或框架的话，那么grain与pillar就是填充骨架的血与肉。其实他们就是saltstack自己定义的一些数据，通过这些数据定制我们的系统配置。</p>
+<ul>
+<li>grains 存储在minion一端，包括minion自己生成的一些信息，比如操作系统，内存，磁盘信息，cpu架构等等。当然我们也可以自己定制minion 的grains信息。通常做法是在默认/etc/salt/grains中定义。</li>
+<li>pillar 是存储 在master端，完全是用户自定义的一些动态数据。一般存储在master端/srv/pillar 目录下。组织形式类似salt state。 </li>
+<li>两者区别：一般来说，变化较少或不变的数据存储在grains中，一些敏感数据（如各种密码），易变数据，以及涉及到minion 配置的数据一般存储在pillar中。</li>
+<li>mine 更像是以上两种形式的结合，它是定期从minions 收集的数据，传给master并存储在master端，这样，所有的minions都能获取到。mine数据是有时效性的，每隔一段时间便会更新。mine可以存储在mine配置文件中，不过更多的是将它放在pillar中，只需定义mine_functions 关键字即可。官网示例参考<a href="https://docs.saltstack.com/en/latest/topics/mine/index.html#example" target="_blank" rel="noopener">EXAMPLE</a></li>
+</ul>
+<p>两者的常用操作如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$ salt <span class="string">'*'</span> grains.items   <span class="comment"># 查看所有 grains键值对</span></span><br><span class="line"></span><br><span class="line">$ salt <span class="string">'*'</span> grains.get os  <span class="comment"># 查看 grains中的 os对应的值</span></span><br><span class="line"></span><br><span class="line">$ salt <span class="string">'*'</span> saltutil.sync_grains <span class="comment"># 同步所有 grains数据</span></span><br><span class="line"></span><br><span class="line">$ salt <span class="string">'*'</span> pillar.items   <span class="comment"># 查看所有 pillar键值对</span></span><br><span class="line"></span><br><span class="line">$ salt <span class="string">'*'</span> pillar.get data  <span class="comment"># 查看 pillar中的 data对应的值</span></span><br><span class="line"></span><br><span class="line">$ salt <span class="string">'*'</span> saltutil.refresh_pillar <span class="comment"># 刷新所有 pilllar数据</span></span><br><span class="line"></span><br><span class="line">$ salt <span class="string">'*'</span> state.apply my_sls_file pillar=<span class="string">'&#123;"hello": "world"&#125;'</span> <span class="comment"># 命令行更改或增加pillar</span></span><br></pre></td></tr></table></figure>
+<h3 id="execution-modules"><a href="#execution-modules" class="headerlink" title="execution modules"></a>execution modules</h3><p>也就是运程执行时需要 minions执行的函数，通常salt已经封装好了大量的modules,可以通过 salt ‘*’ sys.doc 查看所有modules的doc。当然也可以自己写modules，下文会给出示例。</p>
+<h3 id="runner"><a href="#runner" class="headerlink" title="runner"></a>runner</h3><p>runner 本质是可定制化的Python 脚本，与execution modules 类似，不过是运行在master节点，可以使用salt-run 命令使用，非常方便（最新版的salt-run也可以运行modules 了，命令：salt-run salt.cmd test.ping ,）。<br>直接举个栗子：<br>首先指定runner脚本的位置，在master配置文件中指定：runner_dirs: [/srv/runner/]<br>然后就可以在指定目录下写Python 脚本了。</p>
+<p>minions.py ：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Import salt modules</span></span><br><span class="line"><span class="keyword">import</span> salt.client</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">up</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="string">'''</span></span><br><span class="line"><span class="string">    Print a list of all of the minions that are up</span></span><br><span class="line"><span class="string">    '''</span></span><br><span class="line">    client = salt.client.LocalClient(__opts__[<span class="string">'conf_file'</span>])</span><br><span class="line">    minions = client.cmd(<span class="string">'*'</span>, <span class="string">'test.ping'</span>, timeout=<span class="number">1</span>)</span><br><span class="line">    <span class="keyword">for</span> minion <span class="keyword">in</span> sorted(minions):</span><br><span class="line">        <span class="keyword">print</span> minion</span><br></pre></td></tr></table></figure></p>
+<p>使用命令行： salt-run minions.up  即可调用。<br>注：有两种模式，默认为同步模式，即有数据返回后才显示，还有一种异步模式，即立即返回不显示数据，可以指定returner将数据返回到指定容器中。</p>
+<h3 id="salt-engines"><a href="#salt-engines" class="headerlink" title="salt engines"></a>salt engines</h3><p>salt engines 是一个利用salt 并独立长时间运行的进程。有以下特点：</p>
+<ul>
+<li>可以获取到salt的各种配置项，modules以及runner</li>
+<li>以独立进程运行，由salt监视，一旦挂掉后由salt负责重启。</li>
+<li>可以运行在master和minion上。</li>
+</ul>
+<p><a name="E"></a></p>
+<h2 id="SaltStalk-使用"><a href="#SaltStalk-使用" class="headerlink" title="SaltStalk 使用"></a>SaltStalk 使用</h2><h3 id="远程执行"><a href="#远程执行" class="headerlink" title="远程执行"></a>远程执行</h3><p>saltstack 最基本的功能之一，在master节点实现对minions节点的远程控制与执行，命令格式如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ salt <span class="string">'&lt;target&gt;'</span> &lt;<span class="keyword">function</span>&gt; [arguments]</span><br></pre></td></tr></table></figure>
+<ul>
+<li>target 指定 minions,可以有多种方式匹配minions，正则匹配，group匹配，grains匹配，pillar匹配等。</li>
+<li>function 就是前面讲的execution modules ，后面可以加参数。</li>
+</ul>
+<p>下面介绍下execution modules 的定制开发。<br>首先确定一下modules的位置，默认位于/srv/salt/_modules目录下，可以通过以下命令实现modules的同步。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ salt <span class="string">'*'</span> saltutil.sync_modules</span><br><span class="line"></span><br><span class="line">$ salt <span class="string">'*'</span> saltutil.sync_all</span><br><span class="line"></span><br><span class="line">$ salt <span class="string">'*'</span> state.apply</span><br></pre></td></tr></table></figure></p>
+<p>通常modules的脚本会使用zip压缩文件，<a href="https://docs.saltstack.com/en/latest/ref/modules/index.html#creating-a-zip-archive-module" target="_blank" rel="noopener">官网示例</a></p>
+<p>脚本中可以调用salt本身的module以及调用grains数据。同时注意str 类型 与unicode的转换。</p>
+<h3 id="配置管理"><a href="#配置管理" class="headerlink" title="配置管理"></a>配置管理</h3><p>配置管理功能是在远程执行的基础上建立起来的，Salt 状态系统的核心是就是上面提到过的SLS文件。SLS表示系统将会是什么样的一种状态（比如安装什么服务，服务是否启动，服务配置等等），而且是以一种很简单的格式来包含这些数据。<br>下面是一个写SLS文件的示例：</p>
+<ul>
+<li>首先是在master配置文件中定义三个环境：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">file_roots:</span><br><span class="line">  base:</span><br><span class="line">    - /srv/salt/prod</span><br><span class="line">  qa:</span><br><span class="line">    - /srv/salt/qa</span><br><span class="line">    - /srv/salt/prod</span><br><span class="line">  dev:</span><br><span class="line">    - /srv/salt/dev</span><br><span class="line">    - /srv/salt/qa</span><br><span class="line">    - /srv/salt/prod</span><br></pre></td></tr></table></figure>
+<p>简单解释下：这里定义了三个环境，base环境就是生产环境，它只有一个salt根目录，qa环境可以获取到两个salt根目录下的配置文件，按照上下顺序优先采用 /srv/salt/qa 目录下的配置文件，dev环境同理。通常我们开发时，会首先在开发环境部署，新的SLS文件会存储在 /srv/salt/dev 环境中，然后将改变push到对应的开发机器。开发完成后，将新的SLS文件 复制到/srv/salt/qa 目录，push到对应的测试机器以供测试。最后测试完成后，才会把SLS文件复制到/srv/salt/prod 目录，push到生产环境的机器。</p>
+<ul>
+<li>接下来开始编写SLS文件了，首先编写各环境根目录下的top文件,因为 /srv/salt/prod目录下的文件是所有环境都能获取到的,所以只需在该目录下编写top文件即可。</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">base:</span></span><br><span class="line">  <span class="string">'roles:prod'</span><span class="string">:</span></span><br><span class="line"><span class="attr">    - match:</span> <span class="string">grain</span></span><br><span class="line"><span class="bullet">    -</span> <span class="string">apache</span></span><br><span class="line"><span class="attr">qa:</span></span><br><span class="line">  <span class="string">'roles:qa'</span><span class="string">:</span></span><br><span class="line"><span class="attr">    - match:</span> <span class="string">grain</span></span><br><span class="line"><span class="bullet">    -</span> <span class="string">apache</span></span><br><span class="line"><span class="attr">dev:</span></span><br><span class="line">  <span class="string">'roles:dev'</span><span class="string">:</span></span><br><span class="line"><span class="attr">    - match:</span> <span class="string">grain</span></span><br><span class="line"><span class="bullet">    -</span> <span class="string">apache</span></span><br></pre></td></tr></table></figure>
+<p>这里我们是通过在 grain 中添加roles 键值对，然后通过grain进行匹配，当然也可以通过其他方法匹配（pillar,group，正则等）。apache是之后我们需要编写SLS文件，不过这在这之前，先在各minions 添加grain roles键值对。</p>
+<ul>
+<li>在对应minions 中添加grain roles键值对，默认编辑/etc/salt/grains ,添加 roles: prod 即可。添加完后，master 执行 salt ‘*’ saltutil.sync_grains 同步命令。</li>
+<li>接下来开始编写apache的sls 文件。</li>
+</ul>
+<p>/srv/salt/prod/apache/init.sls<br><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apache:</span></span><br><span class="line">  <span class="string">pkg.installed:</span></span><br><span class="line"><span class="attr">    - name:</span> <span class="string">httpd</span></span><br><span class="line">  <span class="string">service.running:</span></span><br><span class="line"><span class="attr">    - name:</span> <span class="string">httpd</span></span><br><span class="line"><span class="attr">    - require:</span></span><br><span class="line"><span class="attr">      - pkg:</span> <span class="string">apache</span></span><br><span class="line"></span><br><span class="line"><span class="string">/var/www/html/index.html:</span></span><br><span class="line">  <span class="string">file.managed:</span></span><br><span class="line"><span class="attr">    - source:</span> <span class="attr">salt://apache/index.html</span></span><br><span class="line"><span class="attr">    - require:</span></span><br><span class="line"><span class="attr">      - pkg:</span> <span class="string">apache</span></span><br></pre></td></tr></table></figure></p>
+<p>index.html 是我们的一个测试网页，放在/srv/salt/prod/apache/目录下。</p>
+<ul>
+<li><p>接下来在 master端执行 salt ‘*’ state.apply 命令 即可完成对应minions 端apache的安装，启动等工作。浏览器输入minion ip,可以查看到测试网页。</p>
+</li>
+<li><p>如果该过程中出现错误，多半是SLS文件写错了，可以查看 minion日志，如果日志不详细，可以先关掉salt-minion，然后运行 salt-minion -l debug ，再复现一次错误，便可查看到更详细日志。</p>
+</li>
+</ul>
+<h3 id="event-reactor"><a href="#event-reactor" class="headerlink" title="event/reactor"></a>event/reactor</h3><p>event/reactor 是saltstack 中的两个系统。两者结合我们可以定制一些自动化的功能，比如，minion端的salt-minion服务重启后，master端立马同步grains，pillars信息。<br>event系统是一个本地的ZeroMQ PUB接口, 用于产生salt events.这个event总线是一个开放的系统,用于发送给Salt和其他系统发送关于操作的通告信息.event系统产生event有一个严格的标准. 每一个event有一个 tag . event tags用于快速过滤events. 每一个event有一个数据结构附加在tag后. 这个数据结构是个字典, 包含关于本event的信息。<br>reactor 系统会结合sls文件在master端去匹配event tags，匹配成功后执行相应的sls文件。</p>
+<p>暂时还没有碰到此类需求，回头再看吧。</p>
+<p><a name="F"></a></p>
+<h2 id="SaltStalk-架构"><a href="#SaltStalk-架构" class="headerlink" title="SaltStalk 架构"></a>SaltStalk 架构</h2><p>关于架构部分，内容比较繁杂，通常会涉及到multimaster,multimaster with failover,salt-syndic等，后续有需求了再研究吧。</p>
+<p>参考<a href="http://docs.saltstack.cn/topics/topology/index.html" target="_blank" rel="noopener">SALTSTACK ARCHITECTURE</a></p>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a href="https://docs.saltstack.com/en/latest/topics/using_salt.html" target="_blank" rel="noopener">saltstalk doc</a></p>
+<p><a href="https://my.oschina.net/u/877567/blog/183959" target="_blank" rel="noopener">Saltstack SLS文件解读</a></p>
+<p><a href="http://www.361way.com/salt-states/5350.html" target="_blank" rel="noopener">Saltstack自动化（五）sls文件使用</a></p>
+<p><strong><em>本篇文章由<a href="https://zhangchenchen.github.io/">pekingzcc</a>采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可,转载请注明。</em></strong></p>
+<p> <strong><em>END</em></strong></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/saltstack/" rel="tag"># saltstack</a>
+          
+            <a href="/tags/devops/" rel="tag"># devops</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/11/01/2016-11-1-keep-one-instance-in-a-machine/" rel="next" title="linux shell系列-- 如何在系统中保证只有一个实例">
+                <i class="fa fa-chevron-left"></i> linux shell系列-- 如何在系统中保证只有一个实例
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/11/10/make-nfs-as-cinder-backend/" rel="prev" title="openstack系列--设置nfs作为cinder backend">
+                openstack系列--设置nfs作为cinder backend <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="pekingzcc" />
+          <p class="site-author-name" itemprop="name">pekingzcc</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">96</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">44</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/zhangchenchen" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons" />
+            </a>
+          </div>
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#SaltStalk是什么"><span class="nav-number">1.</span> <span class="nav-text">SaltStalk是什么</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SaltStalk-安装"><span class="nav-number">2.</span> <span class="nav-text">SaltStalk 安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SaltStalk-配置"><span class="nav-number">3.</span> <span class="nav-text">SaltStalk 配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SaltStalk-一些概念解释"><span class="nav-number">4.</span> <span class="nav-text">SaltStalk 一些概念解释</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#sls-文件"><span class="nav-number">4.1.</span> <span class="nav-text">sls 文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#grain-vs-pillar-vs-mine"><span class="nav-number">4.2.</span> <span class="nav-text">grain vs pillar vs mine</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#execution-modules"><span class="nav-number">4.3.</span> <span class="nav-text">execution modules</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#runner"><span class="nav-number">4.4.</span> <span class="nav-text">runner</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#salt-engines"><span class="nav-number">4.5.</span> <span class="nav-text">salt engines</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SaltStalk-使用"><span class="nav-number">5.</span> <span class="nav-text">SaltStalk 使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#远程执行"><span class="nav-number">5.1.</span> <span class="nav-text">远程执行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置管理"><span class="nav-number">5.2.</span> <span class="nav-text">配置管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#event-reactor"><span class="nav-number">5.3.</span> <span class="nav-text">event/reactor</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SaltStalk-架构"><span class="nav-number">6.</span> <span class="nav-text">SaltStalk 架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文章"><span class="nav-number">7.</span> <span class="nav-text">参考文章</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">pekingzcc</span>
+</div>
+
+
+<div class="powered-by">
+  powered by <a class="theme-link" href="https://hexo.io">Hexo</a> 
+</div>
+
+<div class="theme-info">
+  theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'pekingzcc';
+      var disqus_identifier = '2016/11/03/2016-11-3-intro-to-salt/';
+
+      var disqus_title = "devops系列-- 运维利器SaltStalk介绍";
+
+
+      function run_disqus_script(disqus_script) {
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+
+      
+        var disqus_config = function () {
+            this.page.url = disqus_url;
+            this.page.identifier = disqus_identifier;
+            this.page.title = disqus_title;
+        };
+        run_disqus_script('embed.js');
+      
+
+    </script>
+  
+
+
+
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+      search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+      $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = $( "entry", xmlResponse ).map(function() {
+            return {
+              title: $( "title", this ).text(),
+              content: $("content",this).text(),
+              url: $( "url" , this).text()
+            };
+          }).get();
+          var $input = document.getElementById(search_id);
+          var $resultContent = document.getElementById(content_id);
+          $input.addEventListener('input', function(){
+            var matchcounts = 0;
+            var str='<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length > 1) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var content_index = [];
+                var data_title = data.title.trim().toLowerCase();
+                var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                var data_url = decodeURIComponent(data.url);
+                var index_title = -1;
+                var index_content = -1;
+                var first_occur = -1;
+                // only match artiles with not empty titles and contents
+                if(data_title != '') {
+                  keywords.forEach(function(keyword, i) {
+                    index_title = data_title.indexOf(keyword);
+                    index_content = data_content.indexOf(keyword);
+                    if( index_title >= 0 || index_content >= 0 ){
+                      isMatch = true;
+                      if (i == 0) {
+                        first_occur = index_content;
+                      }
+                    }
+
+                  });
+                }
+                // show search results
+                if (isMatch) {
+                  matchcounts += 1;
+                  str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                  var content = data.content.trim().replace(/<[^>]+>/g,"");
+                  if (first_occur >= 0) {
+                    // cut out 100 characters
+                    var start = first_occur - 20;
+                    var end = first_occur + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if(start == 0){
+                      end = 50;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    var match_content = content.substring(start, end);
+                    // highlight all keywords
+                    keywords.forEach(function(keyword){
+                      var regS = new RegExp(keyword, "gi");
+                      match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                    });
+
+                    str += "<p class=\"search-result\">" + match_content +"...</p>"
+                  }
+                  str += "</li>";
+                }
+              })};
+            str += "</ul>";
+            if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+            if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+            $resultContent.innerHTML = str;
+          });
+          proceedsearch();
+        }
+      });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>

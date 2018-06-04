@@ -1,0 +1,963 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="openstack," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="目录结构：准备工作  创建虚拟机 安装Centos系统 配置系统 上传镜像 自动创建镜像工具 参考文章 tips:在制作镜像的时候最好先知晓镜像所要满足的要求，比如：是否支持磁盘分区，重设根分区大小，密码初始化等等。最常见的需求有如下几种：  Disk partitions and resize root partition on boot (cloud-init) No hard-coded M">
+<meta name="keywords" content="openstack">
+<meta property="og:type" content="article">
+<meta property="og:title" content="openstack 系列--利用Vmware workstation手动制作 openstack centos镜像简记">
+<meta property="og:url" content="https://zhangchenchen.github.io/2017/01/17/make-openstack-image/index.html">
+<meta property="og:site_name" content="Solar">
+<meta property="og:description" content="目录结构：准备工作  创建虚拟机 安装Centos系统 配置系统 上传镜像 自动创建镜像工具 参考文章 tips:在制作镜像的时候最好先知晓镜像所要满足的要求，比如：是否支持磁盘分区，重设根分区大小，密码初始化等等。最常见的需求有如下几种：  Disk partitions and resize root partition on boot (cloud-init) No hard-coded M">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-05-28T07:57:22.524Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="openstack 系列--利用Vmware workstation手动制作 openstack centos镜像简记">
+<meta name="twitter:description" content="目录结构：准备工作  创建虚拟机 安装Centos系统 配置系统 上传镜像 自动创建镜像工具 参考文章 tips:在制作镜像的时候最好先知晓镜像所要满足的要求，比如：是否支持磁盘分区，重设根分区大小，密码初始化等等。最常见的需求有如下几种：  Disk partitions and resize root partition on boot (cloud-init) No hard-coded M">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://zhangchenchen.github.io/2017/01/17/make-openstack-image/"/>
+
+
+
+
+
+  <title> openstack 系列--利用Vmware workstation手动制作 openstack centos镜像简记 | Solar </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-92407570-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Solar</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle"></p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="https://zhangchenchen.github.io/2017/01/17/make-openstack-image/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="pekingzcc">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Solar">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Solar" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                openstack 系列--利用Vmware workstation手动制作 openstack centos镜像简记
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-01-17T15:17:25+08:00">
+                2017-01-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/01/17/make-openstack-image/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/01/17/make-openstack-image/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="目录结构："><a href="#目录结构：" class="headerlink" title="目录结构："></a>目录结构：</h2><p><a href="#A">准备工作 </a></p>
+<p><a href="#B">创建虚拟机</a></p>
+<p><a href="#C">安装Centos系统</a></p>
+<p><a href="#D">配置系统</a></p>
+<p><a href="#E">上传镜像</a></p>
+<p><a href="#F">自动创建镜像工具</a></p>
+<p><a href="#G">参考文章</a></p>
+<p>tips:在制作镜像的时候最好先知晓镜像所要满足的要求，比如：是否支持磁盘分区，重设根分区大小，密码初始化等等。最常见的需求有如下几种：</p>
+<ul>
+<li>Disk partitions and resize root partition on boot (cloud-init)</li>
+<li>No hard-coded MAC address information</li>
+<li>SSH server running</li>
+<li>Disable firewall</li>
+<li>Access instance using ssh public key (cloud-init)</li>
+<li>Process user data and other metadata (cloud-init)</li>
+<li>Paravirtualized Xen support in Linux kernel (Xen hypervisor only with Linux kernel version &lt; 3.0)</li>
+</ul>
+<p>这部分内容可参考官方文档，<a href="http://docs.openstack.org/image-guide/openstack-images.html" target="_blank" rel="noopener">Image requirements</a> 。</p>
+<p><a name="A"></a></p>
+<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><ul>
+<li>下载Vmware workstation,并安装Centos7,配置好网络。注：刚开始是用的virtualbox,发现不支持nested KVM,Vmware workstation 10+版本以上应该都可以,注意开启workstation的虚拟化设置。</li>
+<li>宿主机（刚装好的Centos）安装libvirt系列工具:</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">yum groupinstall Virtualization <span class="string">"Virtualization Client"</span> </span><br><span class="line">yum install libvirt</span><br><span class="line">yum install libguestfs-tools</span><br><span class="line">service libvirtd restart</span><br></pre></td></tr></table></figure>
+<ul>
+<li>从<a href="https://www.centos.org/download/mirrors/" target="_blank" rel="noopener">Centos镜像源</a>下载一个最小的Centos7镜像。本文是以centos为例,其他操作系统类似，详见<a href="http://docs.openstack.org/image-guide/create-images-manually.html#" target="_blank" rel="noopener">Create images manually</a></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget - O http://mirrors.163.com/centos/7.2.1511/isos/x86_64/CentOS-7-x86_64-Minimal-1511.iso</span><br></pre></td></tr></table></figure>
+<p><a name="B"></a></p>
+<h2 id="创建虚拟机"><a href="#创建虚拟机" class="headerlink" title="创建虚拟机"></a>创建虚拟机</h2><ul>
+<li><p>创建一个容量为5G的磁盘,并更改所属者：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /image</span><br><span class="line">qemu-img create -f qcow2 centos.qcow2 5G</span><br><span class="line">chown qemu:qemu /image/centos.qcow2 -R</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建并启动虚拟机</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo virt-install --virt-type kvm --name centos7 --ram 1024 \  <span class="comment"># name 是自己取得</span></span><br><span class="line"> --disk centos.qcow2,format=qcow2 \      <span class="comment">#disk参数为上面创建的磁盘</span></span><br><span class="line"> --network network=default \             <span class="comment"># 采用KVM虚拟机网络为nat，其实更建议用bridge模式，删除本行，默认即为bridge模式，不过bridge模式需要自己手动配置宿主机网桥</span></span><br><span class="line"> --graphics vnc,listen=0.0.0.0 --noautoconsole \</span><br><span class="line"> --os-type=linux --os-variant=rhel7 \</span><br><span class="line"> --cdrom=/image/CentOS-7-x86_64-Minimal-1511.iso  <span class="comment">#下载的镜像</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>用“virsh list” 命令查看虚拟机是否启动，如果没有启动的话用“virsh start $NAME” 启动。</p>
+</li>
+<li>执行 “virsh vncdisplay $NAME” ,之后就可以利用vnc-client 访问该虚拟机了。</li>
+</ul>
+<p><a name="C"></a></p>
+<h2 id="安装Centos系统"><a href="#安装Centos系统" class="headerlink" title="安装Centos系统"></a>安装Centos系统</h2><ul>
+<li>利用vnc-viewer 连接 虚拟机，默认是宿主机IP+5900端口。并进行虚拟机的安装。安装时注意大多数配置默认即可，SOFTWARE SELECTION选择Minimal Install，INSTALLATION DESTINATION需要选择手动配置分区，我们只需要一个根分区即可，不需要swap分区，文件系统选择ext4，存储驱动选择Virtio Block Device。</li>
+<li>安装完成后，为了能够联外网，以及用宿主机直接SSH 虚拟机，还要进行网络的配置。KVM虚拟机的网络配置方式主要有两种，Bridge模式和NAT 模式，关于两种模式的介绍可以参考这篇文章，<a href="http://blog.csdn.net/hzhsan/article/details/44098537/" target="_blank" rel="noopener">KVM虚拟机网络配置 Bridge方式，NAT方式</a>。我们这里使用默认的NAT模式，但是NAT模式有个弊端就是无法从宿主机SSH虚拟机，这样我们还要做些额外的工作实现该功能。</li>
+<li>通过端口转发来实现宿主机直连虚拟机，具体参考<a href="http://www.bkjia.com/Linuxjc/877147.html#top" target="_blank" rel="noopener">这里</a>。</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> 1 &gt;/proc/sys/net/ipv4/ip_forward  <span class="comment"># 打开ip转发功能，这种方法是暂时的，可以直接修改/etc/sysctl.conf 文件，增加net.ipv4.ip_forward = 1 达到永久效果，文件修该完毕后，要使用sysctl –p使其生效</span></span><br><span class="line"></span><br><span class="line">iptables -t nat -A POSTROUTING -o br0 -j MASQUERADE  <span class="comment"># 开启KVM服务器的IPtables的转发功能</span></span><br><span class="line"></span><br><span class="line">iptables -t nat -A PREROUTING -d 192.168.1.102 -p tcp -m tcp --dport 8022 -j DNAT --to-destination 192.168.122.173:22</span><br><span class="line"></span><br><span class="line">iptables -t nat -A POSTROUTING -s 192.168.122.0/255.255.255.0 -d 192.168.122.173 -p tcp -m tcp --dport 22 -j SNAT --to-source 192.168.122.1</span><br></pre></td></tr></table></figure>
+<p><a name="D"></a></p>
+<h2 id="配置系统"><a href="#配置系统" class="headerlink" title="配置系统"></a>配置系统</h2><ul>
+<li>SSH到虚拟机后就可以开始一系列的配置工作，首先修改yum源为国内源。</li>
+<li><p>安装acpid服务，并设置开机自启动（acpid服务是用于hypervisor与虚拟机的交互）。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yum install -y acpid</span><br><span class="line">systemctl <span class="built_in">enable</span> acpid</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>虚拟机需要打开boot日志功能，并指定console，这样nova console-log才能获取虚拟机启动时的日志。修改配置文件/etc/default/grub，设置GRUB_CMDLINE_LINUX为：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GRUB_CMDLINE_LINUX=<span class="string">" vconsole.keymap=us console=tty0 vconsole.font=latarcyrheb-sun16 console=ttyS0,115200"</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>执行以下语句：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grub2-mkconfig -o /boot/grub2/grub.cfg</span><br></pre></td></tr></table></figure>
+<p>ubuntu 的话执行 update-grub。</p>
+<ul>
+<li>手动安装qemu-guest-agent(版本必须是2.3+，L 版的动态修改密码需要用到)：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y qemu-guest-agent</span><br></pre></td></tr></table></figure>
+<p>配置qemu-ga，修改/etc/sysconfig/qemu-ga，配置内容为:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">TRANSPORT_METHOD=<span class="string">"virtio-serial"</span></span><br><span class="line">DEVPATH=<span class="string">"/dev/virtio-ports/org.qemu.guest_agent.0"</span></span><br><span class="line">LOGFILE=<span class="string">"/var/log/qemu-ga/qemu-ga.log"</span></span><br><span class="line">PIDFILE=<span class="string">"/var/run/qemu-ga.pid"</span></span><br><span class="line">BLACKLIST_RPC=<span class="string">""</span></span><br><span class="line">FSFREEZE_HOOK_ENABLE=0</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>为了使虚拟机能够和外部的metadata service通信，需要禁用默认的zeroconf route：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">"NOZEROCONF=yes"</span> &gt;&gt; /etc/sysconfig/network</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>最后安装cloud-init：</p>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y cloud-init</span><br></pre></td></tr></table></figure>
+<ul>
+<li>为了实现自动扩容, 需要安装growpart：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">yum update -y</span><br><span class="line">yum install -y epel-release</span><br><span class="line">yum install -y cloud-utils-growpart</span><br><span class="line">rpm -qa kernel | sed <span class="string">'s/^kernel-//'</span>  | xargs -I &#123;&#125; dracut -f /boot/initramfs-&#123;&#125;.img &#123;&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>基本完成，虚拟机关机。</p>
+</li>
+<li><p>宿主机上进行清理工作：</p>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">virt-sysprep -d centos7 <span class="comment"># 移除mac地址信息</span></span><br><span class="line">virsh undefine centos7 <span class="comment"># 删除虚拟机</span></span><br></pre></td></tr></table></figure>
+<p><a name="E"></a></p>
+<h2 id="上传镜像"><a href="#上传镜像" class="headerlink" title="上传镜像"></a>上传镜像</h2><ul>
+<li>镜像格式转换（ceph只支持raw格式）</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">qemu-img convert -f qcow2 -O raw centos.qcow2 centos.raw</span><br></pre></td></tr></table></figure>
+<ul>
+<li>直接用glance上传镜像就不赘述了，这里有个窍门就是如果后端是ceph的话可以利用rbd import 的方式来加快速度，如下。 </li>
+<li>首先glance create 一条记录，但没有执行镜像上传操作，只是新建一条数据库记录。并记录下image-id。</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">glance image-create</span><br></pre></td></tr></table></figure>
+<ul>
+<li>利用ceph import 镜像并执行快照</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">rbd --pool=volumes import  centos.raw  --image=<span class="variable">$IMAGE_ID</span> --new-format --order 24</span><br><span class="line">rbd --pool=volumes --image=<span class="variable">$IMAGE_ID</span> --snap=snap snap create</span><br><span class="line">rbd --pool=volumes --image=<span class="variable">$IMAGE_ID</span> --snap=snap snap protect</span><br></pre></td></tr></table></figure>
+<ul>
+<li>完善镜像的必要属性</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">glance image-update --name=<span class="string">"centos-7.2-64bit"</span> --disk-format=raw --container-format=bare <span class="variable">$IMAGE_ID</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置qemu-ga，该步骤是必须的，否则libvert启动虚拟机时不会生成qemu-ga配置项，导致虚拟机内部的qemu-ga由于找不到对应的虚拟串行字符设备而启动失败，提示找不到channel</span></span><br><span class="line">glance image-update --property hw_qemu_guest_agent=yes <span class="variable">$IMAGE_ID</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>设置镜像的location url<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">glance location-add --url rbd://<span class="variable">$FS_ROOT</span>/glance_images/<span class="variable">$IMAGE_ID</span>/snap <span class="variable">$IMAGE_ID</span><span class="comment">#这里的$FS_ROOT 可以通过查看ceph -s 中的cluster.</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>具体参考<a href="http://int32bit.me/2016/05/28/%E6%89%8B%E5%8A%A8%E5%88%B6%E4%BD%9COpenstack%E9%95%9C%E5%83%8F/" target="_blank" rel="noopener">手动制作Openstack镜像</a> 的上传镜像部分。</p>
+<p><a name="F"></a></p>
+<h2 id="自动创建镜像工具"><a href="#自动创建镜像工具" class="headerlink" title="自动创建镜像工具"></a>自动创建镜像工具</h2><p>openstack 文档提供了几个类似的工具，没有尝试，<a href="http://docs.openstack.org/image-guide/create-images-automatically.html" target="_blank" rel="noopener">Tool support for image creation</a>.</p>
+<p><a name="G"></a></p>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a href="http://docs.openstack.org/image-guide/centos-image.html" target="_blank" rel="noopener">openstack doc:Example: CentOS image</a></p>
+<p><a href="http://int32bit.me/2016/05/28/%E6%89%8B%E5%8A%A8%E5%88%B6%E4%BD%9COpenstack%E9%95%9C%E5%83%8F/" target="_blank" rel="noopener">手动制作Openstack镜像</a></p>
+<p><a href="http://yanheven.github.io/centos65-image-create" target="_blank" rel="noopener">制作openstack用的centos6.5镜像</a></p>
+<p><a href="http://blog.csdn.net/hzhsan/article/details/44098537/" target="_blank" rel="noopener">KVM虚拟机网络配置 Bridge方式，NAT方式</a></p>
+<p><a href="http://www.bkjia.com/Linuxjc/877147.html#top" target="_blank" rel="noopener">烂泥：KVM使用NAT联网并为VM配置iptables端口转发，kvmiptables</a></p>
+<p><a href="http://www.chenshake.com/about-openstack-centos-mirror/" target="_blank" rel="noopener">谈谈Openstack的CentOS镜像</a></p>
+<p><a href="http://docs.openstack.org/image-guide/openstack-images.html" target="_blank" rel="noopener">Image requirements</a></p>
+<p><strong><em>本篇文章由<a href="https://zhangchenchen.github.io/">pekingzcc</a>采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可,转载请注明。</em></strong></p>
+<p> <strong><em>END</em></strong></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/openstack/" rel="tag"># openstack</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/01/13/openstack-init-instance-password/" rel="next" title="openstack系列--初始化虚拟机实例密码几种方法">
+                <i class="fa fa-chevron-left"></i> openstack系列--初始化虚拟机实例密码几种方法
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/01/19/openstack-reset-instance-password/" rel="prev" title="openstack系列--重设虚拟机实例密码几种方法">
+                openstack系列--重设虚拟机实例密码几种方法 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="pekingzcc" />
+          <p class="site-author-name" itemprop="name">pekingzcc</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">96</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">44</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/zhangchenchen" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons" />
+            </a>
+          </div>
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#目录结构："><span class="nav-number">1.</span> <span class="nav-text">目录结构：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#准备工作"><span class="nav-number">2.</span> <span class="nav-text">准备工作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#创建虚拟机"><span class="nav-number">3.</span> <span class="nav-text">创建虚拟机</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装Centos系统"><span class="nav-number">4.</span> <span class="nav-text">安装Centos系统</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#配置系统"><span class="nav-number">5.</span> <span class="nav-text">配置系统</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#上传镜像"><span class="nav-number">6.</span> <span class="nav-text">上传镜像</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#自动创建镜像工具"><span class="nav-number">7.</span> <span class="nav-text">自动创建镜像工具</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文章"><span class="nav-number">8.</span> <span class="nav-text">参考文章</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">pekingzcc</span>
+</div>
+
+
+<div class="powered-by">
+  powered by <a class="theme-link" href="https://hexo.io">Hexo</a> 
+</div>
+
+<div class="theme-info">
+  theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'pekingzcc';
+      var disqus_identifier = '2017/01/17/make-openstack-image/';
+
+      var disqus_title = "openstack 系列--利用Vmware workstation手动制作 openstack centos镜像简记";
+
+
+      function run_disqus_script(disqus_script) {
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+
+      
+        var disqus_config = function () {
+            this.page.url = disqus_url;
+            this.page.identifier = disqus_identifier;
+            this.page.title = disqus_title;
+        };
+        run_disqus_script('embed.js');
+      
+
+    </script>
+  
+
+
+
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+      search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+      $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = $( "entry", xmlResponse ).map(function() {
+            return {
+              title: $( "title", this ).text(),
+              content: $("content",this).text(),
+              url: $( "url" , this).text()
+            };
+          }).get();
+          var $input = document.getElementById(search_id);
+          var $resultContent = document.getElementById(content_id);
+          $input.addEventListener('input', function(){
+            var matchcounts = 0;
+            var str='<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length > 1) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var content_index = [];
+                var data_title = data.title.trim().toLowerCase();
+                var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                var data_url = decodeURIComponent(data.url);
+                var index_title = -1;
+                var index_content = -1;
+                var first_occur = -1;
+                // only match artiles with not empty titles and contents
+                if(data_title != '') {
+                  keywords.forEach(function(keyword, i) {
+                    index_title = data_title.indexOf(keyword);
+                    index_content = data_content.indexOf(keyword);
+                    if( index_title >= 0 || index_content >= 0 ){
+                      isMatch = true;
+                      if (i == 0) {
+                        first_occur = index_content;
+                      }
+                    }
+
+                  });
+                }
+                // show search results
+                if (isMatch) {
+                  matchcounts += 1;
+                  str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                  var content = data.content.trim().replace(/<[^>]+>/g,"");
+                  if (first_occur >= 0) {
+                    // cut out 100 characters
+                    var start = first_occur - 20;
+                    var end = first_occur + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if(start == 0){
+                      end = 50;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    var match_content = content.substring(start, end);
+                    // highlight all keywords
+                    keywords.forEach(function(keyword){
+                      var regS = new RegExp(keyword, "gi");
+                      match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                    });
+
+                    str += "<p class=\"search-result\">" + match_content +"...</p>"
+                  }
+                  str += "</li>";
+                }
+              })};
+            str += "</ul>";
+            if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+            if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+            $resultContent.innerHTML = str;
+          });
+          proceedsearch();
+        }
+      });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>
