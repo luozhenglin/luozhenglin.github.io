@@ -94,7 +94,7 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2018-06-04kafka-api.png">
 <meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2018-06-04-kafka-infra.png">
-<meta property="og:updated_time" content="2018-06-04T09:48:37.186Z">
+<meta property="og:updated_time" content="2018-06-04T10:30:59.158Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Inf-- kafka  从入门到放弃">
 <meta name="twitter:description" content="概述工作中用到了kafka ,本篇博文整理一下学习到的kafka相关知识，内容多来自网上（主要是官网doc,个人博客），侵删。  kafka 是Linkedin 使用Scala 编写的一个开源的分布式消息系统，当时开发的初衷是为了解决网站活动流数据（比如网页浏览，点击，驻留时间等等）的数据转发处理。因为活动流数据是实时且流量比较大，可想而知kafka 的最大特点就是高吞吐率且容易扩展。kafka">
@@ -406,7 +406,7 @@
 <h2 id="安装与使用"><a href="#安装与使用" class="headerlink" title="安装与使用"></a>安装与使用</h2><p>参考<a href="https://kafka.apache.org/quickstart" target="_blank" rel="noopener">quick start</a></p>
 <h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><ul>
 <li>kafka 依赖zookeeper来实现负载均衡以及原数据的存取。</li>
-<li>kafka之所以实现如此快的数据持久化，是因为磁盘io是顺序读写，在某些情况下，顺序磁盘访问能够比随即内存访问还要快（跟操作系统的预读，后写等技术有关）！</li>
+<li>kafka之所以实现如此快的数据持久化，是因为磁盘io是顺序读写，在某些情况下，顺序磁盘访问能够比随即内存访问还要快（跟操作系统的预读，后写等技术有关）。</li>
 </ul>
 <h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a href="https://kafka.apache.org/documentation/#uses_logs" target="_blank" rel="noopener">kafka Documentation</a></p>
 <p><a href="https://leokongwq.github.io/2017/02/06/mq-kafka-tutorial.html#" target="_blank" rel="noopener">kafka入门教程</a></p>
