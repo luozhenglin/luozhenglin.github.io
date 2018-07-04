@@ -271,6 +271,175 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="https://zhangchenchen.github.io/2016/11/20/linux-log/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="pekingzcc">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Solar">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Solar" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/11/20/linux-log/" itemprop="url">
+                  linux系列--关于 linux 日志
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-11-20T13:06:25+08:00">
+                2016-11-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/11/20/linux-log/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/11/20/linux-log/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="目录结构："><a href="#目录结构：" class="headerlink" title="目录结构："></a>目录结构：</h2><p><a href="#A">Linux日志概述</a></p>
+<p><a href="#B">常见日志文件 </a></p>
+<p><a href="#C">常用命令</a></p>
+<p><a name="A"></a></p>
+<h2 id="Linux日志概述"><a href="#Linux日志概述" class="headerlink" title="Linux日志概述"></a>Linux日志概述</h2><ul>
+<li>Linux 系统的日志主要分为两种类型：一种是进程所属日志，另一种是syslog的信息，即系统syslog记录的日志。</li>
+<li>Linux 日志系统可以划分为三个子系统：1，连接时间用户登录的日志，一般写入到/var/log/wtmp,/var/log/utmp两个文件中。2，进程统计日志。3错误日志，通过syslogd写入文件/var/log/message。</li>
+<li>关于syslogd:Linux 内核由很多子系统组成，包括网络、文件访问、内存管理等。子系统需要给用户传送一些消息，这些消息内容包括消息的来源及其重要性等。所有的子系统都要把消息送到一个可以维护的公用消息区，于是就有了一个叫 syslog 的程序。它的配置文件通常位于/etc/log/syslog.conf。</li>
+<li>关于logrotate:logrotate程序用来帮助用户管理日志文件，它以自己的守护进程工作。logrotate 周期性地旋转日志文件，可以周期性地把每个日志文件重命名成一个备份名字，然后让它的守护进程开始使用一个日志文件的新的拷贝。配置文件通常位于/etc/logrotate.conf。</li>
+</ul>
+<p><a name="B"></a></p>
+<h2 id="常见日志文件"><a href="#常见日志文件" class="headerlink" title="常见日志文件"></a>常见日志文件</h2><p>直接引自<a href="https://help.aliyun.com/knowledge_detail/41546.html" target="_blank" rel="noopener">云服务器 ECS Linux 系统中常见的日志文件介绍</a></p>
+<ul>
+<li><p>/var/log/cron<br>可以在 cron 文件中检查 crontab 任务调度是否实际执行，执行过程是否发生错误，以及 /etc/crontab 文件是否有语法错误或编写错误。</p>
+</li>
+<li><p>/var/log/dmesg<br>可以在 dmesg 文件中检查系统在开机时候内核检测过程所产生的各项信息，包括系统的设备信息，以及在启动和操作过程中系统记录的任何错误和问题的信息。通过 dmesg 文件可以判断某些硬件设备（比如磁盘）在系统启动过程中是否被正确识别。</p>
+</li>
+<li><p>/var/log/lastlog<br>可以在 lastlog 文件中检查系统上面所有账号的最后一次登录系统时的相关信息。</p>
+</li>
+<li><p>/var/log/messages<br>可以在 messages 文件中检查到绝大多数系统发生的错误信息，如果系统发生一些未知的错误，建议客户首先检查一下 messages 文件。可以通过 tail -f /var/log/messages 实时查看系统内的变化情况。iptables 的默认日志就是 /var/log/messages。 </p>
+</li>
+<li><p>/var/log/secure<br>所有涉及需要输入账号密码的软件或程序，在登陆时（无论登录成功或失败）的信息都会被记录到 secure 文件，比如系统的 login 程序；su、sudo 命令；ssh、telnet、pop3、ftp 等程序的登录信息。</p>
+</li>
+<li><p>/var/log/wtmp<br>可以在 wtmp 文件中检查到正确登陆系统的账户信息。由于 wtmp 文件已经被编码过的，所以需要使用 last 指令来取出文件的内容，用 cat 等命令无法直接查看此文件。 </p>
+</li>
+</ul>
+<p><a name="C"></a></p>
+<h2 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h2><ul>
+<li><p>w<br>查看当前系统登录的用户以及用户在干什么</p>
+</li>
+<li><p>history<br>当前登录用户的执行命令历史</p>
+</li>
+<li><p>last<br>查看当前用户登录历史</p>
+</li>
+<li><p>who /var/log/wtmp<br>查看用户登录系统历史</p>
+</li>
+</ul>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a href="https://help.aliyun.com/knowledge_detail/41546.html" target="_blank" rel="noopener">云服务器 ECS Linux 系统中常见的日志文件介绍</a></p>
+<p><a href="http://www.freeoa.net/osuport/sysadmin/linux-sys-log-intro_1862.html" target="_blank" rel="noopener">Linux系统日志简介</a></p>
+<p><strong><em>本篇文章由<a href="https://zhangchenchen.github.io/">pekingzcc</a>采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可,转载请注明。</em></strong></p>
+<p> <strong><em>END</em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
   <link itemprop="mainEntityOfPage" href="https://zhangchenchen.github.io/2016/11/10/make-nfs-as-cinder-backend/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1911,181 +2080,6 @@ On termination (typically registered via atexit):
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="https://zhangchenchen.github.io/2016/09/16/secure-your-ubuntu-server/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="pekingzcc">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="/images/avatar.jpg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="Solar">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="Solar" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/09/16/secure-your-ubuntu-server/" itemprop="url">
-                  安全系列 --简单加固 ubuntu 服务器
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-09-16T15:01:55+08:00">
-                2016-09-16
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2016/09/16/secure-your-ubuntu-server/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/09/16/secure-your-ubuntu-server/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="目录结构"><a href="#目录结构" class="headerlink" title="目录结构"></a>目录结构</h2><p><a href="#A">前言 </a></p>
-<p><a href="#B">花五分钟的时间加固 ubuntu server </a></p>
-<p><a href="#C">其他</a></p>
-<p><a name="A"></a></p>
-<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>逛v2ex的时候看到了一篇讨论 <a href="https://www.v2ex.com/t/306519#reply22" target="_blank" rel="noopener">在服务器上做什么加固策略</a>的帖子，想起自己之前看过的一篇文章，<a href="https://plusbryan.com/my-first-5-minutes-on-a-server-or-essential-security-for-linux-servers" target="_blank" rel="noopener">My First 5 Minutes On A Server; Or, Essential Security for Linux Servers</a>，顺手写下这篇文章，权当记录，本篇的绝大部分内容都是出自这篇文章，强烈推荐，如果觉得TLDR,就接着往下翻吧。</p>
-<p>安全，在大部分程序员潜意识里总是处于一种low priority的状态（参看此<a href="https://www.zhihu.com/question/20306241" target="_blank" rel="noopener">知乎链接</a>）。比如，我们搭建一个web server，会在第一时间去想用什么去部署，去实现，实现之后可能还会考虑高可用，可扩展等因素。而安全却总是会在最后才出现在我们的脑海里，甚至于直到出现安全事故才去关注。其实，我们拿到一台Linux服务器，只需要花些时间做一些安全方面的考量，做一些简单的措施就可以抵挡很大一部分攻击，提高攻击门槛。</p>
-<p>那对于安全方面的措施，我比较推崇上文作者所说：简单有效。因为比较复杂的安全策略实施起来的增量收益可能会低于增加的大量人力物力资源。而且指不定还会引入其他的安全隐患。引用作者的话说：据我的经验来讲，大部分安全事故，要么是没有做足够的安全措施，要么是做了足够的安全措施，但没有更新维护导致出现漏洞。</p>
-<p>Simplicity is the heart of good security.</p>
-<p>下面就简单说下我们拿到一台服务器（或VPS）后需要做的一些安全加固措施。</p>
-<p><a name="B"></a></p>
-<h2 id="花五分钟的时间加固-ubuntu-server"><a href="#花五分钟的时间加固-ubuntu-server" class="headerlink" title="花五分钟的时间加固 ubuntu server"></a>花五分钟的时间加固 ubuntu server</h2><h3 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h3><p>本文中用的Linux发行版为 14.04。其他实验环境作者没有实践。<br>首先更改你的 root 密码为强类型密码。然后执行如下命令做一下升级：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">apt-get update</span><br><span class="line">apt-get upgrade</span><br></pre></td></tr></table></figure>
-<h3 id="尽量不要使用root用户"><a href="#尽量不要使用root用户" class="headerlink" title="尽量不要使用root用户"></a>尽量不要使用root用户</h3><p>新增一个用户，当需要root权限时再用sudo暂时提升权限。新建用户的密码也要是强类型密码。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">adduser example_user  <span class="comment">#新建 用户</span></span><br><span class="line">adduser example_user sudo  <span class="comment">#给新建用户添加sudo权限</span></span><br></pre></td></tr></table></figure>
-<h3 id="使用SSH密钥认证登录"><a href="#使用SSH密钥认证登录" class="headerlink" title="使用SSH密钥认证登录"></a>使用SSH密钥认证登录</h3><p>利用ssh登录到Linux服务器有很多种方案，比较常用的就是用户名密码登录和SSH密钥认证的方式。<br>相对用户名密码登陆方式，后者是一种更安全的方案，因为前者容易受到暴力破解的威胁，而后者用暴力破解的方法不太实际。<br>首先需要在客户端产生公约密钥对。Linux下是如下命令：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh-keygen -t rsa</span><br></pre></td></tr></table></figure>
-<p>如果客户端是windows，可以利用putty等客户端实现。</p>
-<p>创建完之后，我们会获取到两个文件，id_rsa.pub，和 id_rsa。也就是公钥文件和密钥文件。</p>
-<p>接下来将公钥内容复制到服务器.ssh 目录下authorized_keys文件中。</p>
-<h3 id="关闭SSH-密码服务器登陆"><a href="#关闭SSH-密码服务器登陆" class="headerlink" title="关闭SSH 密码服务器登陆"></a>关闭SSH 密码服务器登陆</h3><p>添加如下内容到 /etc/ssh/sshd_config 文件中。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">PermitRootLogin no</span><br><span class="line">PasswordAuthentication no</span><br><span class="line">AllowUsers deploy@(your-ip) deploy@(another-ip-if-any) # 添加允许登录IP</span><br></pre></td></tr></table></figure>
-<p>重启ssh服务</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service ssh restart</span><br></pre></td></tr></table></figure>
-<h3 id="添加防火墙"><a href="#添加防火墙" class="headerlink" title="添加防火墙"></a>添加防火墙</h3><p>添加防火墙有很多种方法，最简单的就是利用ubuntu 提供的ufw。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ufw allow from &#123;your-ip&#125; to any port 22 <span class="comment">#限定IP的端口</span></span><br><span class="line">ufw allow 80 <span class="comment">#打开80端口</span></span><br><span class="line">ufw allow 443 <span class="comment">#打开443端口</span></span><br><span class="line">ufw <span class="built_in">enable</span></span><br></pre></td></tr></table></figure></p>
-<p> 当然要根据你的实际要求来打开对应的端口。除了ufw，还有iptables,ip6tables,以及最新的nftables等都可以实现防火墙。</p>
-<h3 id="安装Fail2ban"><a href="#安装Fail2ban" class="headerlink" title="安装Fail2ban"></a>安装Fail2ban</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt-get install fail2ban</span><br></pre></td></tr></table></figure>
-<p>Fail2ban 会在服务端扫描日志并根据一些策略屏蔽一些有可疑行为的用户（IP）。官方介绍说的比较清楚：</p>
-<blockquote>
-<p>Fail2ban scans log files (e.g. /var/log/apache/error_log) and bans IPs that show the malicious signs – too many password failures, seeking for exploits, etc. Generally Fail2Ban is then used to update firewall rules to reject the IP addresses for a specified amount of time, although any arbitrary other action (e.g. sending an email) could also be configured. Out of the box Fail2Ban comes with filters for various services (apache, courier, ssh, etc).<br> Fail2Ban is able to reduce the rate of incorrect authentications attempts however it cannot eliminate the risk that weak authentication presents. Configure services to use only two factor or public/private authentication mechanisms if you really want to protect services.</p>
-</blockquote>
-<h3 id="设置安全自动升级"><a href="#设置安全自动升级" class="headerlink" title="设置安全自动升级"></a>设置安全自动升级</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">apt-get install unattended-upgrades</span><br><span class="line"></span><br><span class="line">vim /etc/apt/apt.conf.d/10periodic</span><br></pre></td></tr></table></figure>
-<p>更新如下内容：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">APT::Periodic::Update-Package-Lists <span class="string">"1"</span>;</span><br><span class="line">APT::Periodic::Download-Upgradeable-Packages <span class="string">"1"</span>;</span><br><span class="line">APT::Periodic::AutocleanInterval <span class="string">"7"</span>;</span><br><span class="line">APT::Periodic::Unattended-Upgrade <span class="string">"1"</span>;</span><br></pre></td></tr></table></figure>
-<p>再更新下这个文件/etc/apt/apt.conf.d/50unattended-upgrades</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> Unattended-Upgrade::Allowed-Origins &#123;</span><br><span class="line">        <span class="string">"Ubuntu lucid-security"</span>;</span><br><span class="line">//      <span class="string">"Ubuntu lucid-updates"</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<h3 id="安装Logwatch"><a href="#安装Logwatch" class="headerlink" title="安装Logwatch"></a>安装Logwatch</h3><p>Logwatch 是一个强大的日志解析和分析软件。它被设计用来给出一台服务器上所有的活动报告，可以以命令行的形式输出，或邮件发送。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">apt-get install logwatch</span><br><span class="line"></span><br><span class="line">vim /etc/cron.daily/00logwatch</span><br></pre></td></tr></table></figure>
-<p> 添加如下内容：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/sbin/logwatch --output mail --mailto <span class="built_in">test</span>@gmail.com --detail high</span><br></pre></td></tr></table></figure>
-<p><a name="C"></a></p>
-<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p>其实原文在<a href="https://news.ycombinator.com/item?id=5316093" target="_blank" rel="noopener">hacking news</a> 上引发了一系列的讨论。比如有人就提出，我们拿到一台服务器的时候，第一件事不是加固，而是应该先安装配置管理工具（Puppet or Chef），利用配置管理工具才更有条理。其实lz认为还是看实际场景吧，配置管理工具确实方便，尤其是对于一些大型的项目，而对于只搭一个blog的vps，确实没有必要。</p>
-<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a href="https://plusbryan.com/my-first-5-minutes-on-a-server-or-essential-security-for-linux-servers" target="_blank" rel="noopener">My First 5 Minutes On A Server; Or, Essential Security for Linux Servers </a></p>
-<p><a href="https://linode.com/docs/security/securing-your-server" target="_blank" rel="noopener">Securing Your Server</a></p>
-<p><a href="https://news.ycombinator.com/item?id=5316093" target="_blank" rel="noopener">Hacking news</a></p>
-<p><a href="https://www.v2ex.com/t/306519#reply22" target="_blank" rel="noopener">v2ex</a></p>
-<p><strong><em>本篇文章由<a href="https://zhangchenchen.github.io/">pekingzcc</a>采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可,转载请注明。</em></strong></p>
-<p> <strong><em>END</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -2133,7 +2127,7 @@ On termination (typically registered via atexit):
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">96</span>
+                <span class="site-state-item-count">97</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -2144,7 +2138,7 @@ On termination (typically registered via atexit):
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">44</span>
+                <span class="site-state-item-count">45</span>
                 <span class="site-state-item-name">tags</span>
               </a>
             </div>
