@@ -696,7 +696,7 @@
 <h2 id="几种典型网络方案对比"><a href="#几种典型网络方案对比" class="headerlink" title="几种典型网络方案对比"></a>几种典型网络方案对比</h2><p>博主没有条件对这几种网络方案进行具体实践对比，从网上搜了一些比较靠谱的测评，罗列如下。</p>
 <h3 id="性能对比"><a href="#性能对比" class="headerlink" title="性能对比"></a>性能对比</h3><p>性能对比，博主找到了两篇相对靠谱的文章，一篇是从hacker news上面找到的，后来发现了<a href="http://dockone.io/article/1115" target="_blank" rel="noopener">中文翻译版</a>，这篇文章主要是对比了Docker host方案，flannel，IPVlan三种方案，这里提一嘴IPVlan，它是 Linux 内核中的一个驱动，有了它，无需使用桥接接口，就可以创建拥有唯一 IP 地址的虚拟网络接口。IPvlan 是一个相对较新的解决方案，现在还没有能完成上述过程的自动化工具。如果集群的机器和容器比较多，部署 IPvlan 的难度不小，不容易设置。直接上这篇文章的结论吧：</p>
 <p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017121-test-result.jpg" alt="test-result"><br>总结一下就是私有云环境下flannel + host-gw方案顶呱呱。</p>
-<p>第二篇文章是来自有容云团队的，他们覆盖的方案范围比较广，详情可参考<a href="http://www.youruncloud.com/blog/131.html" target="_blank" rel="noopener">Kubernetes网络原理及方案</a>，这里直接贴测试结果：</p>
+<p>第二篇文章是来自网友@Kelvin Peng，覆盖的方案范围比较广，详情可参考<a href="http://cmgs.me/life/docker-network-cloud" target="_blank" rel="noopener">Docker network on cloud</a>，这里直接贴测试结果：</p>
 <p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20171211-test-result-you-1.jpg" alt="yourong-test-result-1"></p>
 <p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20171211-test-result-you-2.jpg" alt="yourong-test-result-2"></p>
 <p>再次说一下，以上测试仅供参考，性能测试是一个罗生门，具体的网络方案还是得看实际应用场景，是私有云环境，公有云环境，还是混合云环境，有无SDN，节点数量，集群规模等等，最朴素的判断Underlay 网络性能确实优于 Overlay 网络，但是Overlay 较 Underlay 可以支持更多的二层网段，能更好地利用已有网络，以及有避免物理交换机 MAC 表耗尽等优势，所以在方案选型的时候需要综合考虑。</p>
