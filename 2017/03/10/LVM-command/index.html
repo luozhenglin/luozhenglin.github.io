@@ -92,7 +92,7 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="引出一般来说，如果openstck镜像中安装了growpart(之前的版本叫做growroot),在创建虚拟机的时候就会实现自动扩容。但是今天碰到几个虚拟机没有实现自动扩容的情况，需要手动进行扩容，用到lvm的一些知识，这里记录一下。 关于LVM的一些知识LVM利用Linux内核的device-mapper来实现存储系统的虚拟化（系统分区独立于底层硬件）。通过LVM，你可以实现存储空间的抽象化并在">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2017-03-10-lvm-500x290.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-03-10-lvm-500x290.jpg">
 <meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-030-10-lvm-1.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-03-10-lvm-2.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-03-10-lvm-3.png">
@@ -102,11 +102,11 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-03-10-lvm-7.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-03-10-lvm-8.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-03-10-lvm-9.png">
-<meta property="og:updated_time" content="2018-10-29T08:53:38.455Z">
+<meta property="og:updated_time" content="2018-10-29T10:02:58.824Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="linux-- 利用LVM 对虚拟机进行手动扩容">
 <meta name="twitter:description" content="引出一般来说，如果openstck镜像中安装了growpart(之前的版本叫做growroot),在创建虚拟机的时候就会实现自动扩容。但是今天碰到几个虚拟机没有实现自动扩容的情况，需要手动进行扩容，用到lvm的一些知识，这里记录一下。 关于LVM的一些知识LVM利用Linux内核的device-mapper来实现存储系统的虚拟化（系统分区独立于底层硬件）。通过LVM，你可以实现存储空间的抽象化并在">
-<meta name="twitter:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2017-03-10-lvm-500x290.jpg">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-03-10-lvm-500x290.jpg">
 
 
 
@@ -379,7 +379,7 @@
 <li>卷组Volume group (VG)：将一组物理卷收集为一个管理单元。</li>
 <li>逻辑卷Logical volume (LV)：虚拟分区，由物理区域（physical extents）组成。</li>
 </ul>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-03-10-lvm-500x290.jpg" alt="lvm-pic"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-03-10-lvm-500x290.jpg" alt="lvm-pic"></p>
 <h2 id="对虚拟机进行手动扩容"><a href="#对虚拟机进行手动扩容" class="headerlink" title="对虚拟机进行手动扩容"></a>对虚拟机进行手动扩容</h2><p>注：本文测试为实验环境，直接利用workstation 开启虚拟机，扩展磁盘，最后实现手动扩展。</p>
 <p>首先，确认磁盘使用lvm以及确定磁盘大小：</p>
 <p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-030-10-lvm-1.png" alt="lvm-1"></p>

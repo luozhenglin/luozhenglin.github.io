@@ -380,7 +380,7 @@
 <ul>
 <li>BypassMergeSortShuffleWriter</li>
 <li>SortShuffleWriter</li>
-<li>UnsafeShuffleWriter<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/shuffle-2018-09-25.jpeg" alt="shuffle"></li>
+<li>UnsafeShuffleWriter<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/shuffle-2018-09-25.jpeg" alt="shuffle"></li>
 </ul>
 <p>下面分别介绍一下这三种writer 的原理：</p>
 <h3 id="BypassMergeSortShuffleWriter"><a href="#BypassMergeSortShuffleWriter" class="headerlink" title="BypassMergeSortShuffleWriter"></a>BypassMergeSortShuffleWriter</h3><p>首先，BypassMergeSortShuffleWriter的运行机制的触发条件如下：</p>
@@ -389,10 +389,10 @@
 <li>没有map side aggregations。<br>note: map side aggregations是指在map端的聚合操作，通常来说一些聚合类的算子都会都map端的aggregation。不过对于groupByKey 和combineByKey， 如果设定mapSideCombine为false，就不会有 map side aggregations。</li>
 </ul>
 <p>触发之后，整体的处理流程大致如下：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/sort-shuffle-bypass.png" alt="bypass-sort-shuffle"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/sort-shuffle-bypass.png" alt="bypass-sort-shuffle"></p>
 <p>每个task 会为每一个下游的reduce task 创建一个临时文件(图中下游reduce task应该有三个，这张图直接引用的美团技术博客的，不改了)，将key按照hash 存入对应临时文件中，因为写入磁盘文件是通过Java的BufferedOutputStream实现的，BufferedOutputStream是Java的缓冲输出流，首先会将数据缓冲在内存中，当内存缓冲满溢之后再一次写入磁盘文件中，这样可以减少磁盘IO次数，提升性能。所以图中会有内存缓冲的概念。最后，会将所有临时文件合并成一个磁盘文件，并创建一个索引文件标识下游各个reduce task的数据在文件中的start offset与end offset。<br>该过程的磁盘写机制其实跟未经优化的HashShuffleManager是一样的，也会创建很多的临时文件（所以触发条件中会有reduce task 数量限制），只是在最后会做一个磁盘文件的合并，对于shuffle  reader 会更友好一些。</p>
 <h3 id="SortShuffleWriter"><a href="#SortShuffleWriter" class="headerlink" title="SortShuffleWriter"></a>SortShuffleWriter</h3><p>这种writer 思想上照抄了mapreduce 的shuffle。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/sort-shuffle-common.png" alt="sort-shuffle"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/sort-shuffle-common.png" alt="sort-shuffle"></p>
 <p>该模式下，数据首先写入一个内存数据结构中，此时根据不同的shuffle算子，可能选用不同的数据结构。如果是reduceByKey这种聚合类的shuffle算子，那么会选用Map数据结构，一边通过Map进行聚合，一边写入内存；如果是join这种普通的shuffle算子，那么会选用Array数据结构，直接写入内存。接着，每写一条数据进入内存数据结构之后，就会判断一下，是否达到了某个临界阈值。如果达到临界阈值的话，那么就会尝试将内存数据结构中的数据溢写到磁盘，然后清空内存数据结构。<br>在溢写到磁盘文件之前，会先根据key对内存数据结构中已有的数据进行排序。排序过后，会分批将数据写入磁盘文件。默认的batch数量是10000条，也就是说，排序好的数据，会以每批1万条数据的形式分批写入磁盘文件。写入磁盘文件也是通过Java的BufferedOutputStream实现的。<br>一个task将所有数据写入内存数据结构的过程中，会发生多次磁盘溢写操作，也就会产生多个临时文件。最后会将之前所有的临时磁盘文件都进行合并，这就是merge过程，此时会将之前所有临时磁盘文件中的数据读取出来，然后依次写入最终的磁盘文件之中。此外，由于一个task就只对应一个磁盘文件，也就意味着该task为下游stage的task准备的数据都在这一个文件中，因此还会单独写一份索引文件，其中标识了下游各个task的数据在文件中的start offset与end offset。</p>
 <p>hadoop shuffle map 阶段会不断地以健值对的形式把数据输出到在内存中构造的一个环形数据结构（更有效地使用内存空间）中，这里是存在map/array中。</p>
 <p>BypassMergeSortShuffleWriter 与该机制相比：第一，磁盘写机制不同；第二，不会进行排序。也就是说，启用BypassMerge机制的最大好处在于，shuffle write过程中，不需要进行数据的排序操作，也就节省掉了这部分的性能开销，当然需要满足那两个触发条件。</p>
@@ -726,7 +726,7 @@
 <h2 id="celery-与-kombu"><a href="#celery-与-kombu" class="headerlink" title="celery 与 kombu"></a>celery 与 kombu</h2><p>python 基于AMQP的库，比较常用的有两个，pika 和 kombu。kombu 相对pika 是更高层面的抽象，pika 只支持AMQP 0.9.1协议，而kombu 抽象了中间的broker，可以支持多种broker（redis,zookeeper,mongodb等）。而且相对pika 提供了很多特性：重连策略，连接池，failover 策略等等。这些策略都是一些常用且比较重要的特性，如果用pika 的话需要自己去造轮子。<br>kombo 更像是celery 的定制库，在celery中大量使用了kombu中的概念，kombu的更底层是调用的librabbitmq 库或py-amqp库来实现AMQP 0.9.1 ，在这个层面上，pika更接近py-amqp库。这里再提一嘴，open stack 项目在kombu的基础上又针对性的封装了一层，就是著名的oslo.messaging公共库了。<br>所以，如果想研究celery，那么最好先好好研究下kombo。</p>
 <h2 id="从使用探究内部原理"><a href="#从使用探究内部原理" class="headerlink" title="从使用探究内部原理"></a>从使用探究内部原理</h2><p>这里就不在源码层面一层层的分析了，可以参考下面参考文章的内容，有此类的分析。这里主要是从使用层面大致说下在使用的过程中，celery 内部做了哪些事情。<br>我们使用celery的话，可能最主要的就是两个事情，一个是创建要执行的任务，然后用app.task 进行装饰，第二个是启用celery worker 进程。这里就从这两个地方入手，大致说下celery 的实现机制。</p>
 <h3 id="celery-worker"><a href="#celery-worker" class="headerlink" title="celery worker"></a>celery worker</h3><p>首先了解一个blueprint 的概念，跟flask里面的概念类似，都是一个分组的概念。celery worker 启动的时候会有两个blueprint，一个是worker，一个是consumer，这两个blueprint都包含一些bootstep,bootstep 可以认为是启动的组件,bootstep 之间是有依赖关系的，也就是说，他们的启动是有顺序的，这些bootstep 很多引用了kombu中的概念。 </p>
-<p>如下是worker 的bootstep:<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/celery-blueprint.png" alt="celery-blueprint"><br>简要介绍下各个bootstep 的作用：</p>
+<p>如下是worker 的bootstep:<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/celery-blueprint.png" alt="celery-blueprint"><br>简要介绍下各个bootstep 的作用：</p>
 <p>Worker bootstep：</p>
 <ul>
 <li>Timer：用于执行定时任务的 Timer，和 Consumer 那里的 timer 不同</li>
@@ -748,7 +748,7 @@
 <li>Heart：发送心跳事件（consumer 的心跳）</li>
 <li>Control：远程命令管理服务</li>
 </ul>
-<p>各个bootstep 的依赖关系：<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2018-07-03-bootstep.png" alt="bootstep"></p>
+<p>各个bootstep 的依赖关系：<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2018-07-03-bootstep.png" alt="bootstep"></p>
 <p>这些bootstep 的具体行为这里不做解释了，感兴趣的可以去看参考文章，celery这里还留了一个接口，可以让我们自己 custom bootstep，自定义一个bootstep 类，然后hook 一些worker 在不同阶段会执行的自定义动作。参考<a href="http://docs.celeryproject.org/en/latest/userguide/extending.html#blueprints" target="_blank" rel="noopener">Extensions and Bootsteps</a></p>
 <h3 id="celery-task"><a href="#celery-task" class="headerlink" title="celery task"></a>celery task</h3><p>在定义task 的时候，我们经常使用这样一段类似代码：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@app.task</span><br><span class="line">def add(x,y):</span><br><span class="line">    return x+y</span><br></pre></td></tr></table></figure>
@@ -913,7 +913,7 @@
 <li>流数据处理。</li>
 <li>事件驱动架构的核心组件。 </li>
 </ul>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2018-06-04kafka-api.png" alt="kafka-api"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2018-06-04kafka-api.png" alt="kafka-api"></p>
 <p>上图中可看出kafka的角色，相应的，kafka也提供了四种核心api:</p>
 <ul>
 <li>The Producer API allows an application to publish a stream of records to one or more Kafka topics.</li>
@@ -922,7 +922,7 @@
 <li>The Connector API allows building and running reusable producers or consumers that connect Kafka topics to existing applications or data systems. For example, a connector to a relational database might capture every change to a table.</li>
 </ul>
 <h2 id="整体架构与术语"><a href="#整体架构与术语" class="headerlink" title="整体架构与术语"></a>整体架构与术语</h2><p>了解kafka，需要了解kafka  的一些术语,包括 producer,consumer,topic ,partition,broker等等。下面结合架构图统一解释：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2018-06-04-kafka-infra.png" alt="kafka-inf"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2018-06-04-kafka-infra.png" alt="kafka-inf"></p>
 <ul>
 <li>首先kafka 有producer 和consumer的概念，一个生产数据，一个消费数据，中间是一个broker（也就是一个消息队列），producer是以push的方式向broker推数据，consumer以pull 的方式从broker消费数据。</li>
 <li>producer 与consumer是通过topic 关联在一块的。topic类似于一个特定的分类。producer向某个指定的topic push数据，consumer从指定的topic消费数据。</li>
@@ -1079,21 +1079,21 @@
 <li>Clustered &amp; Virtualized Systems.</li>
 <li>Shared-Nothing, Geographically-Replicated Clusters.</li>
 </ul>
-<p>这三个层次的可用性依次递增，不过复杂性也随之增加。<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20180510142133tradeoff.jpg" alt="tradeoff"></p>
+<p>这三个层次的可用性依次递增，不过复杂性也随之增加。<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20180510142133tradeoff.jpg" alt="tradeoff"></p>
 <h3 id="Data-Replication"><a href="#Data-Replication" class="headerlink" title="Data Replication"></a>Data Replication</h3><p>这个级别的架构主要是 replication的方法实现mysql数据的复制冗余，具体方案有如下几种：</p>
-<h4 id="MYSQL-主从或主主半同步复制"><a href="#MYSQL-主从或主主半同步复制" class="headerlink" title="MYSQL 主从或主主半同步复制"></a>MYSQL 主从或主主半同步复制</h4><p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20180510150744-replication.jpg" alt="replication"></p>
+<h4 id="MYSQL-主从或主主半同步复制"><a href="#MYSQL-主从或主主半同步复制" class="headerlink" title="MYSQL 主从或主主半同步复制"></a>MYSQL 主从或主主半同步复制</h4><p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20180510150744-replication.jpg" alt="replication"></p>
 <p>这种架构比较简单，使用原生半同步复制作为数据同步的依据,缺点是需要额外考虑haproxy、keepalived的高可用机制，而且完全依赖于半同步复制，如果半同步复制退化为异步复制，数据一致性无法得到保证，可以通过针对网络波动的半同步复制优化解决。</p>
 <h4 id="利用MHA-实现HA"><a href="#利用MHA-实现HA" class="headerlink" title="利用MHA 实现HA"></a>利用MHA 实现HA</h4><p>MHA（Master High Availability）目前在MySQL高可用方面是一个相对成熟的解决方案，它由日本DeNA公司youshimaton（现就职于Facebook公司）开发，是一套优秀的作为MySQL高可用性环境下故障切换和主从提升的高可用软件。它主要解决的是master fail-over的情况下实现秒级切换且保证数据一致性。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20180510151622-mha1.jpg" alt="mha"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20180510151622-mha1.jpg" alt="mha"></p>
 <p>优点是操作非常简单，可以将任意slave提升为master，且MHA可以设定多个master,可用性提高，缺点是逻辑较为复杂，发生故障后排查问题，定位问题更加困难，且用perl开发，二次开发困难。<br>除了MHA ,还有MMM(Master-Master replication managerfor Mysql，Mysql主主复制管理器)方案。</p>
-<h4 id="SAN共享存储实现HA"><a href="#SAN共享存储实现HA" class="headerlink" title="SAN共享存储实现HA"></a>SAN共享存储实现HA</h4><p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20180510152934-san.jpg" alt="san"></p>
+<h4 id="SAN共享存储实现HA"><a href="#SAN共享存储实现HA" class="headerlink" title="SAN共享存储实现HA"></a>SAN共享存储实现HA</h4><p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20180510152934-san.jpg" alt="san"></p>
 <p>这种方案因为使用共享存储，不需要数据同步，不过专门的共享存储花销比较大，且需要专门的运维人员，适合一些土豪公司。</p>
 <h4 id="DRBD磁盘复制实现HA"><a href="#DRBD磁盘复制实现HA" class="headerlink" title="DRBD磁盘复制实现HA"></a>DRBD磁盘复制实现HA</h4><p>DRBD是一种基于软件、基于网络的块复制存储解决方案，主要用于对服务器之间的磁盘、分区、逻辑卷等进行数据镜像，当用户将数据写入本地磁盘时，还会将数据发送到网络中另一台主机的磁盘上，这样的本地主机(主节点)与远程主机(备节点)的数据就可以保证实时同步。<br>穷人版的SAN ,唯一不同的是没有使用SAN网络存储 ，而是使用local disk。由于是实时复制磁盘数据，性能会有影响。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20180510153049-drbd.jpg" alt="drbd"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20180510153049-drbd.jpg" alt="drbd"></p>
 <h3 id="Clustered-amp-Virtualized-Systems"><a href="#Clustered-amp-Virtualized-Systems" class="headerlink" title="Clustered &amp; Virtualized Systems"></a>Clustered &amp; Virtualized Systems</h3><p>大致有两种方案，一种是基于Mysql的NDB CLUSTER，另一种是MarianDB的Galera方案。</p>
-<h4 id="Mysql-NDB-CLUSTER"><a href="#Mysql-NDB-CLUSTER" class="headerlink" title="Mysql NDB CLUSTER"></a>Mysql NDB CLUSTER</h4><p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20180510160922-ndb.jpg" alt="ndb"></p>
+<h4 id="Mysql-NDB-CLUSTER"><a href="#Mysql-NDB-CLUSTER" class="headerlink" title="Mysql NDB CLUSTER"></a>Mysql NDB CLUSTER</h4><p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20180510160922-ndb.jpg" alt="ndb"></p>
 <p>国内用NDB集群的公司非常少。NDB集群不需要依赖第三方组件，全部都使用官方组件，能保证数据的一致性，某个数据节点挂掉，其他数据节点依然可以提供服务，管理节点需要做冗余以防挂掉。<br>缺点是：管理和配置都很复杂，而且某些SQL语句例如join语句需要避免。</p>
-<h4 id="MarianDB-Galera-Cluster"><a href="#MarianDB-Galera-Cluster" class="headerlink" title="MarianDB Galera Cluster"></a>MarianDB Galera Cluster</h4><p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20180510161231-galera.jpg" alt="galera"></p>
+<h4 id="MarianDB-Galera-Cluster"><a href="#MarianDB-Galera-Cluster" class="headerlink" title="MarianDB Galera Cluster"></a>MarianDB Galera Cluster</h4><p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20180510161231-galera.jpg" alt="galera"></p>
 <p>MariaDB Galera Cluster 是一套在mysql innodb存储引擎上面实现multi-master及数据实时同步的系统架构，业务层面无需做读写分离工作，数据库读写压力都能按照既定的规则分发到 各个节点上去。在数据方面完全兼容 MariaDB 和 MySQL。 </p>
 <h3 id="Geographically-Replicated-Clusters"><a href="#Geographically-Replicated-Clusters" class="headerlink" title="Geographically-Replicated Clusters"></a>Geographically-Replicated Clusters</h3><p>这种级别的Mysql集群是跨地域的数据中心，其实是上述解决方案的一种scale，但是规模更大，架构更加复杂，也没有一种统一的解决方案，这里不做讨论。</p>
 <h2 id="部署Mysql-到K8S集群"><a href="#部署Mysql-到K8S集群" class="headerlink" title="部署Mysql 到K8S集群"></a>部署Mysql 到K8S集群</h2><p>To be continued</p>
@@ -1426,14 +1426,14 @@
 <li>Hadoop MapReduce: 基于YARN的对大量数据并行处理的计算模型。<br>除了以上四个主要模块之外，Hadoop生态还有很多其他的的系统，以后再慢慢写，这里先写Hadoop生态中最重要的一个组件HDFS。</li>
 </ul>
 <p>先看下Hadoop里的服务角色：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20180201160125-hadoop-role.jpg" alt="hadoop-server-role"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20180201160125-hadoop-role.jpg" alt="hadoop-server-role"></p>
 <p>Hadoop主要的任务部署分为3个部分，分别是：Client机器，主节点和从节点。主节点主要负责Hadoop两个关键功能模块HDFS、Map Reduce的监督。Job Tracker使用Map Reduce进行监控和调度数据的并行处理，namenode则负责HDFS监视和调度。从节点负责了机器运行的绝大部分，担当所有数据储存和指令计算的苦差。每个从节点既扮演着数据节点的角色又充当与他们主节点通信的守护进程。守护进程隶属于Job Tracker，数据节点则归属于名称节点。Client负责把数据加载到集群中，递交给Map Reduce做数据处理工作，并在工作结束后取回或者查看结果。</p>
 <p>再看下典型的围绕hadoop 的workflow：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20180201160825hadoop-workflow.jpg" alt="hadoop-workflow"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20180201160825hadoop-workflow.jpg" alt="hadoop-workflow"></p>
 <h2 id="HDFS-Architecture"><a href="#HDFS-Architecture" class="headerlink" title="HDFS Architecture"></a>HDFS Architecture</h2><h3 id="架构"><a href="#架构" class="headerlink" title="架构"></a>架构</h3><p>HDFS的整体设计架构就是master/slave，namenode负责元数据的存取，数据管理等功能，datanode负责数据存储。如下：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20180201154432-hdfs-arch.jpg" alt="hdfs-arch"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20180201154432-hdfs-arch.jpg" alt="hdfs-arch"></p>
 <h3 id="datanode工作原理"><a href="#datanode工作原理" class="headerlink" title="datanode工作原理"></a>datanode工作原理</h3><p>数据的存储方式与ceph类似，默认都是三副本，先将大数据文件切割成固定大小（比如128M）的block，然后将这些block存放到三个不同的datanode中，namenode会记录对应文件block以及block所在位置。<br>举例一个datanode存储过程:client先做文件切割，并提交存储文件命令给namenode，namenode有一个rack awareness的功能，简单点说就是会将数据存储到不同机架上以避免机架故障（电源故障等），如果是三副本的话，首先client会写入block到某一节点A，然后另一机架中的节点B 会从A复制该数据,再然后同一机架内的另一个节点C会从B复制一份数据。这样一个pipeline既保证了数据的容灾，也能减小数据传输的延迟。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20180201161950-data-node.jpg" alt="datanode"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20180201161950-data-node.jpg" alt="datanode"></p>
 <h3 id="namenode工作原理"><a href="#namenode工作原理" class="headerlink" title="namenode工作原理"></a>namenode工作原理</h3><p>理解namenode，首先要理解两个文件。一个是 Edits文件，一个是FsImage映像文件，这两个文件就包含整个HDFS集群的元数据，而namenode的最大任务就是维护这两个文件。</p>
 <ul>
 <li>Edits文件：NameNode在本地操作系统的文件都会保存在Edits日志文件中。也就是说当文件系统中的任何元数据产生操作时，都会记录在Edits日志文件中。eg：在HDFS上创建一个文件，NameNode就会在Edits中插入一条记录。同样如果修改或者删除等操作，也会在Edits日志文件中新增一条数据。</li>
@@ -1441,7 +1441,7 @@
 </ul>
 <p>为什么会引入这两个文件呢，因为在HDFS的整个运行期里，所有元数据均在NameNode的内存集中管理，但是由于内存易失特性，一旦出现进程退出、宕机等异常情况，所有元数据都会丢失，为了更好的容错能力，NameNode会周期进行Checkpoint，将其中的一部分元数据（文件系统的目录树Namespace）刷到持久化设备上，即二进制文件FSImage，这样的话即使NameNode出现异常也能从持久化设备上恢复元数据。但是仅周期进行Checkpoint仍然无法保证所有数据的可靠，如前次Checkpoint之后写入的数据依然存在丢失的问题，所以将两次Checkpoint之间对Namespace写操作实时写入EditLog文件，通过这种方式可以保证HDFS元数据的绝对安全可靠。</p>
 <p>首先看一下namenode启动时做了哪些操作（下文部分直接引用自<a href="http://blog.csdn.net/mmd0308/article/details/74674524" target="_blank" rel="noopener">该博客</a>）：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20180201163924-namenode.jpg" alt="namenode"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20180201163924-namenode.jpg" alt="namenode"></p>
 <p>接下来看看check point的时候做了哪些操作,这个时候就要引入Secondary NameNode了，NameNode主要是存储文件的metadata，运行时所有数据都保存在内存中，这个的HDFS可存储的文件受限于NameNode的内存。而Secondary NameNode可以看做是NameNode的灾备（并非HA），它会定时与NameNode进行同步，定期的将fsimage映像文件和Edits日志文件进行合并，并将合并后的传入给NameNode，替换其镜像，并清空编辑日志。如果NameNode失效，需要手动的将其设置成namenode主机。<br>checkpoint的时间默认是3600秒（可配置），当Edits日志文件超过最大值时也会进行check point。checkpoint大致如下：</p>
 <ul>
 <li>NameNode通知Secondary NameNode进行checkpoint。</li>

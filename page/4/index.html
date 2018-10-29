@@ -362,13 +362,13 @@
         
           
             <h2 id="win7虚拟机CPU核数不变问题"><a href="#win7虚拟机CPU核数不变问题" class="headerlink" title="win7虚拟机CPU核数不变问题"></a>win7虚拟机CPU核数不变问题</h2><p>问题描述：虚拟机镜像为win7系统，配置为4cpu的时候，发现设备管理器显示为4cpu，但是任务管理器智能识别2cpu，如下图。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-07-24-renwu.png" alt="shebei"></p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-07-24-shebei.png" alt="renwu"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-07-24-renwu.png" alt="shebei"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-07-24-shebei.png" alt="renwu"></p>
 <p>问题解决：刚开始以为是win7系统引导项中限制到2核，更改后问题没有解决，更换镜像后问题依旧，后经过搜索得出答案:首先需要了解kvm的cpu虚拟化原理，可以参考<a href="http://www.cnblogs.com/sammyliu/p/4543597.html" target="_blank" rel="noopener">KVM 介绍（2）：CPU 和内存虚拟化</a>,简单来说，一个KVM虚拟机就是一个Linux qemu-kvm进程，内存就是该进程的地址空间的一部分，虚拟机的vcpu作为线程运行在该进程的上下文，逻辑关系如下：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-07-24-kvm-topology.jpg" alt="kvm-topology"><br>我们用kvm命令创建虚拟机时有几个概念，<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ kvm -m 2048 -smp 4,sockets=4,cores=1,threads=1 -drive file=win7_x64_pure</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-07-24-kvm-topology.jpg" alt="kvm-topology"><br>我们用kvm命令创建虚拟机时有几个概念，<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ kvm -m 2048 -smp 4,sockets=4,cores=1,threads=1 -drive file=win7_x64_pure</span><br></pre></td></tr></table></figure></p>
 <p>其中，smp 指定为4 ，默认后面什么都不加的话，相当于是sockets=4,cores=1,threads=1，简单解释下socket是cpu的物理单位，core是每个cpu中的物理内核，thread是利用超线程技术实现的一个core虚拟化出的逻辑cpu个数。也就是说，客户机操作系统看到的cpu核数是上述三个数值的乘积，至于使用多socket，还是多core，可以参考<a href="http://frankdenneman.nl/2013/09/18/vcpu-configuration-performance-impact-between-virtual-sockets-and-virtual-cores/" target="_blank" rel="noopener">vCPU configuration. Performance impact between virtual sockets and virtual cores?</a>。<br>回到之前的问题，openstack默认的max-sockets是4，也就是说只要socket没有特殊指定，且小于等于4，那么逻辑核数就是socket的个数。比如，创建一个4核的kvm虚拟机，那么openstack默认对应kvm命令为kvm -smp 4,sockets=4,cores=1,threads=1。而在某些客户机操作系统会限制物理 CPU （这里即socket）的数目,比如win7操作系统限制2个win，Windows Server 2008 R2 Standard Edition 限制4个。这种情况下，我们就需要更改cpu topology,比如win7,为了实现4核，可以利用以下命令：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kvm -m 2048 -smp 4,sockets=2,cores=1,threads=2 -drive file=win7_x64_pure</span><br></pre></td></tr></table></figure></p>
 <p>更多cpu topology 的知识，参考<a href="https://wiki.openstack.org/wiki/VirtDriverGuestCPUTopology" target="_blank" rel="noopener">VirtDriverGuestCPUTopology</a>。<br>回到openstack的话，我们可以给镜像添加合适的 max-sockets来解决此类问题，在win 7的镜像里加上一个属性, hw_max_sockets=2即可。</p>
-<h2 id="虚拟机调整配额失败"><a href="#虚拟机调整配额失败" class="headerlink" title="虚拟机调整配额失败"></a>虚拟机调整配额失败</h2><p>问题描述：如题，对已经启动的虚拟机调整配额，没有反应。<br>问题解决：找到对应计算节点，查看nova-compute日志发现错误原因，错误日志如下：<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-07-24-error-log.png" alt="nova-compute-error"></p>
+<h2 id="虚拟机调整配额失败"><a href="#虚拟机调整配额失败" class="headerlink" title="虚拟机调整配额失败"></a>虚拟机调整配额失败</h2><p>问题描述：如题，对已经启动的虚拟机调整配额，没有反应。<br>问题解决：找到对应计算节点，查看nova-compute日志发现错误原因，错误日志如下：<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-07-24-error-log.png" alt="nova-compute-error"></p>
 <p>无法ssh到目标节点，查阅相关资料后，得出resize命令需要设置nova用户在节点之间的passwordless authentication，解决如下：</p>
 <ul>
 <li>sudo -u nova ssh-keygen   # 生成nova的密钥</li>
@@ -1241,7 +1241,7 @@
 </ul>
 <p>弄懂了两者的区别，接下来需要认真探讨下两者实现的原理：</p>
 <h3 id="rbd-snapshot-实现原理"><a href="#rbd-snapshot-实现原理" class="headerlink" title="rbd snapshot 实现原理"></a>rbd snapshot 实现原理</h3><p>注意：snapshot时，一定要对原rbd image 停止IO操作，否则会引起数据不一致。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/snapshot.png" alt="snapshot"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/snapshot.png" alt="snapshot"></p>
 <p>跟git 实现版本控制类似，使用 COW （copy on write）方式实现。这里叙述下对某一pool中的某个image 进行snapshot 的过程：</p>
 <p>直接引用自<a href="http://www.wzxue.com/%E8%A7%A3%E6%9E%90ceph-snapshot/" target="_blank" rel="noopener">解析Ceph: Snapshot</a>：</p>
 <blockquote>
@@ -1258,12 +1258,12 @@
 </blockquote>
 </blockquote>
 <p>实验过程可以参考<a href="http://www.cnblogs.com/sammyliu/p/4843812.html" target="_blank" rel="noopener">理解 OpenStack + Ceph （4）：Ceph 的基础数据结构 [Pool, Image, Snapshot, Clone]</a>,实验结论摘抄如下：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-06-05-ceph-snap-cow.png" alt="ceph-snap-cow"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-06-05-ceph-snap-cow.png" alt="ceph-snap-cow"></p>
 <h3 id="rbd-clone-实现原理"><a href="#rbd-clone-实现原理" class="headerlink" title="rbd clone 实现原理"></a>rbd clone 实现原理</h3><p>从用户角度来说，clone操作实现了对某个只读snapshot 的image化，即clone之后，可以对这个clone进行读写，snapshot等等，跟一个rbd image一样。<br>从系统实现来说，也是利用 COW方式实现，clone会将clone与snapshot 的父子关系保存起来,以备IO操作时查找。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-06-05-clone.png" alt="clone-cow"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-06-05-clone.png" alt="clone-cow"></p>
 <p>实验验证部分参考<a href="http://www.cnblogs.com/sammyliu/p/4843812.html" target="_blank" rel="noopener">理解 OpenStack + Ceph （4）：Ceph 的基础数据结构 [Pool, Image, Snapshot, Clone]</a>。</p>
 <p>结论摘抄如下：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-06-05-clone-coe-conclusion.png" alt="cow-con"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-06-05-clone-coe-conclusion.png" alt="cow-con"></p>
 <h2 id="COW-VS-ROW"><a href="#COW-VS-ROW" class="headerlink" title="COW VS ROW"></a>COW VS ROW</h2><p>要想了解COW 与ROW，首先需要知道快照的两种类型，一种是全量快照，一种是增量快照。</p>
 <ul>
 <li>全量快照，顾名思义，就是为源数据卷创建并维护一个完整的镜像卷。</li>
@@ -1562,7 +1562,7 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ cinder backup-create  --name incrementalbackup --incremental &lt;volume-ID&gt;</span><br></pre></td></tr></table></figure>
 <p>其实不用加incremental tag也是可以的。</p>
 <p>可以利用删除backup 来证明一下，增量备份都会有一个 parent backup（父备份），就是基于父备份来做增量备份，通常来说，就是我们刚开始做的那个全量备份。在删除父备份之前，必须先把所有它的子备份删除，才可以成功删除父备份。示例如下：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-05-09-cinder-backup.png" alt="cinder-backup"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-05-09-cinder-backup.png" alt="cinder-backup"></p>
 <h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><p>关于备份的具体流程可以参考这张图：</p>
 <p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/backup_workflow.png" alt="backup-workflow"></p>
 <p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-05-10-backup-detail.jpg" alt="detail-backup"></p>
@@ -1923,10 +1923,10 @@
           
             <h2 id="引出"><a href="#引出" class="headerlink" title="引出"></a>引出</h2><p>性能监控是服务器运维非常重要的一部分，本文记录非常好用的几个性能监控工具，算是一个小的总结。<br>本文组织方式是按cpu,mem(内存)，网络，磁盘io等具体性能监控的方向分类，末尾介绍一些相对大而全，涵盖各方面的企业级监控工具。。</p>
 <h2 id="cpu-mem-监控工具"><a href="#cpu-mem-监控工具" class="headerlink" title="cpu/mem 监控工具"></a>cpu/mem 监控工具</h2><h3 id="top"><a href="#top" class="headerlink" title="top"></a>top</h3><p>这应该是第一个想到的性能监控命令，示例截图如下：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-04-06-top.png" alt="top"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-06-top.png" alt="top"></p>
 <p>我们关注得点应该包括：cpu,mem负载，load-average，以及占用内存或cpu最多的进程。<br>该命令还有一些交互的子命令，比如 “c” ,是按照CPU 占用排序，”m”是按照内存占用排序等。 </p>
 <h3 id="sar"><a href="#sar" class="headerlink" title="sar"></a>sar</h3><p>该命令号称系统监控的瑞士军刀，目前Linux上最为全面的系统性能分析工具之一，可以从14个大方面对系统的活动进行报告，包括文件的读写情况、系统调用的使用情况、串口、CPU效率、内存使用状况、进程活动及IPC有关的活动等，使用也是较为复杂。<br>sar 默认显示的是从零点开始每隔十分钟到现在的CPU情况，如果是查看之前的报告，需要指定日志报告，sar -f /var/log/sysstat/sa25 。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-04-06-sar.png" alt="sar-u"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-06-sar.png" alt="sar-u"></p>
 <p>解释下各列的指标：</p>
 <ul>
 <li>%user 用户模式下消耗的CPU时间的比例；</li>
@@ -1937,11 +1937,11 @@
 <li>%idle CPU空闲时间比例；</li>
 </ul>
 <p>查看 内存使用情况：sar -r </p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-04-06-dar-r.png" alt="sar-r"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-06-dar-r.png" alt="sar-r"></p>
 <p>查看内存页面交换发生状况：sar -W</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-04-06-sar-w.png" alt="sar-w"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-06-sar-w.png" alt="sar-w"></p>
 <p>查看带宽信息：sar -n DEV</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-04-06-SARN.png" alt="sar-n"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-06-SARN.png" alt="sar-n"></p>
 <p>要判断系统瓶颈问题，有时需几个 sar 命令选项结合起来；</p>
 <ul>
 <li>怀疑CPU存在瓶颈，可用 sar -u 和 sar -q 等来查看</li>
@@ -1950,7 +1950,7 @@
 </ul>
 <p>更详细的命令参数可以参考<a href="http://www.thegeekstuff.com/2011/03/sar-examples/" target="_blank" rel="noopener">10 Useful Sar (Sysstat) Examples for UNIX / Linux Performance Monitoring</a></p>
 <h2 id="网络监控工具"><a href="#网络监控工具" class="headerlink" title="网络监控工具"></a>网络监控工具</h2><h3 id="netstat"><a href="#netstat" class="headerlink" title="netstat"></a>netstat</h3><p>该命令会显示各种与网络相关的信息，比如网络连接，路由表，接口状态等。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-04-06-netstat.png" alt="netstst"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-06-netstat.png" alt="netstst"></p>
 <p>解释下主要有两个部分：</p>
 <ul>
 <li>Active Internet connections，称为源TCP连接，其中”Recv-Q”和”Send-Q”指接收队列和发送队列。这些数字一般都应该是0。如果不是则表示软件包正在队列中堆积</li>
@@ -1969,7 +1969,7 @@
 <li>TCP、UDP、及其他协议的显示过滤器，允许你只查看感兴趣的流量。</li>
 </ul>
 <p>以下为一个查看网卡统计信息的界面：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-04-06-iptraf.png" alt="iptraf"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-06-iptraf.png" alt="iptraf"></p>
 <h2 id="大而全的企业级性能监控工具"><a href="#大而全的企业级性能监控工具" class="headerlink" title="大而全的企业级性能监控工具"></a>大而全的企业级性能监控工具</h2><p>目前开源的企业级性能监控工具应用比较广泛的应该属Nagios 与Zabbix了，关于两者对比，可以参考：</p>
 <p><a href="https://blog.pandorafms.org/zabbix-vs-nagios-vs-pandorafms-an-in-depth-comparison/" target="_blank" rel="noopener">Zabbix vs Nagios vs PandoraFMS: an in depth comparison</a></p>
 <p><a href="https://www.zhihu.com/question/19973178" target="_blank" rel="noopener">开源监控系统中 Zabbix 和 Nagios 哪个更好？</a></p>

@@ -92,14 +92,14 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="引出ceph 的中文文档做的真是非常棒，比起openstack的中文文档来说，不仅全，而且更新也比较及时，openstack的文档还是直接查阅英文版的比较好。 本文是在查阅ceph官网文档过程中，联系实际操作做出的一些思考与记录。 ceph rbd 的简单说明官网对rbd的定义是这样的：Ceph 块设备是精简配置的、大小可调且将数据条带化存储到集群内的多个 OSD。 ceph rbd是基于 rad">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2017-03-03-openstack-ceph-rbd.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2017-03-03-ceph-cow.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2017-03-03-clone-process.png">
-<meta property="og:updated_time" content="2018-05-28T07:57:22.525Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-03-03-openstack-ceph-rbd.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-03-03-ceph-cow.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-03-03-clone-process.png">
+<meta property="og:updated_time" content="2018-10-29T10:02:57.895Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ceph-- 关于ceph rbd 的一些记录">
 <meta name="twitter:description" content="引出ceph 的中文文档做的真是非常棒，比起openstack的中文文档来说，不仅全，而且更新也比较及时，openstack的文档还是直接查阅英文版的比较好。 本文是在查阅ceph官网文档过程中，联系实际操作做出的一些思考与记录。 ceph rbd 的简单说明官网对rbd的定义是这样的：Ceph 块设备是精简配置的、大小可调且将数据条带化存储到集群内的多个 OSD。 ceph rbd是基于 rad">
-<meta name="twitter:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2017-03-03-openstack-ceph-rbd.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-03-03-openstack-ceph-rbd.png">
 
 
 
@@ -368,7 +368,7 @@
 <h2 id="ceph-rbd-的简单说明"><a href="#ceph-rbd-的简单说明" class="headerlink" title="ceph rbd 的简单说明"></a>ceph rbd 的简单说明</h2><p>官网对rbd的定义是这样的：Ceph 块设备是精简配置的、大小可调且将数据条带化存储到集群内的多个 OSD。</p>
 <p>ceph rbd是基于 rados来做的，也就是说，一个 rbd image 首先会被分成多个等大的 object，这些object再 根据 crush map 存储到对应的3个（或n个，n为奇数）OSD中，理解这一点对于理解 rbd 中的 stripe-unit和 stripe-count 有帮助。<br>所以如果考虑深层的话需要结合RADOS 的多种能力，如快照、复制和一致性。</p>
 <p>对于openstack来说，通常是通过libvirt 来控制磁盘的虚拟化(比如qemu),再通过qemu来与rbd打交道，如下图：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-03-03-openstack-ceph-rbd.png" alt="ceph-rbd-qemu"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-03-03-openstack-ceph-rbd.png" alt="ceph-rbd-qemu"></p>
 <p>qemu会调用librbd 实现rbd的增删改查等一系列操作，当然也有配套的 qemu命令，详见<a href="http://docs.ceph.org.cn/rbd/qemu-rbd/" target="_blank" rel="noopener">QEMU 与块设备</a></p>
 <p>libvirt 是一套虚拟机抽象层，它隐藏了底层多种虚拟化的具体实现，提供给client一套统一的通用API和shell接口。关于如何用 virsh 新建一个挂载rbd 的vm，可以参考<a href="http://docs.ceph.org.cn/rbd/libvirt/" target="_blank" rel="noopener">通过 LIBVIRT 使用 CEPH RBD</a></p>
 <p>关于openstack 与ceph 的整合与配置，参考<a href="http://docs.ceph.org.cn/rbd/rbd-openstack/" target="_blank" rel="noopener">块设备与 OPENSTACK</a></p>
@@ -377,12 +377,12 @@
 <h3 id="rbd-snapshot-相关操作"><a href="#rbd-snapshot-相关操作" class="headerlink" title="rbd snapshot 相关操作"></a>rbd snapshot 相关操作</h3><p>快照是映像在某个特定时间点的一份只读副本,ceph 的快照有一个比较高级的特性就是分层clone，在openstack 中会实现非常快的创建VM，下文会详细讲解。</p>
 <h4 id="rbd-snapshot-的基本操作"><a href="#rbd-snapshot-的基本操作" class="headerlink" title="rbd snapshot 的基本操作"></a>rbd snapshot 的基本操作</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ rbd snap create &#123;pool-name&#125;/&#123;image-name&#125;@&#123;snap-name&#125; <span class="comment"># 创建快照</span></span><br><span class="line"></span><br><span class="line">$ rbd snap ls &#123;pool-name&#125;/&#123;image-name&#125; <span class="comment">#罗列 某个镜像的快照</span></span><br><span class="line"></span><br><span class="line">$ rbd snap rollback &#123;pool-name&#125;/&#123;image-name&#125;@&#123;snap-name&#125; <span class="comment"># 快照回滚</span></span><br><span class="line"></span><br><span class="line">$ rbd snap rm &#123;pool-name&#125;/&#123;image-name&#125;@&#123;snap-name&#125; <span class="comment"># 删除某一快照</span></span><br><span class="line"></span><br><span class="line">$ rbd snap purge &#123;pool-name&#125;/&#123;image-name&#125; <span class="comment"># 清除某一镜像的所有快照</span></span><br></pre></td></tr></table></figure>
 <h4 id="ceph-快照的分层-clone"><a href="#ceph-快照的分层-clone" class="headerlink" title="ceph 快照的分层 clone"></a>ceph 快照的分层 clone</h4><p>Ceph 支持为某一rbd snapshot创建很多个写时复制（ COW ）克隆。所谓写时复制，就是执行 clone命令后，并没有立即执行clone操作，而是引用原文件，当发生写入操作时才真正执行clone操作。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-03-03-ceph-cow.png" alt="rbd-cow"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-03-03-ceph-cow.png" alt="rbd-cow"></p>
 <p>注意： clone只能用于 protected 的snapshot,且仅支持克隆 format 2 的映像（即用 rbd create –image-format 2 创建的）。</p>
 <p>分层快照使得 Ceph 块设备客户端可以很快地创建映像，这样便能实现openstack 中非常快的创建VM,而且，随着 openstack 的Nova image-create与ceph的snapshot的无缝连接，镜像的制作更快捷方便了，关于这部分，可以参考<a href="http://ceph.org.cn/2016/05/02/%E5%9F%BA%E4%BA%8Eceph-rbd%E7%9A%84openstack-nova%E5%BF%AB%E7%85%A7/" target="_blank" rel="noopener">基于Ceph RBD的OpenStack Nova快照</a></p>
 <p>关于 rbd snapshot 的内在原理 ，参考<a href="http://www.sysnote.org/2016/02/28/ceph-rbd-snap/" target="_blank" rel="noopener">ceph rbd快照原理解析</a></p>
 <p>clone 的 步骤如下：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-03-03-clone-process.png" alt="clone-process"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-03-03-clone-process.png" alt="clone-process"></p>
 <p>相关命令如下：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ rbd snap protect &#123;pool-name&#125;/&#123;image-name&#125;@&#123;snapshot-name&#125; <span class="comment"># 保护快照</span></span><br><span class="line"></span><br><span class="line">$ rbd <span class="built_in">clone</span> &#123;pool-name&#125;/&#123;parent-image&#125;@&#123;snap-name&#125; &#123;pool-name&#125;/&#123;child-image-name&#125; <span class="comment">#克隆快照</span></span><br><span class="line"></span><br><span class="line">$ rbd snap unprotect &#123;pool-name&#125;/&#123;image-name&#125;@&#123;snapshot-name&#125; <span class="comment"># 删除快照前，必须先取消保护。此外，不可以删除被克隆映像引用的快照，所以在删除快照前，必须先拍平（ flatten ）此快照的各个克隆。</span></span><br><span class="line"></span><br><span class="line">$ rbd children &#123;pool-name&#125;/&#123;image-name&#125;@&#123;snapshot-name&#125; <span class="comment"># 罗列快照的子孙</span></span><br><span class="line"></span><br><span class="line">$ rbd flatten &#123;pool-name&#125;/&#123;image-name&#125; <span class="comment"># 拍平克隆映像</span></span><br></pre></td></tr></table></figure>
 <h3 id="rbd-与内核相关的map-unmap"><a href="#rbd-与内核相关的map-unmap" class="headerlink" title="rbd 与内核相关的map/unmap"></a>rbd 与内核相关的map/unmap</h3><p>注意：由于Linux kernel支持rbd的版本较高，一般需要升级到较高版本（建议升级到3.11+）</p>

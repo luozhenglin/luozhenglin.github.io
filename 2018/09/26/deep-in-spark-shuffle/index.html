@@ -92,14 +92,14 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="概述按以下组织方式行文，  shuffle 概述。 spark shuffle 的大致原理。 spark shuffle 源码解析。 hadoop 的shuffle 与spark shuffle的异同。 spark shuffle 调优。  shuffle 概述spark shuffle 是spark job中某些算子触发的操作，更详细点说，当rdd依赖中出现宽依赖的时候，就会触发shuffle">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/shuffle-2018-09-25.jpeg">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/sort-shuffle-bypass.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/sort-shuffle-common.png">
-<meta property="og:updated_time" content="2018-10-10T10:07:32.377Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/shuffle-2018-09-25.jpeg">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/sort-shuffle-bypass.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/sort-shuffle-common.png">
+<meta property="og:updated_time" content="2018-10-29T10:02:39.825Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Inf-- 深入理解 Spark shuffle ">
 <meta name="twitter:description" content="概述按以下组织方式行文，  shuffle 概述。 spark shuffle 的大致原理。 spark shuffle 源码解析。 hadoop 的shuffle 与spark shuffle的异同。 spark shuffle 调优。  shuffle 概述spark shuffle 是spark job中某些算子触发的操作，更详细点说，当rdd依赖中出现宽依赖的时候，就会触发shuffle">
-<meta name="twitter:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/shuffle-2018-09-25.jpeg">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/shuffle-2018-09-25.jpeg">
 
 
 
@@ -382,7 +382,7 @@
 <ul>
 <li>BypassMergeSortShuffleWriter</li>
 <li>SortShuffleWriter</li>
-<li>UnsafeShuffleWriter<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/shuffle-2018-09-25.jpeg" alt="shuffle"></li>
+<li>UnsafeShuffleWriter<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/shuffle-2018-09-25.jpeg" alt="shuffle"></li>
 </ul>
 <p>下面分别介绍一下这三种writer 的原理：</p>
 <h3 id="BypassMergeSortShuffleWriter"><a href="#BypassMergeSortShuffleWriter" class="headerlink" title="BypassMergeSortShuffleWriter"></a>BypassMergeSortShuffleWriter</h3><p>首先，BypassMergeSortShuffleWriter的运行机制的触发条件如下：</p>
@@ -391,10 +391,10 @@
 <li>没有map side aggregations。<br>note: map side aggregations是指在map端的聚合操作，通常来说一些聚合类的算子都会都map端的aggregation。不过对于groupByKey 和combineByKey， 如果设定mapSideCombine为false，就不会有 map side aggregations。</li>
 </ul>
 <p>触发之后，整体的处理流程大致如下：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/sort-shuffle-bypass.png" alt="bypass-sort-shuffle"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/sort-shuffle-bypass.png" alt="bypass-sort-shuffle"></p>
 <p>每个task 会为每一个下游的reduce task 创建一个临时文件(图中下游reduce task应该有三个，这张图直接引用的美团技术博客的，不改了)，将key按照hash 存入对应临时文件中，因为写入磁盘文件是通过Java的BufferedOutputStream实现的，BufferedOutputStream是Java的缓冲输出流，首先会将数据缓冲在内存中，当内存缓冲满溢之后再一次写入磁盘文件中，这样可以减少磁盘IO次数，提升性能。所以图中会有内存缓冲的概念。最后，会将所有临时文件合并成一个磁盘文件，并创建一个索引文件标识下游各个reduce task的数据在文件中的start offset与end offset。<br>该过程的磁盘写机制其实跟未经优化的HashShuffleManager是一样的，也会创建很多的临时文件（所以触发条件中会有reduce task 数量限制），只是在最后会做一个磁盘文件的合并，对于shuffle  reader 会更友好一些。</p>
 <h3 id="SortShuffleWriter"><a href="#SortShuffleWriter" class="headerlink" title="SortShuffleWriter"></a>SortShuffleWriter</h3><p>这种writer 思想上照抄了mapreduce 的shuffle。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/sort-shuffle-common.png" alt="sort-shuffle"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/sort-shuffle-common.png" alt="sort-shuffle"></p>
 <p>该模式下，数据首先写入一个内存数据结构中，此时根据不同的shuffle算子，可能选用不同的数据结构。如果是reduceByKey这种聚合类的shuffle算子，那么会选用Map数据结构，一边通过Map进行聚合，一边写入内存；如果是join这种普通的shuffle算子，那么会选用Array数据结构，直接写入内存。接着，每写一条数据进入内存数据结构之后，就会判断一下，是否达到了某个临界阈值。如果达到临界阈值的话，那么就会尝试将内存数据结构中的数据溢写到磁盘，然后清空内存数据结构。<br>在溢写到磁盘文件之前，会先根据key对内存数据结构中已有的数据进行排序。排序过后，会分批将数据写入磁盘文件。默认的batch数量是10000条，也就是说，排序好的数据，会以每批1万条数据的形式分批写入磁盘文件。写入磁盘文件也是通过Java的BufferedOutputStream实现的。<br>一个task将所有数据写入内存数据结构的过程中，会发生多次磁盘溢写操作，也就会产生多个临时文件。最后会将之前所有的临时磁盘文件都进行合并，这就是merge过程，此时会将之前所有临时磁盘文件中的数据读取出来，然后依次写入最终的磁盘文件之中。此外，由于一个task就只对应一个磁盘文件，也就意味着该task为下游stage的task准备的数据都在这一个文件中，因此还会单独写一份索引文件，其中标识了下游各个task的数据在文件中的start offset与end offset。</p>
 <p>hadoop shuffle map 阶段会不断地以健值对的形式把数据输出到在内存中构造的一个环形数据结构（更有效地使用内存空间）中，这里是存在map/array中。</p>
 <p>BypassMergeSortShuffleWriter 与该机制相比：第一，磁盘写机制不同；第二，不会进行排序。也就是说，启用BypassMerge机制的最大好处在于，shuffle write过程中，不需要进行数据的排序操作，也就节省掉了这部分的性能开销，当然需要满足那两个触发条件。</p>

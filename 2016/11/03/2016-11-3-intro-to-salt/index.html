@@ -92,13 +92,13 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="SaltStalk是什么salt官网给出的介绍简洁明了：  一个配置管理系统，能够维护预定义状态的远程节点(比如，确保指定的报被安装，指定的服务在运行) 一个分布式远程执行系统，用来在远程节点（可以是单个节点，也可以是任意规则挑选出来的节点）上执行命令和查询数据。开发其的目的是为远程执行提供最好的解决方案，并使远程执行变得更好，更快，更简单。  其实，除了saltstack,还有其他的同类型软件">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20161107external-job-cache.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20161107master-job-cache.png">
-<meta property="og:updated_time" content="2018-05-28T07:57:22.520Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161107external-job-cache.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161107master-job-cache.png">
+<meta property="og:updated_time" content="2018-10-29T10:02:49.911Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="devops系列-- 运维利器SaltStalk介绍">
 <meta name="twitter:description" content="SaltStalk是什么salt官网给出的介绍简洁明了：  一个配置管理系统，能够维护预定义状态的远程节点(比如，确保指定的报被安装，指定的服务在运行) 一个分布式远程执行系统，用来在远程节点（可以是单个节点，也可以是任意规则挑选出来的节点）上执行命令和查询数据。开发其的目的是为远程执行提供最好的解决方案，并使远程执行变得更好，更快，更简单。  其实，除了saltstack,还有其他的同类型软件">
-<meta name="twitter:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20161107external-job-cache.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161107external-job-cache.png">
 
 
 
@@ -392,9 +392,9 @@
 <li>job管理器：可以实现对minion job的发送信号，定时调度等</li>
 <li>job 返回数据管理：系统默认返回数据存储在Job cache（默认是在/var/cache/salt/master/jobs目录）中，还有其他两种存储模式：一种是External Job Cache，如下图</li>
 </ul>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161107external-job-cache.png" alt="External Job Cache"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161107external-job-cache.png" alt="External Job Cache"></p>
 <p>另一种是Master Job Cache，如下图：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161107master-job-cache.png" alt="Master Job Cache"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161107master-job-cache.png" alt="Master Job Cache"></p>
 <ul>
 <li>returner: 我们可以在master端执行远程指令时指定returner,这样minion返回的数据不仅会返回到master，也会返回到我们指定的returner。而且我们也可以按照要求实现一个returner，来替换我们的Default Job Cache。</li>
 </ul>

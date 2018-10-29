@@ -92,12 +92,12 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="目录结构：监视器MON故障排除 OSD 故障排除 归置组排障   监视器MON故障排除 简单记下修复 monmap的过程： 1. 如果该mon节点是quorum 节点，直接获取monmap: ceph mon getmap -o /tmp/monmap 2. 如果该mon节点不是quorum 节点，从别的quorum节点(假设有ID，且已stop)获取:ceph-mon -i ID --extra">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2016-12-21-ceph-mon-trouble-shotting.png">
-<meta property="og:updated_time" content="2018-05-28T07:57:22.522Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2016-12-21-ceph-mon-trouble-shotting.png">
+<meta property="og:updated_time" content="2018-10-29T10:02:53.826Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ceph系列-- ceph 运维(二)-----常见TroubleShooting">
 <meta name="twitter:description" content="目录结构：监视器MON故障排除 OSD 故障排除 归置组排障   监视器MON故障排除 简单记下修复 monmap的过程： 1. 如果该mon节点是quorum 节点，直接获取monmap: ceph mon getmap -o /tmp/monmap 2. 如果该mon节点不是quorum 节点，从别的quorum节点(假设有ID，且已stop)获取:ceph-mon -i ID --extra">
-<meta name="twitter:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2016-12-21-ceph-mon-trouble-shotting.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2016-12-21-ceph-mon-trouble-shotting.png">
 
 
 
@@ -365,7 +365,7 @@
 <p><a href="#B">OSD 故障排除</a></p>
 <p><a href="#C">归置组排障 </a></p>
 <p><a name="A"></a></p>
-<h2 id="监视器MON故障排除"><a href="#监视器MON故障排除" class="headerlink" title="监视器MON故障排除"></a>监视器MON故障排除</h2><p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2016-12-21-ceph-mon-trouble-shotting.png" alt="ceph-mon-trouble-shot"></p>
+<h2 id="监视器MON故障排除"><a href="#监视器MON故障排除" class="headerlink" title="监视器MON故障排除"></a>监视器MON故障排除</h2><p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2016-12-21-ceph-mon-trouble-shotting.png" alt="ceph-mon-trouble-shot"></p>
 <p>简单记下修复 monmap的过程：</p>
 <pre><code>1. 如果该mon节点是quorum 节点，直接获取monmap: ceph mon getmap -o /tmp/monmap
 2. 如果该mon节点不是quorum 节点，从别的quorum节点(假设有ID，且已stop)获取:ceph-mon -i ID --extract-monmap /tmp/monmap

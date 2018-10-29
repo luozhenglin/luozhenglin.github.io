@@ -92,21 +92,21 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="目录结构：nfs 设置 修改cinder 配置文件   nfs 设置首先对nfs进行设置，大体以下几个步骤：  磁盘分区，格式化磁盘在格式化磁盘的时候出现如下错误：搜了很长时间没找到答案，看提示应该是系统还有什么进程在使用这块磁盘，后请教别人后发现该磁盘之前做过ceph的osd盘，虽然已经删除了对应的关联，但是并没有删除完全，必须将/var/lib/ceph/osd/下对应的ceph包删除。然后，">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20161110-fdisk.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20161110-mkfswrong.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20161110ceph.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20161110mkfsright.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20161111mount-file.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20161111nfs-install.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20161111nfs-config.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20161110cinder-config.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20161110-nfsshare.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20161111-mount-nfs.png">
-<meta property="og:updated_time" content="2018-05-28T07:57:22.520Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161110-fdisk.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161110-mkfswrong.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161110ceph.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161110mkfsright.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161111mount-file.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161111nfs-install.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161111nfs-config.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161110cinder-config.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161110-nfsshare.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161111-mount-nfs.png">
+<meta property="og:updated_time" content="2018-10-29T10:02:49.272Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="openstack系列--设置nfs作为cinder backend">
 <meta name="twitter:description" content="目录结构：nfs 设置 修改cinder 配置文件   nfs 设置首先对nfs进行设置，大体以下几个步骤：  磁盘分区，格式化磁盘在格式化磁盘的时候出现如下错误：搜了很长时间没找到答案，看提示应该是系统还有什么进程在使用这块磁盘，后请教别人后发现该磁盘之前做过ceph的osd盘，虽然已经删除了对应的关联，但是并没有删除完全，必须将/var/lib/ceph/osd/下对应的ceph包删除。然后，">
-<meta name="twitter:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20161110-fdisk.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161110-fdisk.png">
 
 
 
@@ -375,23 +375,23 @@
 <p><a name="A"></a></p>
 <h2 id="nfs-设置"><a href="#nfs-设置" class="headerlink" title="nfs 设置"></a>nfs 设置</h2><p>首先对nfs进行设置，大体以下几个步骤：</p>
 <ul>
-<li><p>磁盘分区，格式化磁盘<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161110-fdisk.png" alt="fdisk"><br>在格式化磁盘的时候出现如下错误：<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161110-mkfswrong.png" alt="mkfswrong"><br>搜了很长时间没找到答案，看提示应该是系统还有什么进程在使用这块磁盘，后请教别人后发现该磁盘之前做过ceph的osd盘，虽然已经删除了对应的关联，但是并没有删除完全，必须将/var/lib/ceph/osd/下对应的ceph包删除。<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161110ceph.png" alt="ceph osd"><br>然后，格式化成功。<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161110mkfsright.png" alt="mkfs"></p>
+<li><p>磁盘分区，格式化磁盘<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161110-fdisk.png" alt="fdisk"><br>在格式化磁盘的时候出现如下错误：<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161110-mkfswrong.png" alt="mkfswrong"><br>搜了很长时间没找到答案，看提示应该是系统还有什么进程在使用这块磁盘，后请教别人后发现该磁盘之前做过ceph的osd盘，虽然已经删除了对应的关联，但是并没有删除完全，必须将/var/lib/ceph/osd/下对应的ceph包删除。<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161110ceph.png" alt="ceph osd"><br>然后，格式化成功。<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161110mkfsright.png" alt="mkfs"></p>
 </li>
-<li><p>新建共享目录，mount 磁盘<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161111mount-file.png" alt="mount file"></p>
+<li><p>新建共享目录，mount 磁盘<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161111mount-file.png" alt="mount file"></p>
 </li>
-<li>nfs安装 先查看有没有安装<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161111nfs-install.png" alt="nfs-install"></li>
-<li>配置nfs共享文件路径并启动nfsserver.<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161111nfs-config.png" alt="nfs-config"></li>
+<li>nfs安装 先查看有没有安装<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161111nfs-install.png" alt="nfs-install"></li>
+<li>配置nfs共享文件路径并启动nfsserver.<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161111nfs-config.png" alt="nfs-config"></li>
 </ul>
 <p><a name="B"></a></p>
 <h2 id="修改cinder-配置文件"><a href="#修改cinder-配置文件" class="headerlink" title="修改cinder 配置文件"></a>修改cinder 配置文件</h2><ul>
-<li><p>首先修改cinder配置文件cinder.conf，指定nfsshare文件路径(图中注释部分为之前的ceph配置)<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161110cinder-config.png" alt="cinder-config"></p>
+<li><p>首先修改cinder配置文件cinder.conf，指定nfsshare文件路径(图中注释部分为之前的ceph配置)<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161110cinder-config.png" alt="cinder-config"></p>
 </li>
-<li><p>添加nfsshare 文件，只需要指出nfs暴露的接口即可。<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161110-nfsshare.png" alt="nfsshare"></p>
+<li><p>添加nfsshare 文件，只需要指出nfs暴露的接口即可。<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161110-nfsshare.png" alt="nfsshare"></p>
 </li>
 <li>重启cinder-volume</li>
 <li>发现cinder volume报错，发现是cinder对挂载的nfs没有权限，修改nfs挂载文件的user,group 为cinder，或者直接chmod 777 (不安全)</li>
 <li>重启cinder-volume，成功。</li>
-<li>查看mount验证下。<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161111-mount-nfs.png" alt="mount verify"></li>
+<li>查看mount验证下。<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161111-mount-nfs.png" alt="mount verify"></li>
 </ul>
 <h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a href="http://wiki.jikexueyuan.com/project/learn-linux-step-by-step/disk-partition-format-and-test.html" target="_blank" rel="noopener">磁盘分区，格式化与检验</a></p>
 <p><a href="http://www.centoscn.com/CentosSecurity/SoftSecurity/2015/0408/5118.html" target="_blank" rel="noopener">CentOS 6.5下NFS安装配置</a><br><a href="http://docs.openstack.org/admin-guide/blockstorage-nfs-backend.html" target="_blank" rel="noopener">Configure an NFS storage back end</a></p>

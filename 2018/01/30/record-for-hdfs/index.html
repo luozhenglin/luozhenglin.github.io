@@ -92,18 +92,18 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="概述最近因为项目需要将重心转移到大数据架构这一块，所以将大数据的内容大致过一下，在此记录，内容大部分来自官方文档与博客，主要基于Hadoop 的最新stable版本（2.9）。学习大数据，立马想到的就是Hadoop，Hadoop是一个开源的可依赖，可扩展的分布式计算框架，采用普通PC机集群完成对大量数据的存储，计算。这个项目主要包括四个模块：  Hadoop Common: Hadoop的Comm">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20180201160125-hadoop-role.jpg">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20180201160825hadoop-workflow.jpg">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20180201154432-hdfs-arch.jpg">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20180201161950-data-node.jpg">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20180201163924-namenode.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20180201160125-hadoop-role.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20180201160825hadoop-workflow.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20180201154432-hdfs-arch.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20180201161950-data-node.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20180201163924-namenode.jpg">
 <meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2018-2-2-HDFS-HA.jpg">
 <meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2018-02-02Hadoop%20Range.png">
-<meta property="og:updated_time" content="2018-10-29T08:53:07.531Z">
+<meta property="og:updated_time" content="2018-10-29T10:03:08.256Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Hadoop-- Hadoop学习之HDFS">
 <meta name="twitter:description" content="概述最近因为项目需要将重心转移到大数据架构这一块，所以将大数据的内容大致过一下，在此记录，内容大部分来自官方文档与博客，主要基于Hadoop 的最新stable版本（2.9）。学习大数据，立马想到的就是Hadoop，Hadoop是一个开源的可依赖，可扩展的分布式计算框架，采用普通PC机集群完成对大量数据的存储，计算。这个项目主要包括四个模块：  Hadoop Common: Hadoop的Comm">
-<meta name="twitter:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20180201160125-hadoop-role.jpg">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20180201160125-hadoop-role.jpg">
 
 
 
@@ -375,14 +375,14 @@
 <li>Hadoop MapReduce: 基于YARN的对大量数据并行处理的计算模型。<br>除了以上四个主要模块之外，Hadoop生态还有很多其他的的系统，以后再慢慢写，这里先写Hadoop生态中最重要的一个组件HDFS。</li>
 </ul>
 <p>先看下Hadoop里的服务角色：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20180201160125-hadoop-role.jpg" alt="hadoop-server-role"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20180201160125-hadoop-role.jpg" alt="hadoop-server-role"></p>
 <p>Hadoop主要的任务部署分为3个部分，分别是：Client机器，主节点和从节点。主节点主要负责Hadoop两个关键功能模块HDFS、Map Reduce的监督。Job Tracker使用Map Reduce进行监控和调度数据的并行处理，namenode则负责HDFS监视和调度。从节点负责了机器运行的绝大部分，担当所有数据储存和指令计算的苦差。每个从节点既扮演着数据节点的角色又充当与他们主节点通信的守护进程。守护进程隶属于Job Tracker，数据节点则归属于名称节点。Client负责把数据加载到集群中，递交给Map Reduce做数据处理工作，并在工作结束后取回或者查看结果。</p>
 <p>再看下典型的围绕hadoop 的workflow：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20180201160825hadoop-workflow.jpg" alt="hadoop-workflow"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20180201160825hadoop-workflow.jpg" alt="hadoop-workflow"></p>
 <h2 id="HDFS-Architecture"><a href="#HDFS-Architecture" class="headerlink" title="HDFS Architecture"></a>HDFS Architecture</h2><h3 id="架构"><a href="#架构" class="headerlink" title="架构"></a>架构</h3><p>HDFS的整体设计架构就是master/slave，namenode负责元数据的存取，数据管理等功能，datanode负责数据存储。如下：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20180201154432-hdfs-arch.jpg" alt="hdfs-arch"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20180201154432-hdfs-arch.jpg" alt="hdfs-arch"></p>
 <h3 id="datanode工作原理"><a href="#datanode工作原理" class="headerlink" title="datanode工作原理"></a>datanode工作原理</h3><p>数据的存储方式与ceph类似，默认都是三副本，先将大数据文件切割成固定大小（比如128M）的block，然后将这些block存放到三个不同的datanode中，namenode会记录对应文件block以及block所在位置。<br>举例一个datanode存储过程:client先做文件切割，并提交存储文件命令给namenode，namenode有一个rack awareness的功能，简单点说就是会将数据存储到不同机架上以避免机架故障（电源故障等），如果是三副本的话，首先client会写入block到某一节点A，然后另一机架中的节点B 会从A复制该数据,再然后同一机架内的另一个节点C会从B复制一份数据。这样一个pipeline既保证了数据的容灾，也能减小数据传输的延迟。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20180201161950-data-node.jpg" alt="datanode"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20180201161950-data-node.jpg" alt="datanode"></p>
 <h3 id="namenode工作原理"><a href="#namenode工作原理" class="headerlink" title="namenode工作原理"></a>namenode工作原理</h3><p>理解namenode，首先要理解两个文件。一个是 Edits文件，一个是FsImage映像文件，这两个文件就包含整个HDFS集群的元数据，而namenode的最大任务就是维护这两个文件。</p>
 <ul>
 <li>Edits文件：NameNode在本地操作系统的文件都会保存在Edits日志文件中。也就是说当文件系统中的任何元数据产生操作时，都会记录在Edits日志文件中。eg：在HDFS上创建一个文件，NameNode就会在Edits中插入一条记录。同样如果修改或者删除等操作，也会在Edits日志文件中新增一条数据。</li>
@@ -390,7 +390,7 @@
 </ul>
 <p>为什么会引入这两个文件呢，因为在HDFS的整个运行期里，所有元数据均在NameNode的内存集中管理，但是由于内存易失特性，一旦出现进程退出、宕机等异常情况，所有元数据都会丢失，为了更好的容错能力，NameNode会周期进行Checkpoint，将其中的一部分元数据（文件系统的目录树Namespace）刷到持久化设备上，即二进制文件FSImage，这样的话即使NameNode出现异常也能从持久化设备上恢复元数据。但是仅周期进行Checkpoint仍然无法保证所有数据的可靠，如前次Checkpoint之后写入的数据依然存在丢失的问题，所以将两次Checkpoint之间对Namespace写操作实时写入EditLog文件，通过这种方式可以保证HDFS元数据的绝对安全可靠。</p>
 <p>首先看一下namenode启动时做了哪些操作（下文部分直接引用自<a href="http://blog.csdn.net/mmd0308/article/details/74674524" target="_blank" rel="noopener">该博客</a>）：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20180201163924-namenode.jpg" alt="namenode"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20180201163924-namenode.jpg" alt="namenode"></p>
 <p>接下来看看check point的时候做了哪些操作,这个时候就要引入Secondary NameNode了，NameNode主要是存储文件的metadata，运行时所有数据都保存在内存中，这个的HDFS可存储的文件受限于NameNode的内存。而Secondary NameNode可以看做是NameNode的灾备（并非HA），它会定时与NameNode进行同步，定期的将fsimage映像文件和Edits日志文件进行合并，并将合并后的传入给NameNode，替换其镜像，并清空编辑日志。如果NameNode失效，需要手动的将其设置成namenode主机。<br>checkpoint的时间默认是3600秒（可配置），当Edits日志文件超过最大值时也会进行check point。checkpoint大致如下：</p>
 <ul>
 <li>NameNode通知Secondary NameNode进行checkpoint。</li>

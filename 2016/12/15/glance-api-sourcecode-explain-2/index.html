@@ -92,12 +92,12 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="目录结构：glanceApi V1 代码解读  glanceApi V1 代码解读 首先简单看下V1 代码与V2 代码的目录结构：   也可以明显看出V2相对V1加了许多API。  下面以glance image-create 为例解读下glanceAPI V1 的代码，glanceClient发出rest请求后，glance-api Server监听到对应端口的请求，根据api-paste文件经">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/201612-15-openstack-glance-v1-v2.png">
-<meta property="og:updated_time" content="2018-05-28T07:57:22.522Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/201612-15-openstack-glance-v1-v2.png">
+<meta property="og:updated_time" content="2018-10-29T10:02:53.359Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="openstack系列--glanceApi 源代码解读(二)">
 <meta name="twitter:description" content="目录结构：glanceApi V1 代码解读  glanceApi V1 代码解读 首先简单看下V1 代码与V2 代码的目录结构：   也可以明显看出V2相对V1加了许多API。  下面以glance image-create 为例解读下glanceAPI V1 的代码，glanceClient发出rest请求后，glance-api Server监听到对应端口的请求，根据api-paste文件经">
-<meta name="twitter:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/201612-15-openstack-glance-v1-v2.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/201612-15-openstack-glance-v1-v2.png">
 
 
 
@@ -366,7 +366,7 @@
 <h2 id="glanceApi-V1-代码解读"><a href="#glanceApi-V1-代码解读" class="headerlink" title="glanceApi V1 代码解读"></a>glanceApi V1 代码解读</h2><ul>
 <li>首先简单看下V1 代码与V2 代码的目录结构：</li>
 </ul>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/201612-15-openstack-glance-v1-v2.png" alt="v1-vs-v2"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/201612-15-openstack-glance-v1-v2.png" alt="v1-vs-v2"></p>
 <p>也可以明显看出V2相对V1加了许多API。</p>
 <ul>
 <li>下面以glance image-create 为例解读下glanceAPI V1 的代码，glanceClient发出rest请求后，glance-api Server监听到对应端口的请求，根据api-paste文件经过middleware的过滤后，根据配置文件中选定的版本，最终路由到v1/images.py文件中的对应函数，先看下WSGI 路由文件router.py</li>

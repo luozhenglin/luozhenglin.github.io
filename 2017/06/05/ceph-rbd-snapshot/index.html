@@ -92,15 +92,15 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="引出关于openstack 中的快照，备份部分之前做过一次总结，openstack 中的快照与备份 ,因为目前基本使用ceph rbd作为共享存储后端，所以本篇文章想讨论以rbd作为存储后端时的备份与快照情况：  nova image-create：具体实现参考openstack 中的快照与备份  nova backup: 同上。 cinder snapshot：直接利用 rbd snapshot">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/snapshot.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2017-06-05-ceph-snap-cow.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2017-06-05-clone.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2017-06-05-clone-coe-conclusion.png">
-<meta property="og:updated_time" content="2018-05-28T07:57:22.527Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/snapshot.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-06-05-ceph-snap-cow.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-06-05-clone.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-06-05-clone-coe-conclusion.png">
+<meta property="og:updated_time" content="2018-10-29T10:03:00.742Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ceph-- ceph rbd快照的实现原理">
 <meta name="twitter:description" content="引出关于openstack 中的快照，备份部分之前做过一次总结，openstack 中的快照与备份 ,因为目前基本使用ceph rbd作为共享存储后端，所以本篇文章想讨论以rbd作为存储后端时的备份与快照情况：  nova image-create：具体实现参考openstack 中的快照与备份  nova backup: 同上。 cinder snapshot：直接利用 rbd snapshot">
-<meta name="twitter:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/snapshot.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/snapshot.png">
 
 
 
@@ -379,7 +379,7 @@
 </ul>
 <p>弄懂了两者的区别，接下来需要认真探讨下两者实现的原理：</p>
 <h3 id="rbd-snapshot-实现原理"><a href="#rbd-snapshot-实现原理" class="headerlink" title="rbd snapshot 实现原理"></a>rbd snapshot 实现原理</h3><p>注意：snapshot时，一定要对原rbd image 停止IO操作，否则会引起数据不一致。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/snapshot.png" alt="snapshot"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/snapshot.png" alt="snapshot"></p>
 <p>跟git 实现版本控制类似，使用 COW （copy on write）方式实现。这里叙述下对某一pool中的某个image 进行snapshot 的过程：</p>
 <p>直接引用自<a href="http://www.wzxue.com/%E8%A7%A3%E6%9E%90ceph-snapshot/" target="_blank" rel="noopener">解析Ceph: Snapshot</a>：</p>
 <blockquote>
@@ -396,12 +396,12 @@
 </blockquote>
 </blockquote>
 <p>实验过程可以参考<a href="http://www.cnblogs.com/sammyliu/p/4843812.html" target="_blank" rel="noopener">理解 OpenStack + Ceph （4）：Ceph 的基础数据结构 [Pool, Image, Snapshot, Clone]</a>,实验结论摘抄如下：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-06-05-ceph-snap-cow.png" alt="ceph-snap-cow"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-06-05-ceph-snap-cow.png" alt="ceph-snap-cow"></p>
 <h3 id="rbd-clone-实现原理"><a href="#rbd-clone-实现原理" class="headerlink" title="rbd clone 实现原理"></a>rbd clone 实现原理</h3><p>从用户角度来说，clone操作实现了对某个只读snapshot 的image化，即clone之后，可以对这个clone进行读写，snapshot等等，跟一个rbd image一样。<br>从系统实现来说，也是利用 COW方式实现，clone会将clone与snapshot 的父子关系保存起来,以备IO操作时查找。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-06-05-clone.png" alt="clone-cow"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-06-05-clone.png" alt="clone-cow"></p>
 <p>实验验证部分参考<a href="http://www.cnblogs.com/sammyliu/p/4843812.html" target="_blank" rel="noopener">理解 OpenStack + Ceph （4）：Ceph 的基础数据结构 [Pool, Image, Snapshot, Clone]</a>。</p>
 <p>结论摘抄如下：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-06-05-clone-coe-conclusion.png" alt="cow-con"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-06-05-clone-coe-conclusion.png" alt="cow-con"></p>
 <h2 id="COW-VS-ROW"><a href="#COW-VS-ROW" class="headerlink" title="COW VS ROW"></a>COW VS ROW</h2><p>要想了解COW 与ROW，首先需要知道快照的两种类型，一种是全量快照，一种是增量快照。</p>
 <ul>
 <li>全量快照，顾名思义，就是为源数据卷创建并维护一个完整的镜像卷。</li>

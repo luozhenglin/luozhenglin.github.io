@@ -92,16 +92,16 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="目录结构：在学习一个新东西的时候，我们其实默认是带着问题去学习的。但当我们真正在卷帙繁多的互联网或者书籍里获取信息时。之前的问题往往就淡化了，反而更多的是跟着资料所给的思路去学习。这样有好处也有坏处，好处是我们不用费心去思考，而坏处也是如此，不用思考带来的后果就是这些信息虽然当时我们理解了，但很难在我们的脑海中建立知识图谱，比较容易遗忘。 所以以后我会在写文章的时候先把问题具象化，从自己问题的角度">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160905python-full-stack.jpg">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160905tornado%20awesome.jpg">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2016-0905python-non-full-stack.jpg">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160905-test-cgi-glue.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160905python-web-deploy.jpg">
-<meta property="og:updated_time" content="2018-05-28T07:57:22.518Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160905python-full-stack.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160905tornado%20awesome.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2016-0905python-non-full-stack.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160905-test-cgi-glue.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160905python-web-deploy.jpg">
+<meta property="og:updated_time" content="2018-10-29T10:02:42.879Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="python系列--python web 运行与部署">
 <meta name="twitter:description" content="目录结构：在学习一个新东西的时候，我们其实默认是带着问题去学习的。但当我们真正在卷帙繁多的互联网或者书籍里获取信息时。之前的问题往往就淡化了，反而更多的是跟着资料所给的思路去学习。这样有好处也有坏处，好处是我们不用费心去思考，而坏处也是如此，不用思考带来的后果就是这些信息虽然当时我们理解了，但很难在我们的脑海中建立知识图谱，比较容易遗忘。 所以以后我会在写文章的时候先把问题具象化，从自己问题的角度">
-<meta name="twitter:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160905python-full-stack.jpg">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160905python-full-stack.jpg">
 
 
 
@@ -393,9 +393,9 @@
 <p>以上代码就已经有点web framework 的意思啦。由这个实例我们可以看到写一个基于wsgi的python web framework其实就是实现wsgi application部分和wsgi middleware 部分。其实，写一个python web framework 也是一件非常简单的事，见<a href="http://www.liaoxuefeng.com/wiki/001374738125095c955c1e6d8bb493182103fac9270762a000/0014023080708565bc89d6ab886481fb25a16cdc3b773f0000" target="_blank" rel="noopener">廖雪峰的官方博客</a>。下面我们就探究一下业界常用的python web framework。而wsgi server部分我们待会再谈。</p>
 <p><a name="C"></a></p>
 <h2 id="探究-python-web-framework"><a href="#探究-python-web-framework" class="headerlink" title="探究 python web framework"></a>探究 python web framework</h2><p>翻看python 的wiki，我们发现关于python的web framework 以井喷的速度发展，各式各样的框架。截两张图，分别是主流的全栈框架和非全栈框架：</p>
-<p>主流的全栈python web框架:<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160905python-full-stack.jpg" alt="full-stack"></p>
-<p>这里要多说一句tornado框架，其实它不单是一个web框架，还是一个web服务器。作为Web框架，是一个轻量级的Web框架，类似于另一个Python web 框架Web.py，其拥有异步非阻塞IO的处理方式。作为Web服务器，Tornado有较为出色的抗负载能力，官方用nginx反向代理的方式部署Tornado和其它Python web应用框架进行对比，结果最大浏览量超过第二名近40%。见下表：<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160905tornado%20awesome.jpg" alt="tornado 比较"></p>
-<p>主流的非全栈python web框架：<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2016-0905python-non-full-stack.jpg" alt="non-full-stack"></p>
+<p>主流的全栈python web框架:<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160905python-full-stack.jpg" alt="full-stack"></p>
+<p>这里要多说一句tornado框架，其实它不单是一个web框架，还是一个web服务器。作为Web框架，是一个轻量级的Web框架，类似于另一个Python web 框架Web.py，其拥有异步非阻塞IO的处理方式。作为Web服务器，Tornado有较为出色的抗负载能力，官方用nginx反向代理的方式部署Tornado和其它Python web应用框架进行对比，结果最大浏览量超过第二名近40%。见下表：<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160905tornado%20awesome.jpg" alt="tornado 比较"></p>
+<p>主流的非全栈python web框架：<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2016-0905python-non-full-stack.jpg" alt="non-full-stack"></p>
 <p><a name="C"></a></p>
 <h2 id="探究-python-web-server"><a href="#探究-python-web-server" class="headerlink" title="探究 python web server"></a>探究 python web server</h2><ul>
 <li><p>Apache + modwsgi，配置安装比较繁琐，用的人越来越少。</p>
@@ -407,9 +407,9 @@
 <li><p>Tornado,上文已介绍。</p>
 </li>
 </ul>
-<p>附录一张图：<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160905-test-cgi-glue.png" alt="test"></p>
+<p>附录一张图：<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160905-test-cgi-glue.png" alt="test"></p>
 <p><a name="D"></a></p>
-<h2 id="常见-python-web生产部署环境"><a href="#常见-python-web生产部署环境" class="headerlink" title="常见 python web生产部署环境"></a>常见 python web生产部署环境</h2><p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160905python-web-deploy.jpg" alt="python web deploy"></p>
+<h2 id="常见-python-web生产部署环境"><a href="#常见-python-web生产部署环境" class="headerlink" title="常见 python web生产部署环境"></a>常见 python web生产部署环境</h2><p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160905python-web-deploy.jpg" alt="python web deploy"></p>
 <h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a href="http://www.liaoxuefeng.com/wiki/001374738125095c955c1e6d8bb493182103fac9270762a000/001386832689740b04430a98f614b6da89da2157ea3efe2000" target="_blank" rel="noopener">廖雪峰的官方网站</a></p>
 <p><a href="https://www.zhihu.com/question/21888077" target="_blank" rel="noopener">大家都是怎么部署python网站的</a></p>
 <p><a href="http://www.itopers.com:8080/?p=586" target="_blank" rel="noopener">区分wsgi、uWSGI、uwsgi、php-fpm、CGI、FastCGI的概念</a></p>

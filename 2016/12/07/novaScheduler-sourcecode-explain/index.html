@@ -92,12 +92,12 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="目录结构：novaScheduler 介绍 以nova boot 为例解读代码  novascheduler 整体讲解 Filtering 讲解  Weighting 讲解   novaScheduler 介绍 关于nova不再赘述，之前文章由介绍。 nova-scheduler的主要作用就是就是根据各种规则为虚拟机选择一个合适的主机。 同nova-volume被单独剥离为cinder项目一样，社">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2016-12-08-openstack-nova-scheduler-code.png">
-<meta property="og:updated_time" content="2018-05-28T07:57:22.521Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2016-12-08-openstack-nova-scheduler-code.png">
+<meta property="og:updated_time" content="2018-10-29T10:02:51.679Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="openstack系列--novaScheduler 源代码解读">
 <meta name="twitter:description" content="目录结构：novaScheduler 介绍 以nova boot 为例解读代码  novascheduler 整体讲解 Filtering 讲解  Weighting 讲解   novaScheduler 介绍 关于nova不再赘述，之前文章由介绍。 nova-scheduler的主要作用就是就是根据各种规则为虚拟机选择一个合适的主机。 同nova-volume被单独剥离为cinder项目一样，社">
-<meta name="twitter:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2016-12-08-openstack-nova-scheduler-code.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2016-12-08-openstack-nova-scheduler-code.png">
 
 
 
@@ -409,7 +409,7 @@
 <p><a name="C"></a></p>
 <h2 id="novascheduler-整体讲解"><a href="#novascheduler-整体讲解" class="headerlink" title="novascheduler 整体讲解"></a>novascheduler 整体讲解</h2><ul>
 <li><p>novascheduler 源码目录架构：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2016-12-08-openstack-nova-scheduler-code.png" alt="novascheduler code"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2016-12-08-openstack-nova-scheduler-code.png" alt="novascheduler code"></p>
 </li>
 <li><p>nova scheduler实现了三种调度器：ChanceScheduler(随机调度器)，FilterScheduler(过滤调度器)，CachingScheduler(缓存调度器，在FilterScheduler的基础上将主机资源缓存在本地，通过后台定时任务从数据库更新缓存信息)。如果我们想自己实现定制的调度器，需要实现的接口在nova.scheduler.driver.Scheduler,继承类SchedulerDriver.</p>
 </li>

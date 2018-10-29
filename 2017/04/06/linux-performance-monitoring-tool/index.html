@@ -92,18 +92,18 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="引出性能监控是服务器运维非常重要的一部分，本文记录非常好用的几个性能监控工具，算是一个小的总结。本文组织方式是按cpu,mem(内存)，网络，磁盘io等具体性能监控的方向分类，末尾介绍一些相对大而全，涵盖各方面的企业级监控工具。。 cpu/mem 监控工具top这应该是第一个想到的性能监控命令，示例截图如下：  我们关注得点应该包括：cpu,mem负载，load-average，以及占用内存或cp">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2017-04-06-top.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2017-04-06-sar.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2017-04-06-dar-r.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2017-04-06-sar-w.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2017-04-06-SARN.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2017-04-06-netstat.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2017-04-06-iptraf.png">
-<meta property="og:updated_time" content="2018-05-28T07:57:22.526Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-06-top.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-06-sar.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-06-dar-r.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-06-sar-w.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-06-SARN.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-06-netstat.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-06-iptraf.png">
+<meta property="og:updated_time" content="2018-10-29T10:02:59.777Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="linux-- 常见的linux 服务器性能监控工具">
 <meta name="twitter:description" content="引出性能监控是服务器运维非常重要的一部分，本文记录非常好用的几个性能监控工具，算是一个小的总结。本文组织方式是按cpu,mem(内存)，网络，磁盘io等具体性能监控的方向分类，末尾介绍一些相对大而全，涵盖各方面的企业级监控工具。。 cpu/mem 监控工具top这应该是第一个想到的性能监控命令，示例截图如下：  我们关注得点应该包括：cpu,mem负载，load-average，以及占用内存或cp">
-<meta name="twitter:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2017-04-06-top.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-06-top.png">
 
 
 
@@ -369,10 +369,10 @@
       
         <h2 id="引出"><a href="#引出" class="headerlink" title="引出"></a>引出</h2><p>性能监控是服务器运维非常重要的一部分，本文记录非常好用的几个性能监控工具，算是一个小的总结。<br>本文组织方式是按cpu,mem(内存)，网络，磁盘io等具体性能监控的方向分类，末尾介绍一些相对大而全，涵盖各方面的企业级监控工具。。</p>
 <h2 id="cpu-mem-监控工具"><a href="#cpu-mem-监控工具" class="headerlink" title="cpu/mem 监控工具"></a>cpu/mem 监控工具</h2><h3 id="top"><a href="#top" class="headerlink" title="top"></a>top</h3><p>这应该是第一个想到的性能监控命令，示例截图如下：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-04-06-top.png" alt="top"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-06-top.png" alt="top"></p>
 <p>我们关注得点应该包括：cpu,mem负载，load-average，以及占用内存或cpu最多的进程。<br>该命令还有一些交互的子命令，比如 “c” ,是按照CPU 占用排序，”m”是按照内存占用排序等。 </p>
 <h3 id="sar"><a href="#sar" class="headerlink" title="sar"></a>sar</h3><p>该命令号称系统监控的瑞士军刀，目前Linux上最为全面的系统性能分析工具之一，可以从14个大方面对系统的活动进行报告，包括文件的读写情况、系统调用的使用情况、串口、CPU效率、内存使用状况、进程活动及IPC有关的活动等，使用也是较为复杂。<br>sar 默认显示的是从零点开始每隔十分钟到现在的CPU情况，如果是查看之前的报告，需要指定日志报告，sar -f /var/log/sysstat/sa25 。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-04-06-sar.png" alt="sar-u"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-06-sar.png" alt="sar-u"></p>
 <p>解释下各列的指标：</p>
 <ul>
 <li>%user 用户模式下消耗的CPU时间的比例；</li>
@@ -383,11 +383,11 @@
 <li>%idle CPU空闲时间比例；</li>
 </ul>
 <p>查看 内存使用情况：sar -r </p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-04-06-dar-r.png" alt="sar-r"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-06-dar-r.png" alt="sar-r"></p>
 <p>查看内存页面交换发生状况：sar -W</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-04-06-sar-w.png" alt="sar-w"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-06-sar-w.png" alt="sar-w"></p>
 <p>查看带宽信息：sar -n DEV</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-04-06-SARN.png" alt="sar-n"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-06-SARN.png" alt="sar-n"></p>
 <p>要判断系统瓶颈问题，有时需几个 sar 命令选项结合起来；</p>
 <ul>
 <li>怀疑CPU存在瓶颈，可用 sar -u 和 sar -q 等来查看</li>
@@ -396,7 +396,7 @@
 </ul>
 <p>更详细的命令参数可以参考<a href="http://www.thegeekstuff.com/2011/03/sar-examples/" target="_blank" rel="noopener">10 Useful Sar (Sysstat) Examples for UNIX / Linux Performance Monitoring</a></p>
 <h2 id="网络监控工具"><a href="#网络监控工具" class="headerlink" title="网络监控工具"></a>网络监控工具</h2><h3 id="netstat"><a href="#netstat" class="headerlink" title="netstat"></a>netstat</h3><p>该命令会显示各种与网络相关的信息，比如网络连接，路由表，接口状态等。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-04-06-netstat.png" alt="netstst"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-06-netstat.png" alt="netstst"></p>
 <p>解释下主要有两个部分：</p>
 <ul>
 <li>Active Internet connections，称为源TCP连接，其中”Recv-Q”和”Send-Q”指接收队列和发送队列。这些数字一般都应该是0。如果不是则表示软件包正在队列中堆积</li>
@@ -415,7 +415,7 @@
 <li>TCP、UDP、及其他协议的显示过滤器，允许你只查看感兴趣的流量。</li>
 </ul>
 <p>以下为一个查看网卡统计信息的界面：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-04-06-iptraf.png" alt="iptraf"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-06-iptraf.png" alt="iptraf"></p>
 <h2 id="大而全的企业级性能监控工具"><a href="#大而全的企业级性能监控工具" class="headerlink" title="大而全的企业级性能监控工具"></a>大而全的企业级性能监控工具</h2><p>目前开源的企业级性能监控工具应用比较广泛的应该属Nagios 与Zabbix了，关于两者对比，可以参考：</p>
 <p><a href="https://blog.pandorafms.org/zabbix-vs-nagios-vs-pandorafms-an-in-depth-comparison/" target="_blank" rel="noopener">Zabbix vs Nagios vs PandoraFMS: an in depth comparison</a></p>
 <p><a href="https://www.zhihu.com/question/19973178" target="_blank" rel="noopener">开源监控系统中 Zabbix 和 Nagios 哪个更好？</a></p>

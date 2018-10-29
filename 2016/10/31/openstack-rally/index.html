@@ -92,16 +92,16 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="目录结构：ralley是什么  rally 安装以及快速引导  rally 任务启动配置文件 rally 插件  ralley是什么一句话概括，rally是一个测试openstack 性能的工具。它的存在主要回答这样一个问题：How does OpenStack work at scale? 意译一下就是：openstack 在负载比较大的规模下运转情况怎么样？rally以一种插件式的形式工作，对">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20161031Rally-Actions.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20161031rally2.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20161031rally1.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20161031rally3.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20161031rallyplugin.png">
-<meta property="og:updated_time" content="2018-05-28T07:57:22.519Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161031Rally-Actions.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161031rally2.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161031rally1.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161031rally3.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161031rallyplugin.png">
+<meta property="og:updated_time" content="2018-10-29T10:02:47.983Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="openstack系列-- benchmarking工具rally">
 <meta name="twitter:description" content="目录结构：ralley是什么  rally 安装以及快速引导  rally 任务启动配置文件 rally 插件  ralley是什么一句话概括，rally是一个测试openstack 性能的工具。它的存在主要回答这样一个问题：How does OpenStack work at scale? 意译一下就是：openstack 在负载比较大的规模下运转情况怎么样？rally以一种插件式的形式工作，对">
-<meta name="twitter:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20161031Rally-Actions.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161031Rally-Actions.png">
 
 
 
@@ -372,13 +372,13 @@
 <p><a name="A"></a></p>
 <h2 id="ralley是什么"><a href="#ralley是什么" class="headerlink" title="ralley是什么"></a>ralley是什么</h2><p>一句话概括，rally是一个测试openstack 性能的工具。它的存在主要回答这样一个问题：How does OpenStack work at scale? 意译一下就是：openstack 在负载比较大的规模下运转情况怎么样？<br>rally以一种插件式的形式工作，对openstack是无侵入的。通常会作为CI的一种功能集成到CI中去。</p>
 <p>tips:<br>随着rally项目的不断发展，rally又衍生出了其他的一些功能，比如与tempest结合进行openstack的功能测试等。如下图</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161031Rally-Actions.png" alt="rally action"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161031Rally-Actions.png" alt="rally action"></p>
 <p>deploy(部署)功能并非是另一种部署方式，只是与devstack等部署方式以插件形式结合来简化工作而已。</p>
 <p><a name="B"></a></p>
 <h2 id="rally-安装以及快速引导"><a href="#rally-安装以及快速引导" class="headerlink" title="rally 安装以及快速引导"></a>rally 安装以及快速引导</h2><p>rally 安装比较简单，还可以跟Devstack 部署时一块安装，以及docker 安装<a href="https://rally.readthedocs.io/en/latest/install.html" target="_blank" rel="noopener">check this!</a></p>
 <p>安装完成之后我们就可以进行性能测试了，大致顺序如下：</p>
 <ul>
-<li><p>创建一个openstack 的rally测试环境：如果是有现成的openrc文件，那么直接source 一下，然后执行：  rally deployment create –fromenv –name=existing 就创建完成了。也可以将openrc文件中的内容写入一个json文件，假设取名为existing.json,执行如下命令： rally deployment create –file=existing.json –name=existing 。 执行rally deployment list 即可查看我们创建的deployment 以及哪一个正在被激活（正在使用）。<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161031rally2.png" alt="rally deployment"><br>通过 rally deployment check 可查看检测到的openstack服务：<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161031rally1.png" alt="rally check"></p>
+<li><p>创建一个openstack 的rally测试环境：如果是有现成的openrc文件，那么直接source 一下，然后执行：  rally deployment create –fromenv –name=existing 就创建完成了。也可以将openrc文件中的内容写入一个json文件，假设取名为existing.json,执行如下命令： rally deployment create –file=existing.json –name=existing 。 执行rally deployment list 即可查看我们创建的deployment 以及哪一个正在被激活（正在使用）。<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161031rally2.png" alt="rally deployment"><br>通过 rally deployment check 可查看检测到的openstack服务：<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161031rally1.png" alt="rally check"></p>
 </li>
 <li><p>创建完一个deployment之后我们就可以进行测试了，我们需要指定一个json或yaml文件 来说明测试的内容， 在rally安装目录samples/tasks/scenarios 中有很多示例文件，比如samples/tasks/scenarios/nova 目录下就有nova对应的情景测试文件，例如boot-and-delete.json，就是启动虚拟机再删除操作，内容如下：</p>
 </li>
@@ -387,7 +387,7 @@
 <p>利用此文件启动任务： rally task start samples/tasks/scenarios/nova/boot-and-delete.json<br>还可以利用rally查看images ，flavors列表等。</p>
 <ul>
 <li><p>rally提供了多种方式进行结果的查看，最直观的就是以html形式在浏览器中展现（需翻墙）：<br>rally task report –out=report1.html –open </p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161031rally3.png" alt="rally pic"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161031rally3.png" alt="rally pic"></p>
 </li>
 </ul>
 <p>tips:执行任务时指定的json 文件格式如下：</p>
@@ -398,7 +398,7 @@
 <h2 id="rally-任务启动配置文件"><a href="#rally-任务启动配置文件" class="headerlink" title="rally 任务启动配置文件"></a>rally 任务启动配置文件</h2><p>rally任务启动配置文件就是上文中提到过的json/yaml文件，其实可以通过此配置文件实现很多功能，比如：多任务配置，设置SLA(Service-Level Agreement,就是一个成功与否的基准，例如：max_seconds_per_iteration”: 10)，利用jinja模板传参数进来，或利用jinja模板进行简单的逻辑控制等，<a href="http://rally.readthedocs.io/en/latest/tutorial/step_5_task_templates.html" target="_blank" rel="noopener">check this</a>,不再赘述。 </p>
 <p><a name="D"></a></p>
 <h2 id="rally-插件"><a href="#rally-插件" class="headerlink" title="rally 插件"></a>rally 插件</h2><p>rally插件就是我们在json文件中配置的ScenarioName，通过这些插件的组合可以完成我们自己定义的要求。几个命令如下：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161031rallyplugin.png" alt="rally plugin"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161031rallyplugin.png" alt="rally plugin"></p>
 <p>关于rally与tempest的结合使用还不是很成熟，感兴趣的可以去试下，<a href="http://rally.readthedocs.io/en/latest/tutorial/step_10_verifying_cloud_via_tempest.html" target="_blank" rel="noopener">check this!</a></p>
 <h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a href="https://wiki.openstack.org/wiki/Rally" target="_blank" rel="noopener">openstack rally wiki</a></p>
 <p><a href="https://www.ibm.com/developerworks/cn/cloud/library/1604-rally-openstack-tempest/" target="_blank" rel="noopener">SDN使用 Rally 来实现 Openstack Tempest 测试</a></p>

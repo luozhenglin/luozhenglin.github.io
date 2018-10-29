@@ -92,13 +92,13 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="kubernetes scheduler 设计kubernetes最主要的功能是容器编排，而容器编排中第一个想到的便是新建一个容器时，需要将该容器调度到哪一个节点上，其实跟openstack中的nova-scheduler很像。看下我们设计sheduler时需要满足的需求：  从用户角度，需要满足指定节点，与指定pod亲和/反亲和（例如同为cpu密集型的服务不要放在同一节点），服务分散 从集群的角">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20171026k8s-scheduler.jpg">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20171026-kuber-scheduler-argo.jpg">
-<meta property="og:updated_time" content="2018-05-28T07:57:22.530Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20171026k8s-scheduler.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20171026-kuber-scheduler-argo.jpg">
+<meta property="og:updated_time" content="2018-10-29T10:03:04.226Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="kubernetes-- kubernetes scheduler设计以及resource QOS">
 <meta name="twitter:description" content="kubernetes scheduler 设计kubernetes最主要的功能是容器编排，而容器编排中第一个想到的便是新建一个容器时，需要将该容器调度到哪一个节点上，其实跟openstack中的nova-scheduler很像。看下我们设计sheduler时需要满足的需求：  从用户角度，需要满足指定节点，与指定pod亲和/反亲和（例如同为cpu密集型的服务不要放在同一节点），服务分散 从集群的角">
-<meta name="twitter:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20171026k8s-scheduler.jpg">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20171026k8s-scheduler.jpg">
 
 
 
@@ -368,13 +368,13 @@
 <li>从集群的角度，需要满足资源平衡，利用率高等</li>
 </ul>
 <p>看下kubernetes中大致的调度过程，图片来自<a href="http://oj6ydypm2.bkt.clouddn.com/Kubernetes%E4%B8%AD%E7%9A%84%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86_%E4%B8%81%E6%B5%B7%E6%B4%8B.pdf" target="_blank" rel="noopener">Kubernetes中的资源管理 </a>：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20171026k8s-scheduler.jpg" alt="k8s-scheduler"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20171026k8s-scheduler.jpg" alt="k8s-scheduler"></p>
 <p>再看下调度器的具体调度算法，大致分了两类，predicate和prioritizer：</p>
 <ul>
 <li>predicate:一系列过滤函数将不满足的node排除</li>
 <li>prioritizer: 对通过的节点按照一系列的算法进行优先级排序，最后选择优先级最高的。</li>
 </ul>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20171026-kuber-scheduler-argo.jpg" alt="kube-scheduler-algori"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20171026-kuber-scheduler-argo.jpg" alt="kube-scheduler-algori"></p>
 <p>简单介绍下常用的predicate 的几个算法：</p>
 <ul>
 <li>PodFitsResources：节点上剩余的资源是否大于 pod 请求的资源</li>

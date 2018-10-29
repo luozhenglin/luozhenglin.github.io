@@ -92,12 +92,12 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="目录结构：由Python的调用实例想到的  nova-api 的paster&amp;amp;route 模型  由Python的调用实例想到的 公司的云平台有两个自己写的服务，highland和rainflow。也没有开发文档，只能自己去看代码琢磨一下，从paste配置文件看下最终调用的route app，是一个factory方法，我记得factory方法应该返回一个WSGI APP,但是看下源码是这样">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2017-01-12-openstack-paste-route.png">
-<meta property="og:updated_time" content="2018-05-28T07:57:22.524Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-01-12-openstack-paste-route.png">
+<meta property="og:updated_time" content="2018-10-29T10:02:55.959Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="openstack 系列--nova-api 的paste&amp;route的简单抽象">
 <meta name="twitter:description" content="目录结构：由Python的调用实例想到的  nova-api 的paster&amp;amp;route 模型  由Python的调用实例想到的 公司的云平台有两个自己写的服务，highland和rainflow。也没有开发文档，只能自己去看代码琢磨一下，从paste配置文件看下最终调用的route app，是一个factory方法，我记得factory方法应该返回一个WSGI APP,但是看下源码是这样">
-<meta name="twitter:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2017-01-12-openstack-paste-route.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-01-12-openstack-paste-route.png">
 
 
 
@@ -381,7 +381,7 @@
 <li>nova-api的路由模型其实不难，只不过层层封装，比较复杂，在网上找到一个比较好理解的示例。</li>
 <li>首先要明白路由的生成过程跟路由的寻址过程是两条线，当我们启动nova-api的时候，路由的map就已经生成了，当我们发送rest请求时，就会根据路由的map去找对应的application以及controller。所以，重点是看下路由的生成过程。</li>
 </ul>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-01-12-openstack-paste-route.png" alt="paster&amp;route"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-01-12-openstack-paste-route.png" alt="paster&amp;route"></p>
 <ul>
 <li>看下一个简单的代码实现（代码来自网上，没有经过验证，只是为了说明）：</li>
 </ul>

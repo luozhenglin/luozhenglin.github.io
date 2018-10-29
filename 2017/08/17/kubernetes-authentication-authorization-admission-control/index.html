@@ -92,13 +92,13 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="概览首先需要了解这三种机制的区别：简单来说，认证(Authenticating)是对客户端的认证，通俗点就是用户名密码验证，授权(Authorization)是对资源的授权，k8s中的资源无非是容器，最终其实就是容器的计算，网络，存储资源，当一个请求经过认证后，需要访问某一个资源（比如创建一个pod），授权检查都会通过访问策略比较该请求上下文的属性，（比如用户，资源和Namespace），根据授权">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2017-08-17-k8s-authorition.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2017-08-17-k8s-openid-token.jpg">
-<meta property="og:updated_time" content="2018-05-28T07:57:22.529Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-08-17-k8s-authorition.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-08-17-k8s-openid-token.jpg">
+<meta property="og:updated_time" content="2018-10-29T10:03:02.875Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Kubernetes-- 漫谈kubernetes 中的认证 &amp; 授权 &amp; 准入机制">
 <meta name="twitter:description" content="概览首先需要了解这三种机制的区别：简单来说，认证(Authenticating)是对客户端的认证，通俗点就是用户名密码验证，授权(Authorization)是对资源的授权，k8s中的资源无非是容器，最终其实就是容器的计算，网络，存储资源，当一个请求经过认证后，需要访问某一个资源（比如创建一个pod），授权检查都会通过访问策略比较该请求上下文的属性，（比如用户，资源和Namespace），根据授权">
-<meta name="twitter:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2017-08-17-k8s-authorition.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-08-17-k8s-authorition.png">
 
 
 
@@ -363,7 +363,7 @@
 
       
         <h2 id="概览"><a href="#概览" class="headerlink" title="概览"></a>概览</h2><p>首先需要了解这三种机制的区别：简单来说，认证(Authenticating)是对客户端的认证，通俗点就是用户名密码验证，授权(Authorization)是对资源的授权，k8s中的资源无非是容器，最终其实就是容器的计算，网络，存储资源，当一个请求经过认证后，需要访问某一个资源（比如创建一个pod），授权检查都会通过访问策略比较该请求上下文的属性，（比如用户，资源和Namespace），根据授权规则判定该资源（比如某namespace下的pod）是否是该客户可访问的。准入(Admission Control)机制是一种在改变资源的持久化之前（比如某些资源的创建或删除，修改等之前）的机制。<br>在k8s中，这三种机制如下图：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-08-17-k8s-authorition.png" alt="k8s-authorization"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-08-17-k8s-authorition.png" alt="k8s-authorization"></p>
 <p>k8s的整体架构也是一个微服务的架构，所有的请求都是通过一个GateWay，也就是kube-apiserver这个组件（对外提供REST服务），由图中可以看出，k8s中客户端有两类，一种是普通用户，一种是集群内的Pod，这两种客户端的认证机制略有不同，后文会详述。但无论是哪一种，都需要依次经过认证，授权，准入这三个机制。</p>
 <h2 id="kubernetes-中的认证机制"><a href="#kubernetes-中的认证机制" class="headerlink" title="kubernetes 中的认证机制"></a>kubernetes 中的认证机制</h2><p>需要注意的是，kubernetes虽然提供了多种认证机制，但并没有提供user 实体信息的存储，也就是说，账户体系需要我们自己去做维护。当然，也可以接入第三方账户体系（如谷歌账户），也可以使用开源的keystone去做整合。kubernetes 支持多种认证机制，可以配置成多个认证体制共存，这样，只要有一个认证通过，这个request就认证通过了。下面介绍下官网列举的几种常见认证机制：</p>
 <h3 id="X509-Client-Certs"><a href="#X509-Client-Certs" class="headerlink" title="X509 Client Certs"></a>X509 Client Certs</h3><p>也叫作双向数字证书认证，HTTPS证书认证，是基于CA根证书签名的双向数字证书认证方式，是所有认证方式中最严格的认证。默认在kubeadm创建的集群中是enabled的，可以在master node上查看kube-apiserver的pod配置文件：</p>
@@ -405,7 +405,7 @@
 </ul>
 <p>这种认证方式主要由k8s集群自己管理，用户用到的情况比较少。我们创建一个pod时，默认就会将该namespace对应的默认service account token mount到Pod中，所以无需我们操作便可以直接与apiserver通信，相关示例参考<a href="http://tonybai.com/2017/03/03/access-api-server-from-a-pod-through-serviceaccount/" target="_blank" rel="noopener">在Kubernetes Pod中使用Service Account访问API Server</a>，当然也可以指定多个service account token,参考<a href="https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/" target="_blank" rel="noopener">Configure Service Accounts for Pods</a>。</p>
 <h3 id="OpenID-Connect-Tokens"><a href="#OpenID-Connect-Tokens" class="headerlink" title="OpenID Connect Tokens"></a>OpenID Connect Tokens</h3><p>类似 OAuth2的认证方式，大致认证过程如下：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-08-17-k8s-openid-token.jpg" alt="openID"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-08-17-k8s-openid-token.jpg" alt="openID"></p>
 <p>除了以上几种认证方式外，还有几种比如Webhook Token Authentication，Keystone Password等，详情见<a href="https://kubernetes.io/docs/admin/authentication/#x509-client-certs" target="_blank" rel="noopener">官网</a>。</p>
 <h2 id="kubernetes-中的授权机制"><a href="#kubernetes-中的授权机制" class="headerlink" title="kubernetes 中的授权机制"></a>kubernetes 中的授权机制</h2><p>k8s中的授权策略也支持开启多个授权插件，只要一个验证通过即可。k8s授权处理主要是根据以下请求属性：</p>
 <ul>

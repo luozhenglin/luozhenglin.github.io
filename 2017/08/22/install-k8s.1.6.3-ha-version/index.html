@@ -92,12 +92,12 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="kubernetes HA 整体架构k8s的HA相对于openstack的HA要简单很多，主要包括以下三各方面：  etcd的HA:创建HA集群,如果还不放心，可以使用分布式存储系统 apiserver(无状态服务)的HA:双活模式，前面加一个load balance controller manager 和 scheduler的HA:主备模式。   博主是按照Kubernetes 1.6 高可用">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20170822-k8s-ha.jpg">
-<meta property="og:updated_time" content="2018-05-28T07:57:22.529Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20170822-k8s-ha.jpg">
+<meta property="og:updated_time" content="2018-10-29T10:03:03.310Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Kubernetes-- 手动安装高可用k8s1.6问题汇总">
 <meta name="twitter:description" content="kubernetes HA 整体架构k8s的HA相对于openstack的HA要简单很多，主要包括以下三各方面：  etcd的HA:创建HA集群,如果还不放心，可以使用分布式存储系统 apiserver(无状态服务)的HA:双活模式，前面加一个load balance controller manager 和 scheduler的HA:主备模式。   博主是按照Kubernetes 1.6 高可用">
-<meta name="twitter:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20170822-k8s-ha.jpg">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20170822-k8s-ha.jpg">
 
 
 
@@ -367,7 +367,7 @@
 <li>apiserver(无状态服务)的HA:双活模式，前面加一个load balance</li>
 <li>controller manager 和 scheduler的HA:主备模式。</li>
 </ul>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20170822-k8s-ha.jpg" alt="k8s-ha"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20170822-k8s-ha.jpg" alt="k8s-ha"></p>
 <p>博主是按照<a href="http://blog.frognew.com/2017/04/install-ha-kubernetes-1.6-cluster.html#42-kubelet部署" target="_blank" rel="noopener">Kubernetes 1.6 高可用集群部署</a>这篇博客一步步安装下来的，基于Kubernetes二进制包手动部署一个高可用的Kubernetes 1.6集群，将启用ApiServer的TLS双向认证和RBAC授权等安全机制，当然，也可以利用kubeadm创建一个k8s cluster后再扩展成高可用的，参考<a href="http://tonybai.com/2017/05/15/setup-a-ha-kubernetes-cluster-based-on-kubeadm-part1/" target="_blank" rel="noopener">一步步打造基于Kubeadm的高可用Kubernetes集群</a>。<br>安装过程不再赘述，参考上述博文，主要讲下期间遇到的问题以及解决方法。</p>
 <h2 id="etcd高可用集群部署"><a href="#etcd高可用集群部署" class="headerlink" title="etcd高可用集群部署"></a>etcd高可用集群部署</h2><p>在该过程中碰到的一个坑是，在创建tls密钥和证书的过程中。用的工具是cfssl,创建etcd证书签名请求配置文件的时候需要指定node节点的IP，当时希望可以外网访问，就使用的floating-ip,在etcd的systemd unit文件中自然也就使用了floating-ip，然而etcd却一直起不来，查看日志报错： listen tcp 172.16.21.55:2380: bind: cannot assign requested address.</p>
 <p>监听端口失败，恍然大悟，openstack中的floating-ip是不会在虚拟机上创建一个新网卡的，而是通过l3-agent的转发实现。将floating-ip更改为内网IP 后问题解决。</p>

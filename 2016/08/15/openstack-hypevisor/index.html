@@ -92,13 +92,13 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="概念与认识直接引用wiki:  在计算机技术中，虚拟化（英语：Virtualization）是一种资源管理技术，是将计算机的各种实体资源，如服务器、网络、内存及存储等，予以抽象、转换后呈现出来，打破实体结构间的不可切割的障碍，使用户可以比原本的配置更好的方式来应用这些资源。这些资源的新虚拟部分是不受现有资源的架设方式，地域或物理配置所限制。一般所指的虚拟化资源包括计算能力和数据存储。  关于虚拟化">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160815-kvm-image.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160815-Libvirt.jpg">
-<meta property="og:updated_time" content="2018-05-28T07:57:22.516Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160815-kvm-image.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160815-Libvirt.jpg">
+<meta property="og:updated_time" content="2018-10-29T10:03:15.127Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="openstack系列--服务器虚拟化知识">
 <meta name="twitter:description" content="概念与认识直接引用wiki:  在计算机技术中，虚拟化（英语：Virtualization）是一种资源管理技术，是将计算机的各种实体资源，如服务器、网络、内存及存储等，予以抽象、转换后呈现出来，打破实体结构间的不可切割的障碍，使用户可以比原本的配置更好的方式来应用这些资源。这些资源的新虚拟部分是不受现有资源的架设方式，地域或物理配置所限制。一般所指的虚拟化资源包括计算能力和数据存储。  关于虚拟化">
-<meta name="twitter:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160815-kvm-image.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160815-kvm-image.png">
 
 
 
@@ -369,11 +369,11 @@
 <p>关于虚拟化的大致分类，参考<a href="https://segmentfault.com/a/1190000004347086" target="_blank" rel="noopener">虚拟化分类</a></p>
 <p>目前比较常用的虚拟化技术包括KVM,XEN,vmware workstation等，本文重点介绍下KVM技术。</p>
 <h2 id="KVM-技术"><a href="#KVM-技术" class="headerlink" title="KVM 技术"></a>KVM 技术</h2><h4 id="KVM-简介"><a href="#KVM-简介" class="headerlink" title="KVM 简介"></a>KVM 简介</h4><p>KVM（Kernel-based Virtual Machine） 技术是在x86硬件平台（包含虚拟化扩展如Intel VT或AMD-V）上的一种完全虚拟化解决方案。效率可达到物理机的80％以上。<br>它包含一个为处理器提供底层虚拟化可加载的核心模块kvm.ko（kvm-intel.ko 或 kvm-AMD.ko)。<br>kvm还需要一个经过修改的QEMU软件（qemu-kvm），作为虚拟机上层控制和界面。<br>kvm能在不改变linux或windows镜像的情况下同时运行多个虚拟机，（ps：它的意思是多个虚拟机使用同一镜像）并为每一个虚拟机配置个性化硬件环境（网卡、磁盘、图形适配器……）。<br>在主流的linux内核，如2.6.20以上的内核均包含了kvm核心。</p>
-<p>图片来自wikipedia<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160815-kvm-image.png" alt="kvm image"></p>
+<p>图片来自wikipedia<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160815-kvm-image.png" alt="kvm image"></p>
 <h4 id="名词解释：KVM-QEMU-qemu-kvm-Libvirt"><a href="#名词解释：KVM-QEMU-qemu-kvm-Libvirt" class="headerlink" title="名词解释：KVM QEMU qemu-kvm Libvirt"></a>名词解释：KVM QEMU qemu-kvm Libvirt</h4><p><a href="http://www.linux-kvm.org/page/Main_Page" target="_blank" rel="noopener">KVM</a>:一种虚拟化技术</p>
 <p><a href="http://wiki.qemu.org/Index.html" target="_blank" rel="noopener">QEMU</a>:一种模拟器，它向Guest OS模拟CPU和其他硬件，Guest OS认为自己和硬件直接打交道，其实是同Qemu模拟出来的硬件打交道，Qemu将这些指令转译给真正的硬件。</p>
 <p><a href="http://wiki.qemu.org/KVM" target="_blank" rel="noopener">qemu-kvm</a>:kvm负责cpu虚拟化+内存虚拟化，实现了cpu和内存的虚拟化，但kvm不能模拟其他设备。qemu模拟IO设备（网卡，磁盘等），kvm加上qemu之后就能实现真正意义上服务器虚拟化。因为用到了上面两个东西，所以称之为qemu-kvm。</p>
-<p><a href="https://libvirt.org/index.html" target="_blank" rel="noopener">Libvirt</a>:目前使用最为广泛的一种对虚拟机进行管理的工具和API。Libvirtd是一个daemon进程，可以被本地的virsh调用，也可以被远程的virsh调用，Libvirtd调用qemu-kvm操作虚拟机。<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160815-Libvirt.jpg" alt="Libvirt arcitecture"></p>
+<p><a href="https://libvirt.org/index.html" target="_blank" rel="noopener">Libvirt</a>:目前使用最为广泛的一种对虚拟机进行管理的工具和API。Libvirtd是一个daemon进程，可以被本地的virsh调用，也可以被远程的virsh调用，Libvirtd调用qemu-kvm操作虚拟机。<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160815-Libvirt.jpg" alt="Libvirt arcitecture"></p>
 <p><a href="https://segmentfault.com/a/1190000004356172" target="_blank" rel="noopener">更多Libvirt介绍</a></p>
 <h2 id="KVM-与-Docker"><a href="#KVM-与-Docker" class="headerlink" title="KVM 与 Docker)"></a>KVM 与 <a href="https://en.wikipedia.org/wiki/Docker_(software" target="_blank" rel="noopener">Docker</a>)</h2><p>docker优势：</p>
 <ul>

@@ -92,15 +92,15 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="目录结构：在学习一个新东西的时候，我们其实默认是带着问题去学习的。但当我们真正在卷帙繁多的互联网或者书籍里获取信息时。之前的问题往往就淡化了，反而更多的是跟着资料所给的思路去学习。这样有好处也有坏处，好处是我们不用费心去思考，而坏处也是如此，不用思考带来的后果就是这些信息虽然当时我们理解了，但很难在我们的脑海中建立知识图谱，比较容易遗忘。 所以以后我会在写文章的时候先把问题具象化，从自己问题的角度">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160902-swift_architecture.jpg">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160902swift-object-acchitectture.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160904-openstack-swift-logic-architecture.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160904-openstack-swift-sourcecode.jpg">
-<meta property="og:updated_time" content="2018-05-28T07:57:22.518Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160902-swift_architecture.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160902swift-object-acchitectture.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160904-openstack-swift-logic-architecture.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160904-openstack-swift-sourcecode.jpg">
+<meta property="og:updated_time" content="2018-10-29T10:02:42.047Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="openstack系列--swift">
 <meta name="twitter:description" content="目录结构：在学习一个新东西的时候，我们其实默认是带着问题去学习的。但当我们真正在卷帙繁多的互联网或者书籍里获取信息时。之前的问题往往就淡化了，反而更多的是跟着资料所给的思路去学习。这样有好处也有坏处，好处是我们不用费心去思考，而坏处也是如此，不用思考带来的后果就是这些信息虽然当时我们理解了，但很难在我们的脑海中建立知识图谱，比较容易遗忘。 所以以后我会在写文章的时候先把问题具象化，从自己问题的角度">
-<meta name="twitter:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160902-swift_architecture.jpg">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160902-swift_architecture.jpg">
 
 
 
@@ -379,12 +379,12 @@
 <p>文件存储就比较好理解了，我们常用的Windows操作系统就搭载了一套文件系统，提供文件存储。在分布式环境中，常用NFS协议，通过TCP/IP实现网络化存储，比如我们常用的NFS或者FTP服务器。</p>
 <p><a name="B"></a></p>
 <h2 id="swift中数据如何存储？"><a href="#swift中数据如何存储？" class="headerlink" title="swift中数据如何存储？"></a>swift中数据如何存储？</h2><p>首先看下swift的整体架构：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160902-swift_architecture.jpg" alt="swift_arvhitecture"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160902-swift_architecture.jpg" alt="swift_arvhitecture"></p>
 <p>整体架构主要分为两部分，访问层（Access Tier）和存储层（Storage Node）。访问层最主要的有两部分，Proxy node 主要负责Http请求的的转发，还有一个负责用户身份的认证（Authentication）。可选的是一个负载均衡设备。</p>
 <p>当一个Restful请求到来时，Proxy node 负责接受用户请求并转发给认证服务进行处理，认证通过后再转发给存储层进行数据的操作。在转发给存储层之前，如果启用缓存的话，首先会去缓存服务器检查是否命中，命中就不用去数据层了。</p>
 <p>接下来我们看下存储层，存储层由一系列的存储节点组成。为了便于组织以及故障隔离，这些存储节点在物理上做了一些划分，比如根据地理位置的不同划分region,一个 region相当于一个数据中心，每个rigion内部有多个zone，zone可以理解为一组独立的存储节点。一个zone包含多个存储节点（storage node）,一个node里有多个Device(可以理解为磁盘)，一个Device包含多个Partition(可以理解为磁盘中文件系统上的一个目录)。</p>
 <p>在每个Storage node 上存储的对象在逻辑上又分为三层：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160902swift-object-acchitectture.png" alt="swift 对象组织架构"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160902swift-object-acchitectture.png" alt="swift 对象组织架构"></p>
 <p>相应的，Storage node 中运行着三种对应的服务：</p>
 <ul>
 <li>Account Server :Account server 负责Account相关的一些服务，比如包含的Countainer列表，以及Account的元数据等。这些数据存储在一个SQLLite数据库中。</li>
@@ -395,7 +395,7 @@
 <p>此处注意的是，对象寻址并非是渐进式的（即寻找某个object先寻找account，再寻找下面的countainer,再寻找对应的object），而是直接寻找（即寻找object ,直接ring就可以找到，同理寻找某个account，countainer也是如此）。</p>
 <p>为什么叫ring呢？其实这跟那个映射算法有关，这个将数据映射在相应服务器集群上某个节点的算法叫一致性hash算法，关于该算法，可以花5分钟的时间了解下<a href="http://blog.csdn.net/cywosp/article/details/23397179" target="_blank" rel="noopener">这篇文章</a></p>
 <p>至于swift 中是如何具体实现该算法的就不详细叙述了。下图为大致架构图：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160904-openstack-swift-logic-architecture.png" alt="openstack-swift-logic-architecture"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160904-openstack-swift-logic-architecture.png" alt="openstack-swift-logic-architecture"></p>
 <p><a name="C"></a></p>
 <h2 id="swift中的安全机制"><a href="#swift中的安全机制" class="headerlink" title="swift中的安全机制"></a>swift中的安全机制</h2><p>swift 中为了保证数据在损坏的情况下依然保证高可用，采用了增加副本的策略，每一个对象都会有若干个备份的副本（默认是三个），且存储在不同的zone里，这样，当某一个zone的对象数据不可用时，还可以启用其他zone里的副本。这样为了解决数据一致性的问题，swift开启了以下三个服务：</p>
 <ul>
@@ -416,7 +416,7 @@
 </ul>
 <p>swift API 的执行过程大致如下：swiftClient 将用户的命令转换为标准HTTP请求（如果是用户请求本身就是HTTP请求那么没有这一步）;paste deploy将请求路由到proxy-server WSGI Application;根据请求内容调用对应的Controller(AccountController,ContainerController或者ObjectController),该controller会将请求转发到特定的存储节点上的WSGI Server(Account Server,Container Server或Object Server);这些server接收到http请求并处理。</p>
 <p><a name="E"></a></p>
-<h2 id="swift-源码目录结构"><a href="#swift-源码目录结构" class="headerlink" title="swift 源码目录结构"></a>swift 源码目录结构</h2><p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160904-openstack-swift-sourcecode.jpg" alt="swift source code"></p>
+<h2 id="swift-源码目录结构"><a href="#swift-源码目录结构" class="headerlink" title="swift 源码目录结构"></a>swift 源码目录结构</h2><p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160904-openstack-swift-sourcecode.jpg" alt="swift source code"></p>
 <ul>
 <li>bin: 主要是一些启动脚本，工具脚本。比如proxy-server负责启动proxy server，swift-ring-builder 用来创建ring。</li>
 <li>swift：swift的核心代码。其子目录account,container,obj,proxy分别对应相应的服务的具体实现。common子目录是被多个组件共用的公共代码。</li>

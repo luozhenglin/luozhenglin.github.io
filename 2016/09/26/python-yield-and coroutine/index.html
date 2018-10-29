@@ -92,12 +92,12 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="目录结构：迭代器与生成器  yield, send 关键字解析  协程的一些知识  迭代器与生成器在说生成器之前我们得先讨论一下迭代器的概念。 我们知道，对于一个可迭代的对象，我们可以通过 for  in  的语句来进行迭代输出。这个可迭代的对象可以是一个list，string，文件等。其实我们深入这个可迭代的对象会发现，这些可迭代对象都实现了两个函数：iter() 和 next()。在我们调用l">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160926python-yield.png">
-<meta property="og:updated_time" content="2018-05-28T07:57:22.519Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160926python-yield.png">
+<meta property="og:updated_time" content="2018-10-29T10:02:45.142Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="python系列--Python中的生成器以及协程的相关知识">
 <meta name="twitter:description" content="目录结构：迭代器与生成器  yield, send 关键字解析  协程的一些知识  迭代器与生成器在说生成器之前我们得先讨论一下迭代器的概念。 我们知道，对于一个可迭代的对象，我们可以通过 for  in  的语句来进行迭代输出。这个可迭代的对象可以是一个list，string，文件等。其实我们深入这个可迭代的对象会发现，这些可迭代对象都实现了两个函数：iter() 和 next()。在我们调用l">
-<meta name="twitter:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160926python-yield.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160926python-yield.png">
 
 
 
@@ -388,7 +388,7 @@
 <p>接下来我们看一个比较复杂的例子：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># @Date    : 2016-09-22 16:40:36</span></span><br><span class="line"><span class="comment"># @Author  : Zhang Chen (pekingzcc@gmail.com)</span></span><br><span class="line"><span class="comment"># @Link    : zhangchenchen.github.io</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">countdown</span><span class="params">(n)</span>:</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">"Into genaration :counting down from"</span>, n</span><br><span class="line">    <span class="keyword">while</span> n &gt;= <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">print</span> <span class="string">"Genaration: ###loops from here###"</span></span><br><span class="line">        newvalue = (<span class="keyword">yield</span> n)</span><br><span class="line">        <span class="keyword">print</span> <span class="string">"Gerenation: newvalue is"</span>,newvalue</span><br><span class="line">        <span class="comment"># If a new value got sent in, reset n with it</span></span><br><span class="line">        <span class="keyword">if</span> newvalue <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</span><br><span class="line">            n = newvalue</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            n -= <span class="number">1</span></span><br><span class="line"><span class="keyword">if</span> __name__==<span class="string">'__main__'</span>:</span><br><span class="line">    c = countdown(<span class="number">5</span>)</span><br><span class="line">    <span class="keyword">print</span> <span class="string">"Main function begin from here "</span></span><br><span class="line">    <span class="keyword">for</span> x <span class="keyword">in</span> c:</span><br><span class="line">         <span class="keyword">print</span> <span class="string">"Main function: x is"</span>, x</span><br><span class="line">         <span class="keyword">if</span> x == <span class="number">5</span>:</span><br><span class="line">            c.send(<span class="number">3</span>)</span><br></pre></td></tr></table></figure>
 <p>这个例子看明白了，yield与send的用法就理解的差不多了。<br>我们首先看一下执行结果：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160926python-yield.png" alt="python-yield"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160926python-yield.png" alt="python-yield"></p>
 <p>接下来分析一下：我们从main 函数开始，先创建了一个生成器（此时并未执行），接着输出main函数开始的语句。接着进入for循环，注意，遇到for循环就相当于执行了一次next(),所以进入生成器输出“Into genaration :counting down from 5”，继续运行，进入生成器的for循环，输出“Genaration: ###loops from here###”，继续往下，碰到yield n ，保存上下文，退出并返回n(此时是5)到main函数，主函数输出“Main function: x is 5”，进入条件语句，c.send(5)触发生成器，再次进入生成器，赋值newvalue为3，接着输出“Gerenation: newvalue is 3” ，赋值n = newvalue =3 ,继续循环输出“Genaration: ###loops from here###”，碰到yield n ,返回main函数，注意，此时main函数又进入到for循环，所以再次进入生成器，但是没有send()数据传过来，也可以理解为send(none),所以输出“Gerenation: newvalue is none”,接着执行n-1 ,n变为2。继续循环，输出“Genaration: ###loops from here###”。。。。。</p>
 <p><a name="C"></a></p>
 <h2 id="协程的一些知识"><a href="#协程的一些知识" class="headerlink" title="协程的一些知识"></a>协程的一些知识</h2><p>在了解协程之前，我们需要先从进程，线程说起。我们知道，进程的出现是为了并发，在一台机器上同时运行多个程序（当然，内部实现可能是多CPU并行，也有可能是单CPU时间分片，但在外部看来就是多个程序一起运行），进程的切换需要陷入内核，由OS来进行切换。一切换进程得反复进入内核，置换掉一大堆状态，这样，进程数一高，就会吃掉很多的系统资源。为了解决这个问题，就出现了线程的概念。</p>
@@ -445,8 +445,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/09/16/openstack-keystone/" rel="next" title="openstack系列 --keystone">
-                <i class="fa fa-chevron-left"></i> openstack系列 --keystone
+              <a href="/2016/09/16/secure-your-ubuntu-server/" rel="next" title="安全系列 --简单加固 ubuntu 服务器">
+                <i class="fa fa-chevron-left"></i> 安全系列 --简单加固 ubuntu 服务器
               </a>
             
           </div>

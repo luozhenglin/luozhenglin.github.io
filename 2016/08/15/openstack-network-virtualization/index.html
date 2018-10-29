@@ -92,14 +92,14 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="网络发展历程详见：SDN软件定义网络从入门到精通》导论课 总结一下目前还常用的硬件设备：  集线器(hub)：属于物理层产品，对信息进行中继和放大，从任意接口收到的数据会往其他所有接口广播。 交换机(switch):链路层产品，记录终端主机的mac地址并生成mac表，根据mac表转发主机之间的数据流。能够进行VLAN隔离。 路由器(router):网络层产品，基于IP寻址，采用路由表实现数据转发">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160816-SDN.jpeg">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160816-linux-bridge.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160816-KVM-VLAN.jpg">
-<meta property="og:updated_time" content="2018-05-28T07:57:22.516Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160816-SDN.jpeg">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160816-linux-bridge.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160816-KVM-VLAN.jpg">
+<meta property="og:updated_time" content="2018-10-29T10:03:15.823Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="openstack系列--网络虚拟化基础知识">
 <meta name="twitter:description" content="网络发展历程详见：SDN软件定义网络从入门到精通》导论课 总结一下目前还常用的硬件设备：  集线器(hub)：属于物理层产品，对信息进行中继和放大，从任意接口收到的数据会往其他所有接口广播。 交换机(switch):链路层产品，记录终端主机的mac地址并生成mac表，根据mac表转发主机之间的数据流。能够进行VLAN隔离。 路由器(router):网络层产品，基于IP寻址，采用路由表实现数据转发">
-<meta name="twitter:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160816-SDN.jpeg">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160816-SDN.jpeg">
 
 
 
@@ -373,20 +373,20 @@
 </ul>
 <p><a name="B"></a></p>
 <h2 id="网络虚拟化与SDN"><a href="#网络虚拟化与SDN" class="headerlink" title="网络虚拟化与SDN"></a>网络虚拟化与SDN</h2><p>SDN(Software Define Network)是一种集中控制的网络架构，可将网络划分为数据层面和控制层面,它是实现网络虚拟化的一种解决方案。通常来说，只要网络硬件可以集中式软件管理，可编程化，控制转发层面分开，则可以认为这个网络是一个SDN网络。openstack 的neutron组件就是一种SDN 架构(其实，SDN的创始人就是Openstack Quantum<br>,即后来的neutron 的发起者之一)。SDN大体架构如下(图片来自<a href="http://blog.sciencenet.cn/blog-1225851-974868.html" target="_blank" rel="noopener">SDN与网络虚拟化的起源与现状</a>)：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160816-SDN.jpeg" alt="SDN 大体架构"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160816-SDN.jpeg" alt="SDN 大体架构"></p>
 <p>网络虚拟化可以认为是一种网络技术，它可以在物理网络上虚拟多个相互隔离的虚拟网络，从而使得不同用户之间使用独立的网络资源切片，从而提高网络资源利用率，实现弹性的网络。网络虚拟化是云计算和SDN发展到一定阶段的产物，因此可以认为网络虚拟化是新一代的SDN。<br>延伸阅读：<a href="http://blog.sciencenet.cn/blog-1225851-974868.html" target="_blank" rel="noopener">SDN与网络虚拟化的起源与现状</a></p>
 <p><a name="C"></a></p>
 <h2 id="openstack相关的网络虚拟化知识"><a href="#openstack相关的网络虚拟化知识" class="headerlink" title="openstack相关的网络虚拟化知识"></a>openstack相关的网络虚拟化知识</h2><blockquote>
 <p>Linux Bridge:Linux Bridge 是 Linux 上用来做 TCP/IP二层协议交换的设备，其功能大家可以简单的理解为是一个二层交换机或者Hub。多个网络设备可以连接到同一个 Linux Bridge，当某个设备收到数据包时，Linux Bridge 会将数据转发给其他设备。</p>
 </blockquote>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160816-linux-bridge.png" alt="Linux bridge"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160816-linux-bridge.png" alt="Linux bridge"></p>
 <p>如上图，两个虚拟机，各自分配一个虚拟网卡vnet0,vnet1.他们连接在一个叫做br0 的Linux bridge 上。宿主机的网卡eth0分配到br0下，这样VM1与VM2可以相互通信，与外网也可以通信。</p>
 <p>LAN 与VLAN :</p>
 <p>LAN: 表示 Local Area Network，本地局域网，通常使用 Hub 和 Switch 来连接 LAN 中的计算机。一个 LAN 表示一个广播域。 其含义是：LAN 中的所有成员都会收到任意一个成员发出的广播包。 </p>
 <p>VLAN: Virtual LAN。一个带有 VLAN 功能的switch 能够将自己的端口划分出多个 LAN。计算机发出的广播包可以被同一个 LAN 中其他计算机收到，但位于其他 LAN 的计算机则无法收到。 简单地说，VLAN 将一个交换机分成了多个交换机，限制了广播的范围，在二层将计算机隔离到不同的 VLAN 中。</p>
 <p>VLAN的实现：一种方法是使用两个交换机，不同VLAN组的机器分别接到一个交换机。 另一种方法是使用一个带 VLAN 功能的交换机，将不同VLAN组的机器分别放到不同的 VLAN 中。<br>请注意，VLAN 的隔离是二层上的隔离，不同VLAN无法相互访问指的是二层广播包（比如 arp）无法跨越 VLAN 的边界。但在三层上（比如IP）是可以通过路由器让 不同VLAN互通的。</p>
 <p>KVM环境下VLAN的实现：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160816-KVM-VLAN.jpg" alt="利用Linux bridge 实现VLAN"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160816-KVM-VLAN.jpg" alt="利用Linux bridge 实现VLAN"></p>
 <p>eth0 是宿主机上的物理网卡，有一个命名为 eth0.10 的子设备与之相连。 eth0.10 就是 VLAN 设备了，其 VLAN ID 就是 VLAN 10。 eth0.10 挂在命名为 brvlan10 的 Linux Bridge 上，虚机 VM1 的虚拟网卡 vent0 也挂在 brvlan10 上。这样，宿主机用软件实现了一个交换机（当然是虚拟的），上面定义了一个 VLAN10。 eth0.10，brvlan10 和 vnet0 都分别接到 VLAN10 的 Access口上。而 eth0 就是一个 Trunk 口。VM1 通过 vnet0 发出来的数据包会被打上 VLAN10 的标签。brvlan20 同理。</p>
 <p>也可以利用 OpenVSwitch实现（官方推荐）</p>
 <p>OpenVSwitch:</p>

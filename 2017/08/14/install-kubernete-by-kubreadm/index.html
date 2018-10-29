@@ -92,14 +92,14 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="目标 利用 kubeadm 搭建一个四节点的k8s测试集群 利用harbor搭建一个单节点的私有镜像仓库 k8s集群与私有镜像仓库整合 部署dashboard  前期准备准备以下5个节点，一个为k8s的master节点，3个为node节点，最后一个作为私有仓库镜像，系统为centos7.2：  注：k8s的安装方式有很多，kubeadm安装方式是独立节点安装的官方推荐方式，简单可重复，但不适用于生">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2017-08-14-node.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2017-08-14-k8s-image.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-08-14-node.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-08-14-k8s-image.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-08-16-dashboard.png">
-<meta property="og:updated_time" content="2018-10-29T08:53:21.223Z">
+<meta property="og:updated_time" content="2018-10-29T10:03:02.407Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Kubernete-- 利用kubeadm 搭建一个kubernate集群">
 <meta name="twitter:description" content="目标 利用 kubeadm 搭建一个四节点的k8s测试集群 利用harbor搭建一个单节点的私有镜像仓库 k8s集群与私有镜像仓库整合 部署dashboard  前期准备准备以下5个节点，一个为k8s的master节点，3个为node节点，最后一个作为私有仓库镜像，系统为centos7.2：  注：k8s的安装方式有很多，kubeadm安装方式是独立节点安装的官方推荐方式，简单可重复，但不适用于生">
-<meta name="twitter:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2017-08-14-node.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-08-14-node.png">
 
 
 
@@ -370,7 +370,7 @@
 <li>部署dashboard</li>
 </ul>
 <h2 id="前期准备"><a href="#前期准备" class="headerlink" title="前期准备"></a>前期准备</h2><p>准备以下5个节点，一个为k8s的master节点，3个为node节点，最后一个作为私有仓库镜像，系统为centos7.2：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-08-14-node.png" alt="five-nodes"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-08-14-node.png" alt="five-nodes"></p>
 <p>注：k8s的安装方式有很多，kubeadm安装方式是独立节点安装的官方推荐方式，简单可重复，但不适用于生产环境，因为没有做HA，不过可以在安装完之后继续优化做HA，参考<a href="http://tonybai.com/2017/05/15/setup-a-ha-kubernetes-cluster-based-on-kubeadm-part1/" target="_blank" rel="noopener">一步步打造基于Kubeadm的高可用Kubernetes集群</a>,后续会跟进这一块。</p>
 <h2 id="kubernete-集群安装"><a href="#kubernete-集群安装" class="headerlink" title="kubernete 集群安装"></a>kubernete 集群安装</h2><h3 id="k8s所有节点需要执行的操作"><a href="#k8s所有节点需要执行的操作" class="headerlink" title="k8s所有节点需要执行的操作"></a>k8s所有节点需要执行的操作</h3><p>所有节点都要安装以下组件：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker：容器运行时，被Kubernetes依赖</span><br><span class="line">kubelet：Kubernetes核心组件，运行在集群中的所有节点上，用来启动容器和pods</span><br><span class="line">kubectl：命令行工具，k8s客户端，用来控制集群，只需要安装到kube-master上,当然，也可以安装到其他节点，然后配置指定master。</span><br><span class="line">kubeadm：集群安装工具</span><br></pre></td></tr></table></figure>
@@ -389,7 +389,7 @@
 <p>将这三个rpm包打包上传到四个节点上，并安装：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">tar xzvf /tmp/kubernetes-el7-x86_64.tar.gz</span><br><span class="line">kubernetes-el7-x86_64/</span><br><span class="line">kubernetes-el7-x86_64/567600102f687e0f27bd1fd3d8211ec1cb12e71742221526bb4e14a412f4fdb5-kubernetes-cni-0.5.0.1-0.07a8a2.x86_64.rpm</span><br><span class="line">kubernetes-el7-x86_64/5612db97409141d7fd839e734d9ad3864dcc16a630b2a91c312589a0a0d960d0-kubeadm-1.6.0-0.alpha.0.2074.a092d8e0f95f52.x86_64.rpm</span><br><span class="line">kubernetes-el7-x86_64/8a299eb1db946b2bdf01c5d5c58ef959e7a9d9a0dd706e570028ebb14d48c42e-kubelet-1.5.1-0.x86_64.rpm</span><br><span class="line">kubernetes-el7-x86_64/93af9d0fbd67365fa5bf3f85e3d36060138a62ab77e133e35f6cadc1fdc15299-kubectl-1.5.1-0.x86_64.rpm</span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> kubernetes-el7-x86_64/</span><br><span class="line"></span><br><span class="line">rpm -ivh *</span><br><span class="line"></span><br><span class="line">systemctl <span class="built_in">enable</span> kubelet &amp;&amp; systemctl start kubelet</span><br></pre></td></tr></table></figure>
 <p>接下来开始基于Kubeadm 创建k8s集群，不过在开始之前，我们先准备下需要用到的镜像，因为kubeadm创建的k8s集群中的kub-api, kube-scheduler, kube-proxy, kube-controller-manager,etcd等服务都是直接拉取镜像跑在k8s集群中，为了避免安装过程中下载镜像浪费太多时间，这里先把镜像下载好。各个版本需要下载的镜像版本也不一样。参考如下：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-08-14-k8s-image.png" alt="k8s-image"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-08-14-k8s-image.png" alt="k8s-image"></p>
 <p>我们直接用的最新版1.7.3，如果服务器可以翻墙，直接拉取镜像：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">images=(kube-proxy-amd64:v1.7.3 kube-scheduler-amd64:v1.7.3 kube-controller-manager-amd64:v1.7.3 kube-apiserver-amd64:v1.7.3 etcd-amd64:3.0.17 k8s-dns-sidecar-amd64:1.14.4 pause-amd64:3.0 k8s-dns-kube-dns-amd64:1.14.4 k8s-dns-dnsmasq-nanny-amd64:1.14.4)</span><br><span class="line"><span class="keyword">for</span> imageName <span class="keyword">in</span> <span class="variable">$&#123;images[@]&#125;</span> ; <span class="keyword">do</span></span><br><span class="line">  docker pull gcr.io/google_containers/<span class="variable">$imageName</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
 <p>如果不能翻墙，可以先翻墙下载下来，然后push到dockerhub上，再pull下来,注意pull下来之后，还是要更改tag为gcr.io/google_containers/$imageName形式。</p>

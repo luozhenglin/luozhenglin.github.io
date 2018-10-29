@@ -92,12 +92,12 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="引出 Neutron 是openstack 中提供网络虚拟化的组件，根据二层网络的实现方式不同(即agent的不同)，可以分为Linux bridge的方式，Openvswitch的方式。而且，lay2 network分为local,flat,vlan,vxlan 等类型(gre与vxlan类似，不再考虑)，本文就分析两种实现方式在这四种网络中的具体实现异同。因为vxlan会依赖lay3层网络，所">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/local-by-linux-bridge.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/local-by-linux-bridge.jpg">
 <meta property="og:image" content="http://7xo6kd.com1.z0.glb.clouddn.com/upload-ueditor-image-20161229-1483015852547009927.jpg">
 <meta property="og:image" content="http://7xo6kd.com1.z0.glb.clouddn.com/upload-ueditor-image-20161229-1483015851107029786.jpg">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/linux-bridge-flat-network.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/linux-bridge-flat-network.png">
 <meta property="og:image" content="http://7xo6kd.com1.z0.glb.clouddn.com/upload-ueditor-image-20170108-1483848357938049015.jpg">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/vlan-linux-bridge.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/vlan-linux-bridge.png">
 <meta property="og:image" content="http://7xo6kd.com1.z0.glb.clouddn.com/upload-ueditor-image-20170119-1484822850549065346.jpg">
 <meta property="og:image" content="http://7xo6kd.com1.z0.glb.clouddn.com/upload-ueditor-image-20170119-1484822850816040765.jpg">
 <meta property="og:image" content="http://7xo6kd.com1.z0.glb.clouddn.com/upload-ueditor-image-20170119-1484822851415080454.jpg">
@@ -108,11 +108,11 @@
 <meta property="og:image" content="http://7xo6kd.com1.z0.glb.clouddn.com/upload-ueditor-image-20161101-1478002791162005280.jpg?_=6020949">
 <meta property="og:image" content="http://7xo6kd.com1.z0.glb.clouddn.com/upload-ueditor-image-20161101-1478002791526056451.jpg?_=6020949">
 <meta property="og:image" content="http://7xo6kd.com1.z0.glb.clouddn.com/upload-ueditor-image-20170124-1485241324112000116.jpg">
-<meta property="og:updated_time" content="2018-05-28T07:57:22.525Z">
+<meta property="og:updated_time" content="2018-10-29T10:02:57.351Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="openstack-- neutron 二&#x2F;三层网络实现探究">
 <meta name="twitter:description" content="引出 Neutron 是openstack 中提供网络虚拟化的组件，根据二层网络的实现方式不同(即agent的不同)，可以分为Linux bridge的方式，Openvswitch的方式。而且，lay2 network分为local,flat,vlan,vxlan 等类型(gre与vxlan类似，不再考虑)，本文就分析两种实现方式在这四种网络中的具体实现异同。因为vxlan会依赖lay3层网络，所">
-<meta name="twitter:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/local-by-linux-bridge.jpg">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/local-by-linux-bridge.jpg">
 
 
 
@@ -381,7 +381,7 @@
 <li>本文内容主要来自<a href="http://product.dangdang.com/24160022.html?ref=book-02-L" target="_blank" rel="noopener">每天5分钟玩转 OpenStack</a>,图片也是来自对应博客，本文仅是对其总结对比并作记录。</li>
 </ul>
 <h2 id="lay2-local-型网络"><a href="#lay2-local-型网络" class="headerlink" title="lay2 local 型网络"></a>lay2 local 型网络</h2><p>生产环境中，local与flat网络是不会被使用的,vlan与vxlan是使用比较多的layer2网络。因为local网络只支持在同一宿主机的虚拟机互联，而flat网络会每个网络独占宿主机的一个物理接口，这在现实世界中是不允许的。但是vlan与vxlan的实现都是在local,flat网络的基础上实现的，所以还是有必要看一下这两种类型的网络的实现的。</p>
-<h3 id="linux-bridge-实现local-型网络"><a href="#linux-bridge-实现local-型网络" class="headerlink" title="linux bridge 实现local 型网络"></a>linux bridge 实现local 型网络</h3><p>对于每个local network，ML2 linux-bridge agent 会创建一个bridge,instance的tap设备连接到该bridge。位于同一local network的instance会连接同一个bridge，这样instance之间就可以通信了。但因为bridge没有与宿主机物理网卡相连，所以跟宿主机无法通信，也没法与宿主机之外的其他机器通信。下图为示例：<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/local-by-linux-bridge.jpg" alt="local-by-linux-bridge"></p>
+<h3 id="linux-bridge-实现local-型网络"><a href="#linux-bridge-实现local-型网络" class="headerlink" title="linux bridge 实现local 型网络"></a>linux bridge 实现local 型网络</h3><p>对于每个local network，ML2 linux-bridge agent 会创建一个bridge,instance的tap设备连接到该bridge。位于同一local network的instance会连接同一个bridge，这样instance之间就可以通信了。但因为bridge没有与宿主机物理网卡相连，所以跟宿主机无法通信，也没法与宿主机之外的其他机器通信。下图为示例：<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/local-by-linux-bridge.jpg" alt="local-by-linux-bridge"></p>
 <ul>
 <li>图中创建了两个local network,对应两个网桥。</li>
 <li>VM0 与 VM1 在同一个 local network中，它们之间可以通信.</li>
@@ -397,7 +397,7 @@
 </ul>
 <h2 id="lay2-flat-型网络"><a href="#lay2-flat-型网络" class="headerlink" title="lay2 flat 型网络"></a>lay2 flat 型网络</h2><p>flat型网络是在local 型网络的基础上实现不同宿主机的instance之间二层互联。但是每个flat network都会占用一个宿主机的物理接口，所以生产环境中也不会使用。</p>
 <h3 id="linux-bridge-实现flat-型网络"><a href="#linux-bridge-实现flat-型网络" class="headerlink" title="linux bridge 实现flat 型网络"></a>linux bridge 实现flat 型网络</h3><p>每一个flat network对应一个物理网卡，该对应关系需要在ml2_conf.ini配置文件中指明。下图为flat network示例：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/linux-bridge-flat-network.png" alt="linux-bridge-flat-net"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/linux-bridge-flat-network.png" alt="linux-bridge-flat-net"></p>
 <ul>
 <li>该 flat network 在计算和控制节点都使用eth1作为接口。如果是新建另一个flat network,只能使用除eth1之外的其他物理接口，且在配置文件中添加相应的mapping配置。</li>
 <li>同一网络，不同宿主机上的Linux bridge 名称是一样的。</li>
@@ -414,7 +414,7 @@
 <li>br-int内不同网络的区分跟local network一样，也是通过tag实现。</li>
 </ul>
 <h2 id="lay2-vlan-型网络"><a href="#lay2-vlan-型网络" class="headerlink" title="lay2 vlan 型网络"></a>lay2 vlan 型网络</h2><h3 id="linux-bridge-实现vlan-型网络"><a href="#linux-bridge-实现vlan-型网络" class="headerlink" title="linux bridge 实现vlan 型网络"></a>linux bridge 实现vlan 型网络</h3><p>vlan network是在flat network的基础上实现多个不同的vlan network 共用同一个物理接口。需要在配置文件中指定vlan的范围（租户的网络id 范围），以及 vlan network 与物理网卡的对应关系。<br>vlan network如下示例：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/vlan-linux-bridge.png" alt="vlan-linux-bridge"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/vlan-linux-bridge.png" alt="vlan-linux-bridge"></p>
 <ul>
 <li>可以看出，bridge上除了挂载instance的tap,dhcp的tap设备外，还挂载了一个vlan interface eth1.10x ,该vlan interface 便是区分不同vlan的关键。每一个vlan network有一个对应的vlan id，该vlan id 对应相应数字的vlan interface。</li>
 <li>上图所示，有两个vlan,vlan 100 和vlan 101,vm1 与 vm2 在同一网络vlan100，是可以联通的，vm3 与vm1,vm2不连通。</li>

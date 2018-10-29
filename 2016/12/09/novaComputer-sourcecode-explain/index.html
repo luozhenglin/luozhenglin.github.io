@@ -92,12 +92,12 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="目录结构：novacompute 介绍 以nova boot 为例解读代码  novacompute 整体讲解  novacompute 介绍 novacomputer 完成的主要任务是虚拟机的生命周期管理。 目前支持的虚拟化包括libvirt (KVM, Xen, LXC and more), Hyper-V, VMware, XenServer  因为版本不同，代码也可能不同，该版本为Open">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2016-12-09-nova-computer-code.png">
-<meta property="og:updated_time" content="2018-05-28T07:57:22.521Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2016-12-09-nova-computer-code.png">
+<meta property="og:updated_time" content="2018-10-29T10:02:52.247Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="openstack系列--novaCompute 源代码解读">
 <meta name="twitter:description" content="目录结构：novacompute 介绍 以nova boot 为例解读代码  novacompute 整体讲解  novacompute 介绍 novacomputer 完成的主要任务是虚拟机的生命周期管理。 目前支持的虚拟化包括libvirt (KVM, Xen, LXC and more), Hyper-V, VMware, XenServer  因为版本不同，代码也可能不同，该版本为Open">
-<meta name="twitter:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2016-12-09-nova-computer-code.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2016-12-09-nova-computer-code.png">
 
 
 
@@ -396,7 +396,7 @@
 <h2 id="novacompute-整体讲解"><a href="#novacompute-整体讲解" class="headerlink" title="novacompute 整体讲解"></a>novacompute 整体讲解</h2><ul>
 <li>novacomputer 代码目录如下：</li>
 </ul>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2016-12-09-nova-computer-code.png" alt="nova-computer-code"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2016-12-09-nova-computer-code.png" alt="nova-computer-code"></p>
 <ul>
 <li>Resource Tracker:<br>nova-computer 会维护数据库中一个computer_nodes的表用来存储主机的资源使用情况，以便nova-scheduler获取作为选择主机的依据，这就要求每次创建，迁移，删除虚拟机时都要对数据库中的的computer_node进行更新。<br>nova-computer会为每一个主机创建一个ResourceTracker对象，更新computernode对象。<br>目前是有两种更新机制：一种是ResourceTracker的claim机制，一种是使用周期性任务（Periodic Task）<ol>
 <li>Claim机制：当一台主机被多个nova-scheduler同时选中并发出创建虚拟机的请求时，该主机并不一定有足够的资源满足创建要求。所以Claim机制就是在创建虚拟机之前先测试下是否满足新建需求，满足，则更新数据库，并将虚拟机申请的资源从主机可用的资源减掉，如果后来创建失败，或者虚拟机删除时，会通过claim加上之前减掉的部分。</li>

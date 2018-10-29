@@ -92,28 +92,28 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="目录结构：关于分布式存储 ceph 是什么  ceph 架构 what makes ceph unique  关于分布式存储在了解ceph之前，我们最好还是先了解一下分布式存储的一些概念。分布式存储是随着存储容量的需求变大而出现的概念。由于存储需求变大，出现了两种解决方案，一种是scale up,采用容量更大，价格更昂贵的存储机器。   另一种是scale out,利用众多的普通存储机器（PC机）">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/scale-up.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160929scale-out.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160929-ceph-design.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160929-ceph-service.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2016-09-29ceph-architect.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2016-09-29-rados-1.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160929-rados-osd.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160929-OSD-MON.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160929ceph-librados-service.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160929-librados.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160929-radosgw-1.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160929-radosgw-2.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160929ceph-rbd-1.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160929-ceph-rbd-2.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160929-crush-3.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160929-crush-1.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160929-crush-2.png">
-<meta property="og:updated_time" content="2018-05-28T07:57:22.519Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/scale-up.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929scale-out.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-ceph-design.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-ceph-service.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2016-09-29ceph-architect.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2016-09-29-rados-1.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-rados-osd.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-OSD-MON.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929ceph-librados-service.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-librados.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-radosgw-1.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-radosgw-2.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929ceph-rbd-1.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-ceph-rbd-2.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-crush-3.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-crush-1.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-crush-2.png">
+<meta property="og:updated_time" content="2018-10-29T10:02:45.815Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ceph系列--ceph存储介绍">
 <meta name="twitter:description" content="目录结构：关于分布式存储 ceph 是什么  ceph 架构 what makes ceph unique  关于分布式存储在了解ceph之前，我们最好还是先了解一下分布式存储的一些概念。分布式存储是随着存储容量的需求变大而出现的概念。由于存储需求变大，出现了两种解决方案，一种是scale up,采用容量更大，价格更昂贵的存储机器。   另一种是scale out,利用众多的普通存储机器（PC机）">
-<meta name="twitter:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/scale-up.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/scale-up.png">
 
 
 
@@ -383,45 +383,45 @@
 <p><a href="#C">what makes ceph unique</a></p>
 <p><a name="A"></a></p>
 <h2 id="关于分布式存储"><a href="#关于分布式存储" class="headerlink" title="关于分布式存储"></a>关于分布式存储</h2><p>在了解ceph之前，我们最好还是先了解一下分布式存储的一些概念。分布式存储是随着存储容量的需求变大而出现的概念。由于存储需求变大，出现了两种解决方案，一种是scale up,采用容量更大，价格更昂贵的存储机器。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/scale-up.png" alt="scale-up"> </p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/scale-up.png" alt="scale-up"> </p>
 <p>另一种是scale out,利用众多的普通存储机器（PC机）横向扩展成一个大的存储集群。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160929scale-out.png" alt="scale-out"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929scale-out.png" alt="scale-out"></p>
 <p>第二种就是分布式存储的概念了。相对采用昂贵的专用商业存储设备来说，这种存储的性价比更高，但也因此引出了分布式存储几个比较棘手的问题，比如数据如何组织存储，如何保证高可用性，如何保证冗余数据的一致性，是否支持分布式事务，如何避免单点失败等等，这些概念可以参考这两篇文章，<a href="http://wuchong.me/blog/2014/08/07/distributed-storage-system-knowledge/" target="_blank" rel="noopener">分布式存储系统 知识体系</a>,<a href="http://webdam.inria.fr/Jorge/html/wdmch15.html" target="_blank" rel="noopener">An Introduction to Distributed Systems</a>。</p>
 <p><a name="B"></a></p>
 <h2 id="ceph-是什么"><a href="#ceph-是什么" class="headerlink" title="ceph 是什么"></a>ceph 是什么</h2><p>以下篇目是基于这场presentation，<a href="https://www.youtube.com/watch?v=7I9uxoEhUdY" target="_blank" rel="noopener">Ceph Intro &amp; Architectural Overview</a>.</p>
 <p>我们首先看一下ceph 的设计哲学：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160929-ceph-design.png" alt="ceph design"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-ceph-design.png" alt="ceph design"></p>
 <p>由此我们也可以看出ceph的一些特点：开源，社区驱动，可扩展，无单点故障，软件层面，自我管理。</p>
 <p>那具体提供什么服务呢？看下图</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160929-ceph-service.png" alt="ceph service"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-ceph-service.png" alt="ceph service"></p>
 <p>对应过来就是对象存储，块存储，文件系统存储。</p>
 <p><a name="C"></a></p>
 <h2 id="ceph-架构"><a href="#ceph-架构" class="headerlink" title="ceph 架构"></a>ceph 架构</h2><p>再从技术层面看下ceph架构</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2016-09-29ceph-architect.png" alt="ceph-architect"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2016-09-29ceph-architect.png" alt="ceph-architect"></p>
 <p>我们从底往上一层层的介绍，首先是RADOS,我们从上图的介绍中也可以看出，RADOS是一系列的节点，这些节点上跑着两种程序，跑着OSD程序的我们称为OSD节点（storage node），跑着MON程序的我们称为MON节点（monitor node）。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2016-09-29-rados-1.png" alt="rados-1"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2016-09-29-rados-1.png" alt="rados-1"></p>
 <p>我们再详细看下OSD节点。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160929-rados-osd.png" alt="rados-osd"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-rados-osd.png" alt="rados-osd"></p>
 <p>每个OSD节点内，有多个磁盘disk,这些磁盘上是对应的文件系统（官网推荐 xfs），在往上就是我们的逻辑存储单元OSD，每个磁盘对应一个OSD。我们的数据就是存储在OSD里。<br>OSD与MON节点各自功能如下：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160929-OSD-MON.png" alt="OSD VS MON"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-OSD-MON.png" alt="OSD VS MON"></p>
 <p>可以看出MON节点只负责集群状态的维护，具体存储交给OSD处理。</p>
 <p>再看下LIBRADOS的作用。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160929ceph-librados-service.png" alt="ceph-librados-service"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929ceph-librados-service.png" alt="ceph-librados-service"></p>
 <p>简而言之，就是为Application的调用提供了多种语言版本的接口。通信机制为SOCKET。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160929-librados.png" alt="librados"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-librados.png" alt="librados"></p>
 <p>再往上是RADOSGW.</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160929-radosgw-1.png" alt="RADOSGW-1"></p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160929-radosgw-2.png" alt="RADOSGW-1"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-radosgw-1.png" alt="RADOSGW-1"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-radosgw-2.png" alt="RADOSGW-1"></p>
 <p>简而言之，就是在LIBRADOS提供的API的基础上进行封装对外提供对象存储的REST服务。</p>
 <p>与之并列的是RBD，也就是ceph提供的块存储服务。我们最常用的就是attach到某台虚拟机上（如下图），Ross Turk还提到了另外两种用法，感兴趣可以去看一下。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160929ceph-rbd-1.png" alt="ceph-rbd"></p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160929-ceph-rbd-2.png" alt="ceph-rbd"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929ceph-rbd-1.png" alt="ceph-rbd"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-ceph-rbd-2.png" alt="ceph-rbd"></p>
 <p>关于ceph提供的文件系统因为用的不多，不再详述。</p>
 <p><a name="D"></a></p>
 <h2 id="what-makes-ceph-unique"><a href="#what-makes-ceph-unique" class="headerlink" title="what makes ceph unique"></a>what makes ceph unique</h2><p>第一个就是crush算法，一种计算寻址而非查找寻址的方法。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160929-crush-3.png" alt="crush-3"></p>
-<p> 图中的placement group 有很重要的作用，有了它，我们底层添加节点或节点崩溃，ceph都会自动更新，而对用户是透明的。<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160929-crush-1.png" alt="crush-1"></p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160929-crush-2.png" alt="crush-2"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-crush-3.png" alt="crush-3"></p>
+<p> 图中的placement group 有很重要的作用，有了它，我们底层添加节点或节点崩溃，ceph都会自动更新，而对用户是透明的。<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-crush-1.png" alt="crush-1"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-crush-2.png" alt="crush-2"></p>
 <p>其次是 rbdlayering ,参考这里<a href="http://docs.ceph.com/docs/master/dev/rbd-layering/" target="_blank" rel="noopener">RBD LAYERING</a></p>
 <h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a href="https://www.youtube.com/watch?v=7I9uxoEhUdY" target="_blank" rel="noopener">Ceph Intro &amp; Architectural Overview</a></p>
 <p><a href="http://www.slideshare.net/buildacloud/ceph-intro-and-architectural-overview-by-ross-turk" target="_blank" rel="noopener">Ceph Intro and Architectural Overview by Ross Turk</a></p>

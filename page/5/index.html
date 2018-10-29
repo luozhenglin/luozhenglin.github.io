@@ -363,7 +363,7 @@
           
             <h2 id="引出"><a href="#引出" class="headerlink" title="引出"></a>引出</h2><p>openvswitch,简称ovs, 是一个开源的分布式虚拟多层交换机，随着云计算的崛起，它逐渐成为网络虚拟化的基石。在openstack 中，默认也是采用ovs作为二层网络实现的组件。本篇博客即是对ovs安装，以及框架，常用命令的一个记录。</p>
 <h2 id="在CentOS-7-上安裝-Open-vSwitch"><a href="#在CentOS-7-上安裝-Open-vSwitch" class="headerlink" title="在CentOS 7 上安裝 Open vSwitch"></a>在CentOS 7 上安裝 Open vSwitch</h2><h3 id="确定linux核心版本-以安装对应版本OVS"><a href="#确定linux核心版本-以安装对应版本OVS" class="headerlink" title="确定linux核心版本,以安装对应版本OVS"></a>确定linux核心版本,以安装对应版本OVS</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ uname -r</span><br></pre></td></tr></table></figure>
-<p>根据下图查看需要安装哪一个版本，一般来说，如果kernel支持的话，最好下载2.5.1版，也就是目前的LTS(Long Term Support)版。<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-03-16-ovs-kernal.png" alt="ovs-kernal"></p>
+<p>根据下图查看需要安装哪一个版本，一般来说，如果kernel支持的话，最好下载2.5.1版，也就是目前的LTS(Long Term Support)版。<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-03-16-ovs-kernal.png" alt="ovs-kernal"></p>
 <h3 id="安装-toolchain-以及一些依赖包"><a href="#安装-toolchain-以及一些依赖包" class="headerlink" title="安装 toolchain 以及一些依赖包"></a>安装 toolchain 以及一些依赖包</h3><p>目前ovs安装还是需要自己编译，所以需安装toolchain。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ yum groupinstall <span class="string">"Development Tools"</span></span><br><span class="line"></span><br><span class="line">$ yum install openssl-devel wget kernel-devel</span><br></pre></td></tr></table></figure>
 <h3 id="下载源文件并打包为rpm包"><a href="#下载源文件并打包为rpm包" class="headerlink" title="下载源文件并打包为rpm包"></a>下载源文件并打包为rpm包</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ wget http://openvswitch.org/releases/openvswitch-2.5.1.tar.gz  <span class="comment">#下载</span></span><br><span class="line"></span><br><span class="line">$ tar xzvf openvswitch-2.5.1.tar.gz  <span class="comment">#解压缩</span></span><br><span class="line"></span><br><span class="line">$ mkdir -p ~/rpmbuild/SOURCES &amp; cp openvswitch-2.5.1.tar.gz ~/rpmbuild/SOURCES/  <span class="comment">#创建一个打包目录并复制源文件</span></span><br><span class="line"></span><br><span class="line">$ sed <span class="string">'s/openvswitch-kmod, //g'</span> openvswitch-2.5.1/rhel/openvswitch.spec &gt; openvswitch-2.5.1/rhel/openvswitch_no_kmod.spec <span class="comment"># 修改spec文件</span></span><br><span class="line"></span><br><span class="line">$ rpmbuild -bb --nocheck ~/openvswitch-2.5.1/rhel/openvswitch_no_kmod.spec <span class="comment"># 打包</span></span><br></pre></td></tr></table></figure>
@@ -377,13 +377,13 @@
 <li>openvswitch_mod.ko ：ovs的内核模块，主要是利用datapath将flow的match结果缓存起来。</li>
 </ul>
 <h3 id="ovs-基本概念"><a href="#ovs-基本概念" class="headerlink" title="ovs 基本概念"></a>ovs 基本概念</h3><p>因为ovs最常用到的场景是neutron，所以这里以neutron vxlan为例子讲下，下图就是一个neutron vxlan的示意图：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-03-16-neutron-vxlan.png" alt="neutron-vxlan"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-03-16-neutron-vxlan.png" alt="neutron-vxlan"></p>
 <ul>
 <li>bridge: ovs中的网桥可以理解为现实世界中的物理交换机，作用就是根据一定流规则（如openflow），把从某个端口(port)收到的数据包转发到另一个或多个端口。图中br-int与br-tun就是两个bridge。</li>
 <li>port: ovs 中的port是收发数据包的单元,每个端口都附属于某一个bridge。图中qvoxxx，以及patch-tun,patch-int等都是port。</li>
 <li>interface: 接口是ovs与外部交换数据包的组件。一个接口就是操作系统的一块网卡，这块网卡可能是ovs生成的虚拟网卡，也可能是物理网卡挂载在ovs上，也可能是操作系统的虚拟网卡（TUN/TAP）挂载在ovs上。</li>
 <li><p>flowtable: 上文讲过，ovs会根据流表进行包的转发，最常用的就是openflow协议，下图为openflow的流表匹配顺序：首先按照从小到大的顺序匹配流表，表内按照优先级匹配表项，示例参见<a href="https://zhangchenchen.github.io/2017/02/12/neutron-layer2-3-realization-discovry/">openstack– neutron 二/三层网络实现探究</a>。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-03-16-openvswitch-openflow-match.png" alt="openflow-match"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-03-16-openvswitch-openflow-match.png" alt="openflow-match"></p>
 </li>
 </ul>
 <h2 id="OpenvSwitch的常用命令"><a href="#OpenvSwitch的常用命令" class="headerlink" title="OpenvSwitch的常用命令"></a>OpenvSwitch的常用命令</h2><p>ovs的操作命令大致有如下四种：</p>
@@ -762,7 +762,7 @@
 <li>卷组Volume group (VG)：将一组物理卷收集为一个管理单元。</li>
 <li>逻辑卷Logical volume (LV)：虚拟分区，由物理区域（physical extents）组成。</li>
 </ul>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-03-10-lvm-500x290.jpg" alt="lvm-pic"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-03-10-lvm-500x290.jpg" alt="lvm-pic"></p>
 <h2 id="对虚拟机进行手动扩容"><a href="#对虚拟机进行手动扩容" class="headerlink" title="对虚拟机进行手动扩容"></a>对虚拟机进行手动扩容</h2><p>注：本文测试为实验环境，直接利用workstation 开启虚拟机，扩展磁盘，最后实现手动扩展。</p>
 <p>首先，确认磁盘使用lvm以及确定磁盘大小：</p>
 <p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-030-10-lvm-1.png" alt="lvm-1"></p>
@@ -931,7 +931,7 @@
 <p>退出chroot 并进行unmount 操作如下：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">exit</span>  <span class="comment"># 退出chroot</span></span><br><span class="line"></span><br><span class="line">$ umount /media/ </span><br><span class="line"></span><br><span class="line">$ vgchange -an centos <span class="comment"># deactive vg 中的lvm</span></span><br><span class="line"></span><br><span class="line">$ kpartx -d  centos7-x86_64.img <span class="comment"># 删除设备映射关系</span></span><br></pre></td></tr></table></figure>
 <p>如下为一个完整实例（省略chroot操作）：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-03-08-chroot-lvm.png" alt="chroot-lvm"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-03-08-chroot-lvm.png" alt="chroot-lvm"></p>
 <h4 id="镜像格式为qcow2格式"><a href="#镜像格式为qcow2格式" class="headerlink" title="镜像格式为qcow2格式"></a>镜像格式为qcow2格式</h4><p>qcow2 格式的镜像需要使用qemu自带的一个工具qemu-nbd，该工具会生成一个nbd(network block device)，然后将镜像映射到该nbd,便可以像普通block设备一样挂载了。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ modinfo nbd <span class="comment"># 查看系统kernel是否支持nbd模块</span></span><br><span class="line"></span><br><span class="line">$ modprobe nbd max_part=16 <span class="comment"># 加载 nbd模块</span></span><br><span class="line"></span><br><span class="line">$ lsmod | grep nbd <span class="comment"># 查看nbd模块是否加载</span></span><br><span class="line"></span><br><span class="line">$ qemu-nbd -c /dev/nbd0 centos7.qcow2 <span class="comment"># 将qcow2镜像映射为网络块设备(nbd)</span></span><br><span class="line"></span><br><span class="line">$ ll /dev/nbd0* <span class="comment"># 查看映射情况</span></span><br><span class="line"></span><br><span class="line">$ mount /dev/nbd0p1 /media/ <span class="comment"># 挂在对应的nbd设备</span></span><br></pre></td></tr></table></figure>
 <p>卸载的步骤如下：</p>
@@ -1122,7 +1122,7 @@
 <h2 id="ceph-rbd-的简单说明"><a href="#ceph-rbd-的简单说明" class="headerlink" title="ceph rbd 的简单说明"></a>ceph rbd 的简单说明</h2><p>官网对rbd的定义是这样的：Ceph 块设备是精简配置的、大小可调且将数据条带化存储到集群内的多个 OSD。</p>
 <p>ceph rbd是基于 rados来做的，也就是说，一个 rbd image 首先会被分成多个等大的 object，这些object再 根据 crush map 存储到对应的3个（或n个，n为奇数）OSD中，理解这一点对于理解 rbd 中的 stripe-unit和 stripe-count 有帮助。<br>所以如果考虑深层的话需要结合RADOS 的多种能力，如快照、复制和一致性。</p>
 <p>对于openstack来说，通常是通过libvirt 来控制磁盘的虚拟化(比如qemu),再通过qemu来与rbd打交道，如下图：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-03-03-openstack-ceph-rbd.png" alt="ceph-rbd-qemu"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-03-03-openstack-ceph-rbd.png" alt="ceph-rbd-qemu"></p>
 <p>qemu会调用librbd 实现rbd的增删改查等一系列操作，当然也有配套的 qemu命令，详见<a href="http://docs.ceph.org.cn/rbd/qemu-rbd/" target="_blank" rel="noopener">QEMU 与块设备</a></p>
 <p>libvirt 是一套虚拟机抽象层，它隐藏了底层多种虚拟化的具体实现，提供给client一套统一的通用API和shell接口。关于如何用 virsh 新建一个挂载rbd 的vm，可以参考<a href="http://docs.ceph.org.cn/rbd/libvirt/" target="_blank" rel="noopener">通过 LIBVIRT 使用 CEPH RBD</a></p>
 <p>关于openstack 与ceph 的整合与配置，参考<a href="http://docs.ceph.org.cn/rbd/rbd-openstack/" target="_blank" rel="noopener">块设备与 OPENSTACK</a></p>
@@ -1131,12 +1131,12 @@
 <h3 id="rbd-snapshot-相关操作"><a href="#rbd-snapshot-相关操作" class="headerlink" title="rbd snapshot 相关操作"></a>rbd snapshot 相关操作</h3><p>快照是映像在某个特定时间点的一份只读副本,ceph 的快照有一个比较高级的特性就是分层clone，在openstack 中会实现非常快的创建VM，下文会详细讲解。</p>
 <h4 id="rbd-snapshot-的基本操作"><a href="#rbd-snapshot-的基本操作" class="headerlink" title="rbd snapshot 的基本操作"></a>rbd snapshot 的基本操作</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ rbd snap create &#123;pool-name&#125;/&#123;image-name&#125;@&#123;snap-name&#125; <span class="comment"># 创建快照</span></span><br><span class="line"></span><br><span class="line">$ rbd snap ls &#123;pool-name&#125;/&#123;image-name&#125; <span class="comment">#罗列 某个镜像的快照</span></span><br><span class="line"></span><br><span class="line">$ rbd snap rollback &#123;pool-name&#125;/&#123;image-name&#125;@&#123;snap-name&#125; <span class="comment"># 快照回滚</span></span><br><span class="line"></span><br><span class="line">$ rbd snap rm &#123;pool-name&#125;/&#123;image-name&#125;@&#123;snap-name&#125; <span class="comment"># 删除某一快照</span></span><br><span class="line"></span><br><span class="line">$ rbd snap purge &#123;pool-name&#125;/&#123;image-name&#125; <span class="comment"># 清除某一镜像的所有快照</span></span><br></pre></td></tr></table></figure>
 <h4 id="ceph-快照的分层-clone"><a href="#ceph-快照的分层-clone" class="headerlink" title="ceph 快照的分层 clone"></a>ceph 快照的分层 clone</h4><p>Ceph 支持为某一rbd snapshot创建很多个写时复制（ COW ）克隆。所谓写时复制，就是执行 clone命令后，并没有立即执行clone操作，而是引用原文件，当发生写入操作时才真正执行clone操作。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-03-03-ceph-cow.png" alt="rbd-cow"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-03-03-ceph-cow.png" alt="rbd-cow"></p>
 <p>注意： clone只能用于 protected 的snapshot,且仅支持克隆 format 2 的映像（即用 rbd create –image-format 2 创建的）。</p>
 <p>分层快照使得 Ceph 块设备客户端可以很快地创建映像，这样便能实现openstack 中非常快的创建VM,而且，随着 openstack 的Nova image-create与ceph的snapshot的无缝连接，镜像的制作更快捷方便了，关于这部分，可以参考<a href="http://ceph.org.cn/2016/05/02/%E5%9F%BA%E4%BA%8Eceph-rbd%E7%9A%84openstack-nova%E5%BF%AB%E7%85%A7/" target="_blank" rel="noopener">基于Ceph RBD的OpenStack Nova快照</a></p>
 <p>关于 rbd snapshot 的内在原理 ，参考<a href="http://www.sysnote.org/2016/02/28/ceph-rbd-snap/" target="_blank" rel="noopener">ceph rbd快照原理解析</a></p>
 <p>clone 的 步骤如下：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-03-03-clone-process.png" alt="clone-process"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-03-03-clone-process.png" alt="clone-process"></p>
 <p>相关命令如下：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ rbd snap protect &#123;pool-name&#125;/&#123;image-name&#125;@&#123;snapshot-name&#125; <span class="comment"># 保护快照</span></span><br><span class="line"></span><br><span class="line">$ rbd <span class="built_in">clone</span> &#123;pool-name&#125;/&#123;parent-image&#125;@&#123;snap-name&#125; &#123;pool-name&#125;/&#123;child-image-name&#125; <span class="comment">#克隆快照</span></span><br><span class="line"></span><br><span class="line">$ rbd snap unprotect &#123;pool-name&#125;/&#123;image-name&#125;@&#123;snapshot-name&#125; <span class="comment"># 删除快照前，必须先取消保护。此外，不可以删除被克隆映像引用的快照，所以在删除快照前，必须先拍平（ flatten ）此快照的各个克隆。</span></span><br><span class="line"></span><br><span class="line">$ rbd children &#123;pool-name&#125;/&#123;image-name&#125;@&#123;snapshot-name&#125; <span class="comment"># 罗列快照的子孙</span></span><br><span class="line"></span><br><span class="line">$ rbd flatten &#123;pool-name&#125;/&#123;image-name&#125; <span class="comment"># 拍平克隆映像</span></span><br></pre></td></tr></table></figure>
 <h3 id="rbd-与内核相关的map-unmap"><a href="#rbd-与内核相关的map-unmap" class="headerlink" title="rbd 与内核相关的map/unmap"></a>rbd 与内核相关的map/unmap</h3><p>注意：由于Linux kernel支持rbd的版本较高，一般需要升级到较高版本（建议升级到3.11+）</p>
@@ -1800,7 +1800,7 @@
 <li>本文内容主要来自<a href="http://product.dangdang.com/24160022.html?ref=book-02-L" target="_blank" rel="noopener">每天5分钟玩转 OpenStack</a>,图片也是来自对应博客，本文仅是对其总结对比并作记录。</li>
 </ul>
 <h2 id="lay2-local-型网络"><a href="#lay2-local-型网络" class="headerlink" title="lay2 local 型网络"></a>lay2 local 型网络</h2><p>生产环境中，local与flat网络是不会被使用的,vlan与vxlan是使用比较多的layer2网络。因为local网络只支持在同一宿主机的虚拟机互联，而flat网络会每个网络独占宿主机的一个物理接口，这在现实世界中是不允许的。但是vlan与vxlan的实现都是在local,flat网络的基础上实现的，所以还是有必要看一下这两种类型的网络的实现的。</p>
-<h3 id="linux-bridge-实现local-型网络"><a href="#linux-bridge-实现local-型网络" class="headerlink" title="linux bridge 实现local 型网络"></a>linux bridge 实现local 型网络</h3><p>对于每个local network，ML2 linux-bridge agent 会创建一个bridge,instance的tap设备连接到该bridge。位于同一local network的instance会连接同一个bridge，这样instance之间就可以通信了。但因为bridge没有与宿主机物理网卡相连，所以跟宿主机无法通信，也没法与宿主机之外的其他机器通信。下图为示例：<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/local-by-linux-bridge.jpg" alt="local-by-linux-bridge"></p>
+<h3 id="linux-bridge-实现local-型网络"><a href="#linux-bridge-实现local-型网络" class="headerlink" title="linux bridge 实现local 型网络"></a>linux bridge 实现local 型网络</h3><p>对于每个local network，ML2 linux-bridge agent 会创建一个bridge,instance的tap设备连接到该bridge。位于同一local network的instance会连接同一个bridge，这样instance之间就可以通信了。但因为bridge没有与宿主机物理网卡相连，所以跟宿主机无法通信，也没法与宿主机之外的其他机器通信。下图为示例：<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/local-by-linux-bridge.jpg" alt="local-by-linux-bridge"></p>
 <ul>
 <li>图中创建了两个local network,对应两个网桥。</li>
 <li>VM0 与 VM1 在同一个 local network中，它们之间可以通信.</li>
@@ -1816,7 +1816,7 @@
 </ul>
 <h2 id="lay2-flat-型网络"><a href="#lay2-flat-型网络" class="headerlink" title="lay2 flat 型网络"></a>lay2 flat 型网络</h2><p>flat型网络是在local 型网络的基础上实现不同宿主机的instance之间二层互联。但是每个flat network都会占用一个宿主机的物理接口，所以生产环境中也不会使用。</p>
 <h3 id="linux-bridge-实现flat-型网络"><a href="#linux-bridge-实现flat-型网络" class="headerlink" title="linux bridge 实现flat 型网络"></a>linux bridge 实现flat 型网络</h3><p>每一个flat network对应一个物理网卡，该对应关系需要在ml2_conf.ini配置文件中指明。下图为flat network示例：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/linux-bridge-flat-network.png" alt="linux-bridge-flat-net"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/linux-bridge-flat-network.png" alt="linux-bridge-flat-net"></p>
 <ul>
 <li>该 flat network 在计算和控制节点都使用eth1作为接口。如果是新建另一个flat network,只能使用除eth1之外的其他物理接口，且在配置文件中添加相应的mapping配置。</li>
 <li>同一网络，不同宿主机上的Linux bridge 名称是一样的。</li>
@@ -1833,7 +1833,7 @@
 <li>br-int内不同网络的区分跟local network一样，也是通过tag实现。</li>
 </ul>
 <h2 id="lay2-vlan-型网络"><a href="#lay2-vlan-型网络" class="headerlink" title="lay2 vlan 型网络"></a>lay2 vlan 型网络</h2><h3 id="linux-bridge-实现vlan-型网络"><a href="#linux-bridge-实现vlan-型网络" class="headerlink" title="linux bridge 实现vlan 型网络"></a>linux bridge 实现vlan 型网络</h3><p>vlan network是在flat network的基础上实现多个不同的vlan network 共用同一个物理接口。需要在配置文件中指定vlan的范围（租户的网络id 范围），以及 vlan network 与物理网卡的对应关系。<br>vlan network如下示例：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/vlan-linux-bridge.png" alt="vlan-linux-bridge"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/vlan-linux-bridge.png" alt="vlan-linux-bridge"></p>
 <ul>
 <li>可以看出，bridge上除了挂载instance的tap,dhcp的tap设备外，还挂载了一个vlan interface eth1.10x ,该vlan interface 便是区分不同vlan的关键。每一个vlan network有一个对应的vlan id，该vlan id 对应相应数字的vlan interface。</li>
 <li>上图所示，有两个vlan,vlan 100 和vlan 101,vm1 与 vm2 在同一网络vlan100，是可以联通的，vm3 与vm1,vm2不连通。</li>

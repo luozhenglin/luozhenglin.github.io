@@ -92,15 +92,15 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="目录结构keystone 是什么  keystone 的架构  token 的生成方式 可信计算部分介绍  keystone 是什么keystone 是 openstack 的认证服务模块（identy service）。 nova,glance,swift,cinder等其他服务通过keystone注册其服务的endpoint，针对这些服务的任何调用都需要经过keystone的身份认证，并获得服">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160918Keystone-process.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160919-openstack-keystone-architecture.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160919UUID-token-validation-flow-3.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160919PKI-token-validation-flow-1.png">
-<meta property="og:updated_time" content="2018-05-28T07:57:22.519Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160918Keystone-process.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160919-openstack-keystone-architecture.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160919UUID-token-validation-flow-3.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160919PKI-token-validation-flow-1.png">
+<meta property="og:updated_time" content="2018-10-29T10:02:44.422Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="openstack系列 --keystone">
 <meta name="twitter:description" content="目录结构keystone 是什么  keystone 的架构  token 的生成方式 可信计算部分介绍  keystone 是什么keystone 是 openstack 的认证服务模块（identy service）。 nova,glance,swift,cinder等其他服务通过keystone注册其服务的endpoint，针对这些服务的任何调用都需要经过keystone的身份认证，并获得服">
-<meta name="twitter:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20160918Keystone-process.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160918Keystone-process.png">
 
 
 
@@ -378,7 +378,7 @@
 <li>Policy:一个基于规则的身份验证引擎。通过配置文件来定义各种动作与用户角色的匹配关系。该部分已作为Oslo的一部分进行开发维护。</li>
 </ul>
 <p>以创建虚拟机为例，keystone 的大致工作流程如下(注：以下内容摘自<a href="https://book.douban.com/subject/26374647/" target="_blank" rel="noopener">&lt;&lt;openstack设计与实现&gt;&gt;</a>)：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160918Keystone-process.png" alt="keystone process"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160918Keystone-process.png" alt="keystone process"></p>
 <ul>
 <li>用户Alice发送自己的凭证到keystone，keystone认证通过后，返回给Alice一个token以及服务目录。</li>
 <li>Alice通过token请求keystone查询他所拥有的Tenant列表。（如果已经知道Tenant，略过以上两步）</li>
@@ -386,7 +386,7 @@
 <li>Alice选择endpoint并发送token2请求创建虚拟机，keystone验证token2(包括该token是否有效，是否有权限创建虚拟机等)成功后，把请求转发给Nova，并创建虚拟机。</li>
 </ul>
 <p><a name="B"></a></p>
-<h2 id="keystone-的架构"><a href="#keystone-的架构" class="headerlink" title="keystone 的架构"></a>keystone 的架构</h2><p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160919-openstack-keystone-architecture.png" alt="keystone-architecture"></p>
+<h2 id="keystone-的架构"><a href="#keystone-的架构" class="headerlink" title="keystone 的架构"></a>keystone 的架构</h2><p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160919-openstack-keystone-architecture.png" alt="keystone-architecture"></p>
 <p>keystone还涉及另外一个子项目，keystonemiddleware,它提供了对token合法性进行验证的中间件。比如：客户端访问keystone提供的资源时用的是PKI类型的token，为了不必每次都需要keystone介入token的验证，我们通常会在本地节点上缓存相关证书和密钥，利用keystonemiddleware对token进行验证。</p>
 <p>Keystone项目本身，除了后台的数据库，主要包括了一个处理restful请求的API服务进程。这些API涵盖了Identity,Token,Catalog,Policy等服务。这些不同的服务提供的功能则分别由后端Driver实现。</p>
 <p><a name="C"></a></p>
@@ -400,9 +400,9 @@
 <li>签名公钥证书</li>
 </ul>
 <p>下图为UUID的token验证流程：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160919UUID-token-validation-flow-3.png" alt="uuid token valid"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160919UUID-token-validation-flow-3.png" alt="uuid token valid"></p>
 <p>下图为PKI的token验证流程：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160919PKI-token-validation-flow-1.png" alt="pki token valid"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160919PKI-token-validation-flow-1.png" alt="pki token valid"></p>
 <p><a name="D"></a></p>
 <h2 id="可信计算部分介绍"><a href="#可信计算部分介绍" class="headerlink" title="可信计算部分介绍"></a>可信计算部分介绍</h2><p>在云计算环境中，可能会有成千上万个计算节点部署在不同的地方，可能有些云租户对安全的要求比较高，要求应用或虚拟机必须运行在验证为可信的节点上。openstack 在E版本时为此引入了可信计算池的概念。可信计算池的实现位于Nova项目。在FilterScheduler中加入了一个新的TrustedFilter,经过该filter的即认为是可信计算的节点。</p>
 <p>那么可信节点是如何判定的呢？<br>计算节点采用基于Intel TXT 的TBoot进行可信启动，对主机的BIOS,VMM和操作系统进行完整性度量，并在得到来自认证服务的请求时将度量数据发送给认证服务。认证服务器部署基于OpenAttestation的认证服务，通过将来自主机的度量值与白名单数据库进行比对确定主机的可信状态。</p>
@@ -442,8 +442,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/09/16/secure-your-ubuntu-server/" rel="next" title="安全系列 --简单加固 ubuntu 服务器">
-                <i class="fa fa-chevron-left"></i> 安全系列 --简单加固 ubuntu 服务器
+              <a href="/2016/09/06/openstack-cinder/" rel="next" title="openstack 系列 --cinder">
+                <i class="fa fa-chevron-left"></i> openstack 系列 --cinder
               </a>
             
           </div>
@@ -452,8 +452,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2016/09/26/python-yield-and coroutine/" rel="prev" title="python系列--Python中的生成器以及协程的相关知识">
-                python系列--Python中的生成器以及协程的相关知识 <i class="fa fa-chevron-right"></i>
+              <a href="/2016/09/16/secure-your-ubuntu-server/" rel="prev" title="安全系列 --简单加固 ubuntu 服务器">
+                安全系列 --简单加固 ubuntu 服务器 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>

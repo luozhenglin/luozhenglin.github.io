@@ -549,7 +549,7 @@
 <p><a name="B"></a></p>
 <h2 id="以nova-list-为例解读代码"><a href="#以nova-list-为例解读代码" class="headerlink" title="以nova list 为例解读代码"></a>以nova list 为例解读代码</h2><ul>
 <li><p>进入novaclient的根目录，找到setup.cfg文件，找到入口函数</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161130-setup.cfg.png" alt="novaclientsetup"><br>其实我们也可以在安装了novaclient的机器中执行 which nova 找到对应入口。</p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161130-setup.cfg.png" alt="novaclientsetup"><br>其实我们也可以在安装了novaclient的机器中执行 which nova 找到对应入口。</p>
 </li>
 <li><p>进入novaclient.shell 的main函数，截取部分代码如下：</p>
 </li>
@@ -891,23 +891,23 @@
 <p><a name="A"></a></p>
 <h2 id="nfs-设置"><a href="#nfs-设置" class="headerlink" title="nfs 设置"></a>nfs 设置</h2><p>首先对nfs进行设置，大体以下几个步骤：</p>
 <ul>
-<li><p>磁盘分区，格式化磁盘<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161110-fdisk.png" alt="fdisk"><br>在格式化磁盘的时候出现如下错误：<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161110-mkfswrong.png" alt="mkfswrong"><br>搜了很长时间没找到答案，看提示应该是系统还有什么进程在使用这块磁盘，后请教别人后发现该磁盘之前做过ceph的osd盘，虽然已经删除了对应的关联，但是并没有删除完全，必须将/var/lib/ceph/osd/下对应的ceph包删除。<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161110ceph.png" alt="ceph osd"><br>然后，格式化成功。<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161110mkfsright.png" alt="mkfs"></p>
+<li><p>磁盘分区，格式化磁盘<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161110-fdisk.png" alt="fdisk"><br>在格式化磁盘的时候出现如下错误：<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161110-mkfswrong.png" alt="mkfswrong"><br>搜了很长时间没找到答案，看提示应该是系统还有什么进程在使用这块磁盘，后请教别人后发现该磁盘之前做过ceph的osd盘，虽然已经删除了对应的关联，但是并没有删除完全，必须将/var/lib/ceph/osd/下对应的ceph包删除。<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161110ceph.png" alt="ceph osd"><br>然后，格式化成功。<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161110mkfsright.png" alt="mkfs"></p>
 </li>
-<li><p>新建共享目录，mount 磁盘<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161111mount-file.png" alt="mount file"></p>
+<li><p>新建共享目录，mount 磁盘<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161111mount-file.png" alt="mount file"></p>
 </li>
-<li>nfs安装 先查看有没有安装<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161111nfs-install.png" alt="nfs-install"></li>
-<li>配置nfs共享文件路径并启动nfsserver.<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161111nfs-config.png" alt="nfs-config"></li>
+<li>nfs安装 先查看有没有安装<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161111nfs-install.png" alt="nfs-install"></li>
+<li>配置nfs共享文件路径并启动nfsserver.<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161111nfs-config.png" alt="nfs-config"></li>
 </ul>
 <p><a name="B"></a></p>
 <h2 id="修改cinder-配置文件"><a href="#修改cinder-配置文件" class="headerlink" title="修改cinder 配置文件"></a>修改cinder 配置文件</h2><ul>
-<li><p>首先修改cinder配置文件cinder.conf，指定nfsshare文件路径(图中注释部分为之前的ceph配置)<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161110cinder-config.png" alt="cinder-config"></p>
+<li><p>首先修改cinder配置文件cinder.conf，指定nfsshare文件路径(图中注释部分为之前的ceph配置)<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161110cinder-config.png" alt="cinder-config"></p>
 </li>
-<li><p>添加nfsshare 文件，只需要指出nfs暴露的接口即可。<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161110-nfsshare.png" alt="nfsshare"></p>
+<li><p>添加nfsshare 文件，只需要指出nfs暴露的接口即可。<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161110-nfsshare.png" alt="nfsshare"></p>
 </li>
 <li>重启cinder-volume</li>
 <li>发现cinder volume报错，发现是cinder对挂载的nfs没有权限，修改nfs挂载文件的user,group 为cinder，或者直接chmod 777 (不安全)</li>
 <li>重启cinder-volume，成功。</li>
-<li>查看mount验证下。<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161111-mount-nfs.png" alt="mount verify"></li>
+<li>查看mount验证下。<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161111-mount-nfs.png" alt="mount verify"></li>
 </ul>
 <h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a href="http://wiki.jikexueyuan.com/project/learn-linux-step-by-step/disk-partition-format-and-test.html" target="_blank" rel="noopener">磁盘分区，格式化与检验</a></p>
 <p><a href="http://www.centoscn.com/CentosSecurity/SoftSecurity/2015/0408/5118.html" target="_blank" rel="noopener">CentOS 6.5下NFS安装配置</a><br><a href="http://docs.openstack.org/admin-guide/blockstorage-nfs-backend.html" target="_blank" rel="noopener">Configure an NFS storage back end</a></p>
@@ -1071,9 +1071,9 @@
 <li>job管理器：可以实现对minion job的发送信号，定时调度等</li>
 <li>job 返回数据管理：系统默认返回数据存储在Job cache（默认是在/var/cache/salt/master/jobs目录）中，还有其他两种存储模式：一种是External Job Cache，如下图</li>
 </ul>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161107external-job-cache.png" alt="External Job Cache"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161107external-job-cache.png" alt="External Job Cache"></p>
 <p>另一种是Master Job Cache，如下图：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161107master-job-cache.png" alt="Master Job Cache"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161107master-job-cache.png" alt="Master Job Cache"></p>
 <ul>
 <li>returner: 我们可以在master端执行远程指令时指定returner,这样minion返回的数据不仅会返回到master，也会返回到我们指定的returner。而且我们也可以按照要求实现一个returner，来替换我们的Default Job Cache。</li>
 </ul>
@@ -1313,7 +1313,7 @@ On termination (typically registered via atexit):
 <h2 id="文件锁的方式"><a href="#文件锁的方式" class="headerlink" title="文件锁的方式"></a>文件锁的方式</h2><p>对文件锁的概念其实一直比较陌生，但其实与我们还是挺接近的。我们数据库中经常出现锁表或者锁记录的情况，就是利用文件锁实现的。关于文件锁的理论知识可以参考如下一篇文章：<a href="https://www.ibm.com/developerworks/cn/linux/l-cn-filelock/" target="_blank" rel="noopener">Linux 2.6 中的文件锁</a></p>
 <p>一个简单的demo如下：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="keyword">import</span> fcntl</span><br><span class="line"><span class="keyword">import</span> os, time</span><br><span class="line"></span><br><span class="line">FILE = <span class="string">"flag-file.txt"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> os.path.exists(FILE):</span><br><span class="line">    file = open(FILE,<span class="string">"w"</span>)</span><br><span class="line">    file.write(<span class="string">""</span>+os.getpid())</span><br><span class="line">    file.close()</span><br><span class="line"></span><br><span class="line">file = open(FILE,<span class="string">"r+"</span>)</span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    fcntl.flock(file.fileno(),fcntl.LOCK_EX | fcntl.LOCK_NB)</span><br><span class="line">    <span class="keyword">print</span> <span class="string">"acquire lock, i am running"</span></span><br><span class="line">    time.sleep(<span class="number">10</span>)    </span><br><span class="line"><span class="keyword">except</span> IOError:</span><br><span class="line">    <span class="keyword">print</span> <span class="string">"another programme is running"</span></span><br></pre></td></tr></table></figure>
-<p>效果如下：<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2016-11-01fcntl.png" alt="demo"></p>
+<p>效果如下：<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2016-11-01fcntl.png" alt="demo"></p>
 <p>使用这种方式有个地方要注意：你不知道什么时候别人可能把你作为flag的文件给删除了。当然可以通过逻辑判断的方式来解决，但当程序比较复杂的时候可能还会出现意料外的问题。所以我们可以用端口独占的方式来避免这种情况。</p>
 <p><a name="D"></a></p>
 <h2 id="独占端口的方式"><a href="#独占端口的方式" class="headerlink" title="独占端口的方式"></a>独占端口的方式</h2><p>同上，通过独占端口的方式来达到互斥的效果，demo如下：</p>
@@ -1474,13 +1474,13 @@ On termination (typically registered via atexit):
 <p><a name="A"></a></p>
 <h2 id="ralley是什么"><a href="#ralley是什么" class="headerlink" title="ralley是什么"></a>ralley是什么</h2><p>一句话概括，rally是一个测试openstack 性能的工具。它的存在主要回答这样一个问题：How does OpenStack work at scale? 意译一下就是：openstack 在负载比较大的规模下运转情况怎么样？<br>rally以一种插件式的形式工作，对openstack是无侵入的。通常会作为CI的一种功能集成到CI中去。</p>
 <p>tips:<br>随着rally项目的不断发展，rally又衍生出了其他的一些功能，比如与tempest结合进行openstack的功能测试等。如下图</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161031Rally-Actions.png" alt="rally action"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161031Rally-Actions.png" alt="rally action"></p>
 <p>deploy(部署)功能并非是另一种部署方式，只是与devstack等部署方式以插件形式结合来简化工作而已。</p>
 <p><a name="B"></a></p>
 <h2 id="rally-安装以及快速引导"><a href="#rally-安装以及快速引导" class="headerlink" title="rally 安装以及快速引导"></a>rally 安装以及快速引导</h2><p>rally 安装比较简单，还可以跟Devstack 部署时一块安装，以及docker 安装<a href="https://rally.readthedocs.io/en/latest/install.html" target="_blank" rel="noopener">check this!</a></p>
 <p>安装完成之后我们就可以进行性能测试了，大致顺序如下：</p>
 <ul>
-<li><p>创建一个openstack 的rally测试环境：如果是有现成的openrc文件，那么直接source 一下，然后执行：  rally deployment create –fromenv –name=existing 就创建完成了。也可以将openrc文件中的内容写入一个json文件，假设取名为existing.json,执行如下命令： rally deployment create –file=existing.json –name=existing 。 执行rally deployment list 即可查看我们创建的deployment 以及哪一个正在被激活（正在使用）。<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161031rally2.png" alt="rally deployment"><br>通过 rally deployment check 可查看检测到的openstack服务：<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161031rally1.png" alt="rally check"></p>
+<li><p>创建一个openstack 的rally测试环境：如果是有现成的openrc文件，那么直接source 一下，然后执行：  rally deployment create –fromenv –name=existing 就创建完成了。也可以将openrc文件中的内容写入一个json文件，假设取名为existing.json,执行如下命令： rally deployment create –file=existing.json –name=existing 。 执行rally deployment list 即可查看我们创建的deployment 以及哪一个正在被激活（正在使用）。<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161031rally2.png" alt="rally deployment"><br>通过 rally deployment check 可查看检测到的openstack服务：<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161031rally1.png" alt="rally check"></p>
 </li>
 <li><p>创建完一个deployment之后我们就可以进行测试了，我们需要指定一个json或yaml文件 来说明测试的内容， 在rally安装目录samples/tasks/scenarios 中有很多示例文件，比如samples/tasks/scenarios/nova 目录下就有nova对应的情景测试文件，例如boot-and-delete.json，就是启动虚拟机再删除操作，内容如下：</p>
 </li>
@@ -1489,7 +1489,7 @@ On termination (typically registered via atexit):
 <p>利用此文件启动任务： rally task start samples/tasks/scenarios/nova/boot-and-delete.json<br>还可以利用rally查看images ，flavors列表等。</p>
 <ul>
 <li><p>rally提供了多种方式进行结果的查看，最直观的就是以html形式在浏览器中展现（需翻墙）：<br>rally task report –out=report1.html –open </p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161031rally3.png" alt="rally pic"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161031rally3.png" alt="rally pic"></p>
 </li>
 </ul>
 <p>tips:执行任务时指定的json 文件格式如下：</p>
@@ -1500,7 +1500,7 @@ On termination (typically registered via atexit):
 <h2 id="rally-任务启动配置文件"><a href="#rally-任务启动配置文件" class="headerlink" title="rally 任务启动配置文件"></a>rally 任务启动配置文件</h2><p>rally任务启动配置文件就是上文中提到过的json/yaml文件，其实可以通过此配置文件实现很多功能，比如：多任务配置，设置SLA(Service-Level Agreement,就是一个成功与否的基准，例如：max_seconds_per_iteration”: 10)，利用jinja模板传参数进来，或利用jinja模板进行简单的逻辑控制等，<a href="http://rally.readthedocs.io/en/latest/tutorial/step_5_task_templates.html" target="_blank" rel="noopener">check this</a>,不再赘述。 </p>
 <p><a name="D"></a></p>
 <h2 id="rally-插件"><a href="#rally-插件" class="headerlink" title="rally 插件"></a>rally 插件</h2><p>rally插件就是我们在json文件中配置的ScenarioName，通过这些插件的组合可以完成我们自己定义的要求。几个命令如下：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161031rallyplugin.png" alt="rally plugin"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161031rallyplugin.png" alt="rally plugin"></p>
 <p>关于rally与tempest的结合使用还不是很成熟，感兴趣的可以去试下，<a href="http://rally.readthedocs.io/en/latest/tutorial/step_10_verifying_cloud_via_tempest.html" target="_blank" rel="noopener">check this!</a></p>
 <h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a href="https://wiki.openstack.org/wiki/Rally" target="_blank" rel="noopener">openstack rally wiki</a></p>
 <p><a href="https://www.ibm.com/developerworks/cn/cloud/library/1604-rally-openstack-tempest/" target="_blank" rel="noopener">SDN使用 Rally 来实现 Openstack Tempest 测试</a></p>
@@ -1646,7 +1646,7 @@ On termination (typically registered via atexit):
 <p>如果是想重启后仍然有效，在/etc/sysctl.conf 或/etc/sysctl.d/keystone.conf文件后追加： net.ipv4.ip_local_reserved_ports = 35357 </p>
 <p><a name="B"></a></p>
 <h2 id="keystone-配置文件详解"><a href="#keystone-配置文件详解" class="headerlink" title="keystone 配置文件详解"></a>keystone 配置文件详解</h2><p>keystone.conf文件中所有的配置项如下：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161024-keystone-config.png" alt="keystone-config"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161024-keystone-config.png" alt="keystone-config"></p>
 <p>接下来我们从其中挑选几个值得注意的配置项详细说明下：</p>
 <ol>
 <li>关于TOKEN</li>
@@ -1656,17 +1656,17 @@ On termination (typically registered via atexit):
 <ul>
 <li>UUID:长度固定为 32 Byte 的随机字符串,UUID token 简单美观,验证流程如下：</li>
 </ul>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161024-uuid.png" alt="uuid"><br>由于每当 OpenStack API 收到用户请求，都需要向 Keystone 验证该 token 是否有效。随着集群规模的扩大，Keystone 需处理大量验证 token 的请求，在高并发下容易出现性能问题。为了杜绝keystone成为瓶颈，引出了下面的几种。</p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161024-uuid.png" alt="uuid"><br>由于每当 OpenStack API 收到用户请求，都需要向 Keystone 验证该 token 是否有效。随着集群规模的扩大，Keystone 需处理大量验证 token 的请求，在高并发下容易出现性能问题。为了杜绝keystone成为瓶颈，引出了下面的几种。</p>
 <ul>
-<li>PKI:验证流程如下：<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161024-pki.png" alt="pki"><br>可以看出，PKI token携带更多用户信息的同时还附上了数字签名，以支持本地认证，从而避免了步骤 4。因为 PKI token 携带了更多的信息，这些信息就包括 service catalog，随着 OpenStack 的 Region 数增多，service catalog 携带的 endpoint 数量越多，PKI token 也相应增大，很容易超出 HTTP Server 允许的最大 HTTP Header(默认为 8 KB)，导致 HTTP 请求失败。</li>
+<li>PKI:验证流程如下：<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161024-pki.png" alt="pki"><br>可以看出，PKI token携带更多用户信息的同时还附上了数字签名，以支持本地认证，从而避免了步骤 4。因为 PKI token 携带了更多的信息，这些信息就包括 service catalog，随着 OpenStack 的 Region 数增多，service catalog 携带的 endpoint 数量越多，PKI token 也相应增大，很容易超出 HTTP Server 允许的最大 HTTP Header(默认为 8 KB)，导致 HTTP 请求失败。</li>
 <li>PKIZ:顾名思义，就是对PKI token进行压缩，但压缩效果有限，无法良好的处理 token size 过大问题。原理同上，无须赘述。</li>
 <li>FERNET:前三种 token 都会持久性存于数据库，与日俱增积累的大量 token 引起数据库性能下降，所以用户需经常清理数据库的 token（ 命令为：keystone-manage token_flush）。为了避免该问题，社区提出了 Fernet token，它携带了少量的用户信息，大小约为 255 Byte，采用了对称加密，无需存于数据库中。</li>
 </ul>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161024-fernet.png" alt="fernet"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161024-fernet.png" alt="fernet"></p>
 <ul>
 <li>几种token provider比较如下：</li>
 </ul>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161024-token%20compare.png" alt="token比较"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161024-token%20compare.png" alt="token比较"></p>
 <ol start="2">
 <li>Caching Layer</li>
 </ol>
@@ -1688,7 +1688,7 @@ On termination (typically registered via atexit):
 <ul>
 <li><p>File-based Service Catalog (templated.Catalog)：就是基于一个配置模板文件，配置选项如下：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[catalog]</span><br><span class="line">driver = templated</span><br><span class="line">template_file = /opt/stack/keystone/etc/default_catalog.templates</span><br></pre></td></tr></table></figure>
-<p>模板文件示例：<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161024-template.png" alt="template"></p>
+<p>模板文件示例：<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161024-template.png" alt="template"></p>
 </li>
 </ul>
 <ol start="4">
@@ -1835,12 +1835,12 @@ On termination (typically registered via atexit):
 <h2 id="github-快捷键"><a href="#github-快捷键" class="headerlink" title="github 快捷键"></a>github 快捷键</h2><p>逛v2ex的时候逛到了这个帖子，<a href="https://www.v2ex.com/t/313267#reply54" target="_blank" rel="noopener">录了几个有关 Github 的视频，我觉得你也应该知道这些</a>,很有意思,把视频看了一遍，都不是很长，强烈推荐。顺手记录下这些信息。<br>首先是github的一些快捷键：</p>
 <ul>
 <li><p>项目中搜索含有某个关键字的文件：在github 项目的code目录按下 “t”,即可进入搜索页面，如下图：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161017github-search.jpg" alt="search"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161017github-search.jpg" alt="search"></p>
 </li>
 <li><p>列出github的快捷键：在项目目录按下 “？” 即可出现：</p>
 </li>
 </ul>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161017shortcut.jpg" alt="github shortcut"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161017shortcut.jpg" alt="github shortcut"></p>
 <ul>
 <li>进入 issue页面：按下“g” 与 “i”键，就是goto issue 的缩写</li>
 <li>进入code页面：按下“g”与“c”键，goto code</li>
@@ -2008,45 +2008,45 @@ On termination (typically registered via atexit):
 <p><a href="#C">what makes ceph unique</a></p>
 <p><a name="A"></a></p>
 <h2 id="关于分布式存储"><a href="#关于分布式存储" class="headerlink" title="关于分布式存储"></a>关于分布式存储</h2><p>在了解ceph之前，我们最好还是先了解一下分布式存储的一些概念。分布式存储是随着存储容量的需求变大而出现的概念。由于存储需求变大，出现了两种解决方案，一种是scale up,采用容量更大，价格更昂贵的存储机器。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/scale-up.png" alt="scale-up"> </p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/scale-up.png" alt="scale-up"> </p>
 <p>另一种是scale out,利用众多的普通存储机器（PC机）横向扩展成一个大的存储集群。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160929scale-out.png" alt="scale-out"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929scale-out.png" alt="scale-out"></p>
 <p>第二种就是分布式存储的概念了。相对采用昂贵的专用商业存储设备来说，这种存储的性价比更高，但也因此引出了分布式存储几个比较棘手的问题，比如数据如何组织存储，如何保证高可用性，如何保证冗余数据的一致性，是否支持分布式事务，如何避免单点失败等等，这些概念可以参考这两篇文章，<a href="http://wuchong.me/blog/2014/08/07/distributed-storage-system-knowledge/" target="_blank" rel="noopener">分布式存储系统 知识体系</a>,<a href="http://webdam.inria.fr/Jorge/html/wdmch15.html" target="_blank" rel="noopener">An Introduction to Distributed Systems</a>。</p>
 <p><a name="B"></a></p>
 <h2 id="ceph-是什么"><a href="#ceph-是什么" class="headerlink" title="ceph 是什么"></a>ceph 是什么</h2><p>以下篇目是基于这场presentation，<a href="https://www.youtube.com/watch?v=7I9uxoEhUdY" target="_blank" rel="noopener">Ceph Intro &amp; Architectural Overview</a>.</p>
 <p>我们首先看一下ceph 的设计哲学：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160929-ceph-design.png" alt="ceph design"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-ceph-design.png" alt="ceph design"></p>
 <p>由此我们也可以看出ceph的一些特点：开源，社区驱动，可扩展，无单点故障，软件层面，自我管理。</p>
 <p>那具体提供什么服务呢？看下图</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160929-ceph-service.png" alt="ceph service"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-ceph-service.png" alt="ceph service"></p>
 <p>对应过来就是对象存储，块存储，文件系统存储。</p>
 <p><a name="C"></a></p>
 <h2 id="ceph-架构"><a href="#ceph-架构" class="headerlink" title="ceph 架构"></a>ceph 架构</h2><p>再从技术层面看下ceph架构</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2016-09-29ceph-architect.png" alt="ceph-architect"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2016-09-29ceph-architect.png" alt="ceph-architect"></p>
 <p>我们从底往上一层层的介绍，首先是RADOS,我们从上图的介绍中也可以看出，RADOS是一系列的节点，这些节点上跑着两种程序，跑着OSD程序的我们称为OSD节点（storage node），跑着MON程序的我们称为MON节点（monitor node）。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2016-09-29-rados-1.png" alt="rados-1"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2016-09-29-rados-1.png" alt="rados-1"></p>
 <p>我们再详细看下OSD节点。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160929-rados-osd.png" alt="rados-osd"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-rados-osd.png" alt="rados-osd"></p>
 <p>每个OSD节点内，有多个磁盘disk,这些磁盘上是对应的文件系统（官网推荐 xfs），在往上就是我们的逻辑存储单元OSD，每个磁盘对应一个OSD。我们的数据就是存储在OSD里。<br>OSD与MON节点各自功能如下：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160929-OSD-MON.png" alt="OSD VS MON"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-OSD-MON.png" alt="OSD VS MON"></p>
 <p>可以看出MON节点只负责集群状态的维护，具体存储交给OSD处理。</p>
 <p>再看下LIBRADOS的作用。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160929ceph-librados-service.png" alt="ceph-librados-service"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929ceph-librados-service.png" alt="ceph-librados-service"></p>
 <p>简而言之，就是为Application的调用提供了多种语言版本的接口。通信机制为SOCKET。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160929-librados.png" alt="librados"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-librados.png" alt="librados"></p>
 <p>再往上是RADOSGW.</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160929-radosgw-1.png" alt="RADOSGW-1"></p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160929-radosgw-2.png" alt="RADOSGW-1"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-radosgw-1.png" alt="RADOSGW-1"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-radosgw-2.png" alt="RADOSGW-1"></p>
 <p>简而言之，就是在LIBRADOS提供的API的基础上进行封装对外提供对象存储的REST服务。</p>
 <p>与之并列的是RBD，也就是ceph提供的块存储服务。我们最常用的就是attach到某台虚拟机上（如下图），Ross Turk还提到了另外两种用法，感兴趣可以去看一下。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160929ceph-rbd-1.png" alt="ceph-rbd"></p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160929-ceph-rbd-2.png" alt="ceph-rbd"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929ceph-rbd-1.png" alt="ceph-rbd"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-ceph-rbd-2.png" alt="ceph-rbd"></p>
 <p>关于ceph提供的文件系统因为用的不多，不再详述。</p>
 <p><a name="D"></a></p>
 <h2 id="what-makes-ceph-unique"><a href="#what-makes-ceph-unique" class="headerlink" title="what makes ceph unique"></a>what makes ceph unique</h2><p>第一个就是crush算法，一种计算寻址而非查找寻址的方法。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160929-crush-3.png" alt="crush-3"></p>
-<p> 图中的placement group 有很重要的作用，有了它，我们底层添加节点或节点崩溃，ceph都会自动更新，而对用户是透明的。<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160929-crush-1.png" alt="crush-1"></p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20160929-crush-2.png" alt="crush-2"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-crush-3.png" alt="crush-3"></p>
+<p> 图中的placement group 有很重要的作用，有了它，我们底层添加节点或节点崩溃，ceph都会自动更新，而对用户是透明的。<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-crush-1.png" alt="crush-1"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-crush-2.png" alt="crush-2"></p>
 <p>其次是 rbdlayering ,参考这里<a href="http://docs.ceph.com/docs/master/dev/rbd-layering/" target="_blank" rel="noopener">RBD LAYERING</a></p>
 <h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a href="https://www.youtube.com/watch?v=7I9uxoEhUdY" target="_blank" rel="noopener">Ceph Intro &amp; Architectural Overview</a></p>
 <p><a href="http://www.slideshare.net/buildacloud/ceph-intro-and-architectural-overview-by-ross-turk" target="_blank" rel="noopener">Ceph Intro and Architectural Overview by Ross Turk</a></p>

@@ -92,13 +92,13 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="概述工作中用到了kafka ,本篇博文整理一下学习到的kafka相关知识，内容多来自网上（主要是官网doc,个人博客），侵删。  kafka 是Linkedin 使用Scala 编写的一个开源的分布式消息系统，当时开发的初衷是为了解决网站活动流数据（比如网页浏览，点击，驻留时间等等）的数据转发处理。因为活动流数据是实时且流量比较大，可想而知kafka 的最大特点就是高吞吐率且容易扩展。kafka">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2018-06-04kafka-api.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2018-06-04-kafka-infra.png">
-<meta property="og:updated_time" content="2018-06-05T03:46:27.160Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2018-06-04kafka-api.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2018-06-04-kafka-infra.png">
+<meta property="og:updated_time" content="2018-10-29T10:03:09.698Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Inf-- kafka  从入门到放弃">
 <meta name="twitter:description" content="概述工作中用到了kafka ,本篇博文整理一下学习到的kafka相关知识，内容多来自网上（主要是官网doc,个人博客），侵删。  kafka 是Linkedin 使用Scala 编写的一个开源的分布式消息系统，当时开发的初衷是为了解决网站活动流数据（比如网页浏览，点击，驻留时间等等）的数据转发处理。因为活动流数据是实时且流量比较大，可想而知kafka 的最大特点就是高吞吐率且容易扩展。kafka">
-<meta name="twitter:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2018-06-04kafka-api.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2018-06-04kafka-api.png">
 
 
 
@@ -385,7 +385,7 @@
 <li>流数据处理。</li>
 <li>事件驱动架构的核心组件。 </li>
 </ul>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2018-06-04kafka-api.png" alt="kafka-api"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2018-06-04kafka-api.png" alt="kafka-api"></p>
 <p>上图中可看出kafka的角色，相应的，kafka也提供了四种核心api:</p>
 <ul>
 <li>The Producer API allows an application to publish a stream of records to one or more Kafka topics.</li>
@@ -394,7 +394,7 @@
 <li>The Connector API allows building and running reusable producers or consumers that connect Kafka topics to existing applications or data systems. For example, a connector to a relational database might capture every change to a table.</li>
 </ul>
 <h2 id="整体架构与术语"><a href="#整体架构与术语" class="headerlink" title="整体架构与术语"></a>整体架构与术语</h2><p>了解kafka，需要了解kafka  的一些术语,包括 producer,consumer,topic ,partition,broker等等。下面结合架构图统一解释：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2018-06-04-kafka-infra.png" alt="kafka-inf"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2018-06-04-kafka-infra.png" alt="kafka-inf"></p>
 <ul>
 <li>首先kafka 有producer 和consumer的概念，一个生产数据，一个消费数据，中间是一个broker（也就是一个消息队列），producer是以push的方式向broker推数据，consumer以pull 的方式从broker消费数据。</li>
 <li>producer 与consumer是通过topic 关联在一块的。topic类似于一个特定的分类。producer向某个指定的topic push数据，consumer从指定的topic消费数据。</li>

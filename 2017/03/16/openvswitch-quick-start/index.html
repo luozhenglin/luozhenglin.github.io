@@ -92,15 +92,15 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="引出openvswitch,简称ovs, 是一个开源的分布式虚拟多层交换机，随着云计算的崛起，它逐渐成为网络虚拟化的基石。在openstack 中，默认也是采用ovs作为二层网络实现的组件。本篇博客即是对ovs安装，以及框架，常用命令的一个记录。 在CentOS 7 上安裝 Open vSwitch确定linux核心版本,以安装对应版本OVS1$ uname -r 根据下图查看需要安装哪一个版本，">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2017-03-16-ovs-kernal.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-03-16-ovs-kernal.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-03-11-openvswitch-arch.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2017-03-16-neutron-vxlan.png">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2017-03-16-openvswitch-openflow-match.png">
-<meta property="og:updated_time" content="2018-10-29T08:53:35.073Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-03-16-neutron-vxlan.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-03-16-openvswitch-openflow-match.png">
+<meta property="og:updated_time" content="2018-10-29T10:02:59.275Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="openstack-- Open vSwitch 安装以及常用操作">
 <meta name="twitter:description" content="引出openvswitch,简称ovs, 是一个开源的分布式虚拟多层交换机，随着云计算的崛起，它逐渐成为网络虚拟化的基石。在openstack 中，默认也是采用ovs作为二层网络实现的组件。本篇博客即是对ovs安装，以及框架，常用命令的一个记录。 在CentOS 7 上安裝 Open vSwitch确定linux核心版本,以安装对应版本OVS1$ uname -r 根据下图查看需要安装哪一个版本，">
-<meta name="twitter:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2017-03-16-ovs-kernal.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-03-16-ovs-kernal.png">
 
 
 
@@ -366,7 +366,7 @@
       
         <h2 id="引出"><a href="#引出" class="headerlink" title="引出"></a>引出</h2><p>openvswitch,简称ovs, 是一个开源的分布式虚拟多层交换机，随着云计算的崛起，它逐渐成为网络虚拟化的基石。在openstack 中，默认也是采用ovs作为二层网络实现的组件。本篇博客即是对ovs安装，以及框架，常用命令的一个记录。</p>
 <h2 id="在CentOS-7-上安裝-Open-vSwitch"><a href="#在CentOS-7-上安裝-Open-vSwitch" class="headerlink" title="在CentOS 7 上安裝 Open vSwitch"></a>在CentOS 7 上安裝 Open vSwitch</h2><h3 id="确定linux核心版本-以安装对应版本OVS"><a href="#确定linux核心版本-以安装对应版本OVS" class="headerlink" title="确定linux核心版本,以安装对应版本OVS"></a>确定linux核心版本,以安装对应版本OVS</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ uname -r</span><br></pre></td></tr></table></figure>
-<p>根据下图查看需要安装哪一个版本，一般来说，如果kernel支持的话，最好下载2.5.1版，也就是目前的LTS(Long Term Support)版。<br><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-03-16-ovs-kernal.png" alt="ovs-kernal"></p>
+<p>根据下图查看需要安装哪一个版本，一般来说，如果kernel支持的话，最好下载2.5.1版，也就是目前的LTS(Long Term Support)版。<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-03-16-ovs-kernal.png" alt="ovs-kernal"></p>
 <h3 id="安装-toolchain-以及一些依赖包"><a href="#安装-toolchain-以及一些依赖包" class="headerlink" title="安装 toolchain 以及一些依赖包"></a>安装 toolchain 以及一些依赖包</h3><p>目前ovs安装还是需要自己编译，所以需安装toolchain。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ yum groupinstall <span class="string">"Development Tools"</span></span><br><span class="line"></span><br><span class="line">$ yum install openssl-devel wget kernel-devel</span><br></pre></td></tr></table></figure>
 <h3 id="下载源文件并打包为rpm包"><a href="#下载源文件并打包为rpm包" class="headerlink" title="下载源文件并打包为rpm包"></a>下载源文件并打包为rpm包</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ wget http://openvswitch.org/releases/openvswitch-2.5.1.tar.gz  <span class="comment">#下载</span></span><br><span class="line"></span><br><span class="line">$ tar xzvf openvswitch-2.5.1.tar.gz  <span class="comment">#解压缩</span></span><br><span class="line"></span><br><span class="line">$ mkdir -p ~/rpmbuild/SOURCES &amp; cp openvswitch-2.5.1.tar.gz ~/rpmbuild/SOURCES/  <span class="comment">#创建一个打包目录并复制源文件</span></span><br><span class="line"></span><br><span class="line">$ sed <span class="string">'s/openvswitch-kmod, //g'</span> openvswitch-2.5.1/rhel/openvswitch.spec &gt; openvswitch-2.5.1/rhel/openvswitch_no_kmod.spec <span class="comment"># 修改spec文件</span></span><br><span class="line"></span><br><span class="line">$ rpmbuild -bb --nocheck ~/openvswitch-2.5.1/rhel/openvswitch_no_kmod.spec <span class="comment"># 打包</span></span><br></pre></td></tr></table></figure>
@@ -380,13 +380,13 @@
 <li>openvswitch_mod.ko ：ovs的内核模块，主要是利用datapath将flow的match结果缓存起来。</li>
 </ul>
 <h3 id="ovs-基本概念"><a href="#ovs-基本概念" class="headerlink" title="ovs 基本概念"></a>ovs 基本概念</h3><p>因为ovs最常用到的场景是neutron，所以这里以neutron vxlan为例子讲下，下图就是一个neutron vxlan的示意图：</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-03-16-neutron-vxlan.png" alt="neutron-vxlan"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-03-16-neutron-vxlan.png" alt="neutron-vxlan"></p>
 <ul>
 <li>bridge: ovs中的网桥可以理解为现实世界中的物理交换机，作用就是根据一定流规则（如openflow），把从某个端口(port)收到的数据包转发到另一个或多个端口。图中br-int与br-tun就是两个bridge。</li>
 <li>port: ovs 中的port是收发数据包的单元,每个端口都附属于某一个bridge。图中qvoxxx，以及patch-tun,patch-int等都是port。</li>
 <li>interface: 接口是ovs与外部交换数据包的组件。一个接口就是操作系统的一块网卡，这块网卡可能是ovs生成的虚拟网卡，也可能是物理网卡挂载在ovs上，也可能是操作系统的虚拟网卡（TUN/TAP）挂载在ovs上。</li>
 <li><p>flowtable: 上文讲过，ovs会根据流表进行包的转发，最常用的就是openflow协议，下图为openflow的流表匹配顺序：首先按照从小到大的顺序匹配流表，表内按照优先级匹配表项，示例参见<a href="https://zhangchenchen.github.io/2017/02/12/neutron-layer2-3-realization-discovry/">openstack– neutron 二/三层网络实现探究</a>。</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-03-16-openvswitch-openflow-match.png" alt="openflow-match"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-03-16-openvswitch-openflow-match.png" alt="openflow-match"></p>
 </li>
 </ul>
 <h2 id="OpenvSwitch的常用命令"><a href="#OpenvSwitch的常用命令" class="headerlink" title="OpenvSwitch的常用命令"></a>OpenvSwitch的常用命令</h2><p>ovs的操作命令大致有如下四种：</p>

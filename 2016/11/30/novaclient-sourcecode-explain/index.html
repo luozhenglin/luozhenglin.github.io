@@ -92,12 +92,12 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="目录结构：novaclient 介绍 以nova list 为例解读代码   novaclient 介绍 novaclient是Python写的nova API服务的客户端. 提供了两种使用形式：命令行形式和Python API形式（命令行形式其实最终也是调用的Python API）。 novaclient 本身不是类似于nova-api这种的service，没有一个守护进程在运行，而是在我们输入">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20161130-setup.cfg.png">
-<meta property="og:updated_time" content="2018-05-28T07:57:22.520Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161130-setup.cfg.png">
+<meta property="og:updated_time" content="2018-10-29T10:02:50.527Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="openstack系列--novaClient 源代码解读">
 <meta name="twitter:description" content="目录结构：novaclient 介绍 以nova list 为例解读代码   novaclient 介绍 novaclient是Python写的nova API服务的客户端. 提供了两种使用形式：命令行形式和Python API形式（命令行形式其实最终也是调用的Python API）。 novaclient 本身不是类似于nova-api这种的service，没有一个守护进程在运行，而是在我们输入">
-<meta name="twitter:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20161130-setup.cfg.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161130-setup.cfg.png">
 
 
 
@@ -373,7 +373,7 @@
 <p><a name="B"></a></p>
 <h2 id="以nova-list-为例解读代码"><a href="#以nova-list-为例解读代码" class="headerlink" title="以nova list 为例解读代码"></a>以nova list 为例解读代码</h2><ul>
 <li><p>进入novaclient的根目录，找到setup.cfg文件，找到入口函数</p>
-<p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/20161130-setup.cfg.png" alt="novaclientsetup"><br>其实我们也可以在安装了novaclient的机器中执行 which nova 找到对应入口。</p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161130-setup.cfg.png" alt="novaclientsetup"><br>其实我们也可以在安装了novaclient的机器中执行 which nova 找到对应入口。</p>
 </li>
 <li><p>进入novaclient.shell 的main函数，截取部分代码如下：</p>
 </li>
