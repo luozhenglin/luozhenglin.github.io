@@ -68,7 +68,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hadoop,HDFS,Bigdata," />
+  <meta name="keywords" content="Bigdata,Hadoop,HDFS," />
 
 
 
@@ -85,7 +85,7 @@
 
 
 <meta name="description" content="概述最近因为项目需要将重心转移到大数据架构这一块，所以将大数据的内容大致过一下，在此记录，内容大部分来自官方文档与博客，主要基于Hadoop 的最新stable版本（2.9）。学习大数据，立马想到的就是Hadoop，Hadoop是一个开源的可依赖，可扩展的分布式计算框架，采用普通PC机集群完成对大量数据的存储，计算。这个项目主要包括四个模块：  Hadoop Common: Hadoop的Comm">
-<meta name="keywords" content="Hadoop,HDFS,Bigdata">
+<meta name="keywords" content="Bigdata,Hadoop,HDFS">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Hadoop-- Hadoop学习之HDFS">
 <meta property="og:url" content="https://zhangchenchen.github.io/2018/01/30/record-for-hdfs/index.html">
@@ -97,9 +97,9 @@
 <meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20180201154432-hdfs-arch.jpg">
 <meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20180201161950-data-node.jpg">
 <meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/20180201163924-namenode.jpg">
-<meta property="og:image" content="http://oeptotikb.bkt.clouddn.com/2018-2-2-HDFS-HA.jpg">
-<meta property="og:image" content="http://oeptotikb.bkt.clouddn.com/2018-02-02Hadoop%20Range.png">
-<meta property="og:updated_time" content="2018-05-28T07:57:22.533Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2018-2-2-HDFS-HA.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2018-02-02Hadoop%20Range.png">
+<meta property="og:updated_time" content="2018-10-29T08:53:07.531Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Hadoop-- Hadoop学习之HDFS">
 <meta name="twitter:description" content="概述最近因为项目需要将重心转移到大数据架构这一块，所以将大数据的内容大致过一下，在此记录，内容大部分来自官方文档与博客，主要基于Hadoop 的最新stable版本（2.9）。学习大数据，立马想到的就是Hadoop，Hadoop是一个开源的可依赖，可扩展的分布式计算框架，采用普通PC机集群完成对大量数据的存储，计算。这个项目主要包括四个模块：  Hadoop Common: Hadoop的Comm">
@@ -414,7 +414,7 @@
 <li>QJM：the Quorum Journal Manager，这种方案是通过JournalNode共享EditLog的数据，使用的是Paxos算法（zookeeper就是使用的这种算法），保证活跃的NameNode与备份的NameNode之间EditLog日志一致,配合zookeeper可以实现自动切换,推荐使用。</li>
 <li>NFS：Network File System 或 Conventional Shared Storage，传统共享存储，其实就是在服务器挂载一个网络存储（比如NAS），Active NameNode将EditLog的变化写到NFS，备份NameNode检查到修改就读取过来，是两个NameNode数据一致,缺点是如果namenode或者standby namenode与NFS磁盘之间的网络出了问题，HA即失效。</li>
 </ul>
-<p><img src="http://oeptotikb.bkt.clouddn.com/2018-2-2-HDFS-HA.jpg" alt="HDFS-HA"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2018-2-2-HDFS-HA.jpg" alt="HDFS-HA"></p>
 <p>以上是QJM HA的典型的结构图。集群中共有两个namenode(简称NN)，其中只有一个是active状态，另一个是standby状态。active 的NN负责响应DN(datanode)的请求，为了最快的切换为active状态，standby状态的NN同样也连接到所有的datenode上获取最新的块信息(blockmap)。<br>active NN会把元数据的修改(edit log)发送到多数的journal节点上(2n+1个journal节点，至少写到n+1个上)，standby NN从journal节点上读取edit log，并实时的合并到自己的namespace中。另外standby NN连接所有DN，实时的获取最新的blockmap。这样，一旦active的NN出现故障，standby NN可以立即切换为active NN.</p>
 <p>具体配置参考<a href="http://www.bijishequ.com/detail/373246" target="_blank" rel="noopener">HADOOP(二):HDFS 高可用原理</a></p>
 <h2 id="HDFS-认证与授权"><a href="#HDFS-认证与授权" class="headerlink" title="HDFS 认证与授权"></a>HDFS 认证与授权</h2><p>为了确保数据安全，认证授权这一块hadoop也下了一番功夫，一般来说，需要经历一下几个阶段：</p>
@@ -425,7 +425,7 @@
 <li>第三方权限控制Ranger</li>
 <li>Hadoop POSIX ACLs</li>
 </ul>
-<p><img src="http://oeptotikb.bkt.clouddn.com/2018-02-02Hadoop%20Range.png" alt="hadoop-auth"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2018-02-02Hadoop%20Range.png" alt="hadoop-auth"></p>
 <p>认证部分有两种方式，simple和kerberos，simple不做任何处理，会由操作系统层获取用户，客户端可以通过设置环境变量HADOOP_USER_NAME来伪装用户。kerberos认证对集群里的所有机器都分发了keytab，使得集群机器进程之间不能随便访问。<br>代理部分：当客户端访问hadoop时，并不想以当前进程用户去调用，上层应用一般有自己一套用户管理体系，所以hadoop提供代理机制，让进程用户可以代理登录用户提交请求。然而，如果对代理用户不加以控制的话，那权限便相对于无限放大，比如代理超级用户：hdfs，yarn等，所以对于进程用户会设置可在哪些主机提交请求和代理哪些用户组成员。<br>权限控制首先经过Service Level Authorization，检测服务级别权限。<br>比如哪些用户可以连接namenode，resourcemanager，属于服务级别的acl控制。参考<a href="https://www.iteblog.com/archives/983.html" target="_blank" rel="noopener">Hadoop服务层授权控制</a><br>接着由Ranger进行目录，队列等资源的权限管控, 属于更细粒度的权限控制。如果ranger没有策略控制，则进入原始HDFS文件系统权限或者MR权限控制。</p>
 <h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a href="http://hadoop.apache.org/" target="_blank" rel="noopener">Welcome to Apache Hadoop</a></p>
 <p><a href="https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HdfsUserGuide.html" target="_blank" rel="noopener">HDFS Users Guide</a></p>
@@ -458,11 +458,11 @@
       
         <div class="post-tags">
           
+            <a href="/tags/Bigdata/" rel="tag"># Bigdata</a>
+          
             <a href="/tags/Hadoop/" rel="tag"># Hadoop</a>
           
             <a href="/tags/HDFS/" rel="tag"># HDFS</a>
-          
-            <a href="/tags/Bigdata/" rel="tag"># Bigdata</a>
           
         </div>
       

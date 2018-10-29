@@ -92,14 +92,14 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="Harbor 简介Harbor 是 Vmware China研发开源的企业级私有容器Registry,基于docker官方的解决方案Distribution。目前来说，已经成为企业级私有容器仓库的首选（主要是可供选择的本来就不多，可能是因为镜像管理不像容器编排那样是必争之地）。相对于Docker Distribution，Harbor添加了安全，认证，管理等功能，性能以及安全性都得到提升，主要 f">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://oeptotikb.bkt.clouddn.com/2017-08-03.harbor-arc.jpg">
-<meta property="og:image" content="http://oeptotikb.bkt.clouddn.com/2017-08-03-harbor-flow1.jpg">
-<meta property="og:image" content="http://oeptotikb.bkt.clouddn.com/2017-08-03-harbor-flow-2.jpg">
-<meta property="og:updated_time" content="2018-05-28T07:57:22.528Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-08-03.harbor-arc.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-08-03-harbor-flow1.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-08-03-harbor-flow-2.jpg">
+<meta property="og:updated_time" content="2018-10-29T08:53:24.439Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Docker-- 关于Harbor 的一些记录">
 <meta name="twitter:description" content="Harbor 简介Harbor 是 Vmware China研发开源的企业级私有容器Registry,基于docker官方的解决方案Distribution。目前来说，已经成为企业级私有容器仓库的首选（主要是可供选择的本来就不多，可能是因为镜像管理不像容器编排那样是必争之地）。相对于Docker Distribution，Harbor添加了安全，认证，管理等功能，性能以及安全性都得到提升，主要 f">
-<meta name="twitter:image" content="http://oeptotikb.bkt.clouddn.com/2017-08-03.harbor-arc.jpg">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-08-03.harbor-arc.jpg">
 
 
 
@@ -384,13 +384,13 @@
 <li>Log Collector: 日志收集，跑一个Rsylogd服务。</li>
 </ul>
 <p>架构图如下：</p>
-<p><img src="http://oeptotikb.bkt.clouddn.com/2017-08-03.harbor-arc.jpg" alt="harbor-arch"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-08-03.harbor-arc.jpg" alt="harbor-arch"></p>
 <p>这五个容器之间通过docker-link相连，即通过容器名字互相访问，暴露Proxy服务的端口给终端用户访问。</p>
 <h3 id="Harbor-工作原理"><a href="#Harbor-工作原理" class="headerlink" title="Harbor 工作原理"></a>Harbor 工作原理</h3><p>以docker login 与 docker push为例讲解：</p>
-<p>客户端 输入docker login 之后，流程如下图：<br><img src="http://oeptotikb.bkt.clouddn.com/2017-08-03-harbor-flow1.jpg" alt="docker-login-flow"></p>
+<p>客户端 输入docker login 之后，流程如下图：<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-08-03-harbor-flow1.jpg" alt="docker-login-flow"></p>
 <p>(a) 首先，这个登录请求会被Proxy容器接收到，根据预先设置的匹配规则，该请求会被转发给后端Registry容器。<br>(b) Registry接收到请求后，解析请求，因为配置了基于token的认证，所以会查找token，发现请求没有token 后，返回错误代码401以及token服务的地址URL。<br>(c) Docker客户端接收到错误请求后，转而向token服务地址发送请求，并根据HTTP协议的BasicAuthentication 规范，将用户名密码组合并编码，放在请求头部(header)。<br>(d) 同样，该请求会先发到Proxy容器，继而转发给ui/token的容器,该容器接受请求，将请求头解码，获取到用户名密码。<br>(e) ui/token的容器获取到用户名密码后，通过查询数据库进行比对验证(如果是LDAP 的认证方式,就是与LDAP服务进行校验)，比对成功后，返回成功的状态码，并用密钥生成token，一并发送给Docker客户端。</p>
 <p>客户端 登陆成功后，输入docker push xxxxxx 之后，流程如下图（便于说明省略Docker client与Proxy之间通信）：</p>
-<p><img src="http://oeptotikb.bkt.clouddn.com/2017-08-03-harbor-flow-2.jpg" alt="docker-push-flow"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-08-03-harbor-flow-2.jpg" alt="docker-push-flow"></p>
 <p>(a) 同样，首先与Registery通信，返回一个token服务的地址URL.<br>(b) Docker客户端会与token服务通信，指明要申请一个push image操作的token。<br>(c) token服务访问数据库验证当前用户是否有该操作的权限，如果有，会将image信息以及push操作进行编码，用私钥签名，生成token返回给Docker客户端。<br>(d) Docker客户端再次与Registry通信，不过这次会将token放到请求header中，Registry收到请求后利用公钥解码并核对，核对成功，便可以开始push 操作了。</p>
 <h2 id="Harbor-安装"><a href="#Harbor-安装" class="headerlink" title="Harbor 安装"></a>Harbor 安装</h2><p>比较简单：</p>
 <ol>

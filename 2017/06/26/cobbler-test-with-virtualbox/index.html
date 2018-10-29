@@ -92,12 +92,12 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="Cobbler 简介Cobbler 是由Python 语言开发，实现在网络安装环境中快速的安装linux 系统。在没有出现Cobbler之前，我们通常是通过使用Kickstart 来进行自动化安装操作系统，但是kickstart 并未实现完全的自动化，我们依然需要安装配置各种服务（DHCP,TFTP,HTTP等），编写kickstart 脚本（即ks.cfg文件）等等。Cobbler可以看做是在k">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://oeptotikb.bkt.clouddn.com/2017-06-25-cobbler-process.jpeg">
-<meta property="og:updated_time" content="2018-05-28T07:57:22.528Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-06-25-cobbler-process.jpeg">
+<meta property="og:updated_time" content="2018-10-29T08:53:28.605Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Devops-- 借助virtualbox 初次实践 cobbler">
 <meta name="twitter:description" content="Cobbler 简介Cobbler 是由Python 语言开发，实现在网络安装环境中快速的安装linux 系统。在没有出现Cobbler之前，我们通常是通过使用Kickstart 来进行自动化安装操作系统，但是kickstart 并未实现完全的自动化，我们依然需要安装配置各种服务（DHCP,TFTP,HTTP等），编写kickstart 脚本（即ks.cfg文件）等等。Cobbler可以看做是在k">
-<meta name="twitter:image" content="http://oeptotikb.bkt.clouddn.com/2017-06-25-cobbler-process.jpeg">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-06-25-cobbler-process.jpeg">
 
 
 
@@ -363,7 +363,7 @@
       
         <h2 id="Cobbler-简介"><a href="#Cobbler-简介" class="headerlink" title="Cobbler 简介"></a>Cobbler 简介</h2><p>Cobbler 是由Python 语言开发，实现在网络安装环境中快速的安装linux 系统。<br>在没有出现Cobbler之前，我们通常是通过使用Kickstart 来进行自动化安装操作系统，但是kickstart 并未实现完全的自动化，我们依然需要安装配置各种服务（DHCP,TFTP,HTTP等），编写kickstart 脚本（即ks.cfg文件）等等。<br>Cobbler可以看做是在kickstart项目上的一层封装，融合了DHCP,TFTP，PXE等一系列服务，提供了CLI和web两种管理形式，使得网络安装操作系统更加方便，同时也提供了API接口方便二次开发。</p>
 <h2 id="Cobbler-原理概述"><a href="#Cobbler-原理概述" class="headerlink" title="Cobbler 原理概述"></a>Cobbler 原理概述</h2><p>Cobbler 是典型的CS架构，我们只需要在服务端做好相应的安装配置，客户端设置PXE网络启动即可。整体的运作流程如下，图片来自<a href="https://wsgzao.github.io/post/cobbler/" target="_blank" rel="noopener">Cobbler自动化安装配置实践</a>:</p>
-<p><img src="http://oeptotikb.bkt.clouddn.com/2017-06-25-cobbler-process.jpeg" alt="cobbler-process"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-06-25-cobbler-process.jpeg" alt="cobbler-process"></p>
 <h2 id="Cobbler-实践"><a href="#Cobbler-实践" class="headerlink" title="Cobbler 实践"></a>Cobbler 实践</h2><p>本次试验借助 VirtualBox 实现：</p>
 <h3 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h3><ul>
 <li>下载 centos7-minimal 镜像，并使用该镜像开启一个虚拟机guest#1</li>

@@ -531,7 +531,7 @@
 <li>nova 中的快照支持冷快照和live snapshot,两者的命令都是 nova image-create。当满足QEMU 1.3+ and libvirt 1.0+版本要求时会使用live snapshot,否则使用冷快照。关于两者区别以及流程，<a href="http://wsfdl.com/openstack/2014/08/12/Nova%E5%BF%AB%E7%85%A7%E5%88%86%E6%9E%90.html" target="_blank" rel="noopener">check this</a></li>
 <li>如果是使用ceph作为统一存储(即nova,glance,cinder都将ceph rbd作为默认存储)，那么snapshot可以利用ceph的cow等特性实现更快速的快照，L版本已实现，流程大概如下：</li>
 </ul>
-<p><img src="http://oeptotikb.bkt.clouddn.com/2017-01-23-create_glance_snap.jpg" alt="snapshot with rbd"><br>这样做的坏处是会产生新建镜像对原虚拟机的依赖性，需要定期flatten。还不知道L版是怎么处理的，挖个坑，回头看下具体实现。详细参考<a href="http://niusmallnan.com/_build/html/_templates/openstack/rbd_snap_insteadof_qemu_snap.html" target="_blank" rel="noopener">基于rbd提升虚机快照创建速度</a></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-01-23-create_glance_snap.jpg" alt="snapshot with rbd"><br>这样做的坏处是会产生新建镜像对原虚拟机的依赖性，需要定期flatten。还不知道L版是怎么处理的，挖个坑，回头看下具体实现。详细参考<a href="http://niusmallnan.com/_build/html/_templates/openstack/rbd_snap_insteadof_qemu_snap.html" target="_blank" rel="noopener">基于rbd提升虚机快照创建速度</a></p>
 <h3 id="Nova-备份"><a href="#Nova-备份" class="headerlink" title="Nova 备份"></a>Nova 备份</h3><ul>
 <li>命令为 nova backup <server> <name> <backup-type> <rotation></rotation></backup-type></name></server></li>
 <li>其实该命令跟image-create的作用差不多，也是创建一个image,最大的区别就是它有一个rotation，会保证备份的个数为rotation个。详细的用法参考这个实例<a href="http://qiita.com/idzzy/items/8b7833fc42b43a6db219" target="_blank" rel="noopener">Openstack - Nova Backup/Restore</a></li>

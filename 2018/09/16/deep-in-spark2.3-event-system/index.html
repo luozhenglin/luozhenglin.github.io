@@ -68,7 +68,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Spark,Inf," />
+  <meta name="keywords" content="Inf,Spark," />
 
 
 
@@ -85,19 +85,19 @@
 
 
 <meta name="description" content="概述换组了，工作方向由私有云转向大数据的基础架构了，感觉跟刚进公司一样，什么都得一点点慢慢积累。第一周大致过了一遍wiki,发现技术栈是完全不同，略微有点心累，不过还好，这个跳出舒适圈的决定，个人感觉是值得的。进入正题，第一个小项目跟spark 有关，需要自己实现一个spark listener 来获取更多的metrics, 顺着 listener 把spark 内部的基于event 的消息总线机">
-<meta name="keywords" content="Spark,Inf">
+<meta name="keywords" content="Inf,Spark">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Inf-- Spark2.3 的事件体系">
 <meta property="og:url" content="https://zhangchenchen.github.io/2018/09/16/deep-in-spark2.3-event-system/index.html">
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="概述换组了，工作方向由私有云转向大数据的基础架构了，感觉跟刚进公司一样，什么都得一点点慢慢积累。第一周大致过了一遍wiki,发现技术栈是完全不同，略微有点心累，不过还好，这个跳出舒适圈的决定，个人感觉是值得的。进入正题，第一个小项目跟spark 有关，需要自己实现一个spark listener 来获取更多的metrics, 顺着 listener 把spark 内部的基于event 的消息总线机">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://oeptotikb.bkt.clouddn.com/2018-09-16-spark-event-bus.png">
-<meta property="og:updated_time" content="2018-09-16T12:16:33.537Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2018-09-16-spark-event-bus.png">
+<meta property="og:updated_time" content="2018-10-29T08:52:59.011Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Inf-- Spark2.3 的事件体系">
 <meta name="twitter:description" content="概述换组了，工作方向由私有云转向大数据的基础架构了，感觉跟刚进公司一样，什么都得一点点慢慢积累。第一周大致过了一遍wiki,发现技术栈是完全不同，略微有点心累，不过还好，这个跳出舒适圈的决定，个人感觉是值得的。进入正题，第一个小项目跟spark 有关，需要自己实现一个spark listener 来获取更多的metrics, 顺着 listener 把spark 内部的基于event 的消息总线机">
-<meta name="twitter:image" content="http://oeptotikb.bkt.clouddn.com/2018-09-16-spark-event-bus.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2018-09-16-spark-event-bus.png">
 
 
 
@@ -363,7 +363,7 @@
       
         <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>换组了，工作方向由私有云转向大数据的基础架构了，感觉跟刚进公司一样，什么都得一点点慢慢积累。第一周大致过了一遍wiki,发现技术栈是完全不同，略微有点心累，不过还好，这个跳出舒适圈的决定，个人感觉是值得的。<br>进入正题，第一个小项目跟spark 有关，需要自己实现一个spark listener 来获取更多的metrics, 顺着 listener 把spark 内部的基于event 的消息总线机制过了一遍。这里做一下记录。</p>
 <h2 id="事件体系相关类视图"><a href="#事件体系相关类视图" class="headerlink" title="事件体系相关类视图"></a>事件体系相关类视图</h2><p>spark 中的事件机制本质上就是观察者模式的实现。只不过封装的层次太多，不容易发现，下图是相关类的整体视图呈现。</p>
-<p><img src="http://oeptotikb.bkt.clouddn.com/2018-09-16-spark-event-bus.png" alt="spark-event-class-view"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2018-09-16-spark-event-bus.png" alt="spark-event-class-view"></p>
 <p>先理清几个概念：</p>
 <ul>
 <li>Event: spark 中定义的一个事件（比如一个app/job/stage/task的启动/关闭等）。</li>
@@ -433,9 +433,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Spark/" rel="tag"># Spark</a>
-          
             <a href="/tags/Inf/" rel="tag"># Inf</a>
+          
+            <a href="/tags/Spark/" rel="tag"># Spark</a>
           
         </div>
       

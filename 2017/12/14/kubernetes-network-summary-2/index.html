@@ -92,13 +92,13 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="概述上篇文章对k8s的几种网络方案做了详细对比，本篇文章主要探究下两种典型的网络方案flannel和calico。 flannelflannel是coreos为k8s设计的一个非常简洁的多节点3层容器网络互联方案。 原理flannel 旨在解决不同host上的容器网络互联问题，大致原理是每个 host 分配一个 subnet，容器从此 subnet 中分配 IP，这些 IP 可以在 host 间路">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://oeptotikb.bkt.clouddn.com/20171212140335-flannel.jpg">
-<meta property="og:image" content="http://oeptotikb.bkt.clouddn.com/20171212-calico-arch.jpg">
-<meta property="og:updated_time" content="2018-05-28T07:57:22.532Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20171212140335-flannel.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20171212-calico-arch.jpg">
+<meta property="og:updated_time" content="2018-10-29T08:53:11.727Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Kuberbetes-- kubernetes网络方案总结（二）">
 <meta name="twitter:description" content="概述上篇文章对k8s的几种网络方案做了详细对比，本篇文章主要探究下两种典型的网络方案flannel和calico。 flannelflannel是coreos为k8s设计的一个非常简洁的多节点3层容器网络互联方案。 原理flannel 旨在解决不同host上的容器网络互联问题，大致原理是每个 host 分配一个 subnet，容器从此 subnet 中分配 IP，这些 IP 可以在 host 间路">
-<meta name="twitter:image" content="http://oeptotikb.bkt.clouddn.com/20171212140335-flannel.jpg">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20171212140335-flannel.jpg">
 
 
 
@@ -371,7 +371,7 @@
 <li>udp：默认模式，通常用于debug，或以上两种条件都不具备。</li>
 </ul>
 <p>找了一张有容云博客中的图：</p>
-<p><img src="http://oeptotikb.bkt.clouddn.com/20171212140335-flannel.jpg" alt="flannel"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20171212140335-flannel.jpg" alt="flannel"></p>
 <p>图中backend是用udp作为示例，我们可以换成其他任意两种，原理类似。</p>
 <h3 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h3><p>在docker 中的实践可以参考<a href="http://www.cnblogs.com/CloudMan6/p/7424858.html" target="_blank" rel="noopener">安装配置 flannel - 每天5分钟玩转 Docker 容器技术（59）</a>系列文章。</p>
 <p>在k8s中，如果是使用kubeadm安装k8s集群的话，可以参考<a href="https://github.com/coreos/flannel/blob/master/Documentation/kubernetes.md" target="_blank" rel="noopener">kubeadm</a>,其实最主要的就是<a href="https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml" target="_blank" rel="noopener">这个文件</a>，默认是vxlan，博主之前安装就是用的vxlan,就不重复操作了，大致解释下yaml文件中的内容：</p>
@@ -390,7 +390,7 @@
 <li>经过生产环境认证。</li>
 </ul>
 <h3 id="原理-1"><a href="#原理-1" class="headerlink" title="原理"></a>原理</h3><p>calico是一个纯三层的数据中心网络方案，实现类似于flannel host-gw,不过它没有复用docker 的docker0 bridge，而是自己实现的。<br>Calico在每一个计算节点利用Linux Kernel实现了一个高效的vRouter来负责数据转发，而每个vRouter通过BGP协议负责把自己上运行的workload的路由信息像整个Calico网络内传播——小规模部署可以直接互联，大规模下可通过指定的BGP route reflector来完成。<br>Calico基于iptables还提供了丰富而灵活的网络Policy，保证通过各个节点上的ACLs来提供Workload的多租户隔离、安全组以及其他可达性限制等功能。<br>对于有IP限制的host，也可以使用calico的IPIP方案（overlay方式）。</p>
-<p>calico 的架构：<br><img src="http://oeptotikb.bkt.clouddn.com/20171212-calico-arch.jpg" alt="calico-arch"></p>
+<p>calico 的架构：<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20171212-calico-arch.jpg" alt="calico-arch"></p>
 <p>具体通信流程可以结合实践，参考<a href="http://www.cnblogs.com/CloudMan6/p/7509975.html" target="_blank" rel="noopener">如何部署 Calico 网络？- 每天5分钟玩转 Docker 容器技术（67）</a></p>
 <h3 id="实践-1"><a href="#实践-1" class="headerlink" title="实践"></a>实践</h3><p>在docker上的实践参考<a href="https://docs.projectcalico.org/v2.6/getting-started/docker/" target="_blank" rel="noopener">Calico with Docker</a>,嫌麻烦直接看<a href="http://www.cnblogs.com/CloudMan6/p/7509975.html" target="_blank" rel="noopener">如何部署 Calico 网络？- 每天5分钟玩转 Docker 容器技术（67）</a></p>
 <p>在k8s上的部署可以参考<a href="https://docs.projectcalico.org/v1.5/getting-started/kubernetes/installation/#kubernetes-hosted-installation" target="_blank" rel="noopener">Adding Calico to an Existing Kubernetes Cluster</a></p>

@@ -384,7 +384,7 @@
 <li>在osd 再平衡期间，增加mon-osd-full-ratio/mon osd nearfull ratio值（未验证） </li>
 </ul>
 <h2 id="Failed-to-allocate-the-network-s-not-rescheduling"><a href="#Failed-to-allocate-the-network-s-not-rescheduling" class="headerlink" title="Failed to allocate the network(s), not rescheduling."></a>Failed to allocate the network(s), not rescheduling.</h2><p>创建虚拟机的时候报如标题所述错误，查看详细日志，可以看出是Virtual Interface creation failed.</p>
-<p><img src="http://oeptotikb.bkt.clouddn.com/2017-08-09-CREATIO-INTERFACE-FAIL.png" alt="virtual-interface-fail"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-08-09-CREATIO-INTERFACE-FAIL.png" alt="virtual-interface-fail"></p>
 <p>自然想到可能是Virtual Interface 创建失败导致创建虚拟机失败，查看neutron-server日志，发现如下信息：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">2017-08-09 11:21:08.499 154120 WARNING neutron.notifiers.nova [-] Nova returned NotFound <span class="keyword">for</span> event: [&#123;<span class="string">'tag'</span>: u<span class="string">'a653baaf-828d-4641-aabb-1a82c5163889'</span>, <span class="string">'name'</span>: <span class="string">'network-vif-deleted'</span>, <span class="string">'server_uuid'</span>: u<span class="string">'4fdf7471-bece-4d93-       a044-a4052284c69b'</span>&#125;]</span><br></pre></td></tr></table></figure></p>
 <p>也就是说nova没有接受到network-vif-deleted的event，查看具体出错代码：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">_create_domain_and_network</span><span class="params">(self, context, xml, instance, network_info,</span></span></span><br><span class="line"><span class="function"><span class="params">                               disk_info, block_device_info=None,</span></span></span><br><span class="line"><span class="function"><span class="params">                               power_on=True, reboot=False,</span></span></span><br><span class="line"><span class="function"><span class="params">                               vifs_already_plugged=False)</span>:</span></span><br><span class="line">   ...............................................................</span><br><span class="line">    <span class="keyword">except</span> eventlet.timeout.Timeout:</span><br><span class="line">        <span class="comment"># We never heard from Neutron</span></span><br><span class="line">        LOG.warn(_LW(<span class="string">'Timeout waiting for vif plugging callback for '</span></span><br><span class="line">                     <span class="string">'instance %(uuid)s'</span>), &#123;<span class="string">'uuid'</span>: instance.uuid&#125;,</span><br><span class="line">                 instance=instance)</span><br><span class="line">        <span class="keyword">if</span> CONF.vif_plugging_is_fatal:   <span class="comment">#关键在这行</span></span><br><span class="line">            <span class="keyword">if</span> guest:</span><br><span class="line">                guest.poweroff()</span><br><span class="line">            self.cleanup(context, instance, network_info=network_info,</span><br><span class="line">                         block_device_info=block_device_info)</span><br><span class="line">            <span class="keyword">raise</span> exception.VirtualInterfaceCreateException()</span><br></pre></td></tr></table></figure>
@@ -531,24 +531,24 @@
 <h2 id="nova-network-网络类型"><a href="#nova-network-网络类型" class="headerlink" title="nova-network 网络类型"></a>nova-network 网络类型</h2><p>nova-network 支持两种网络类型（确切地说是三种，这里将Flat与FlatDHCP看做一类），分别是Flat/FlatDHCP 和 Vlan类型。</p>
 <h3 id="FlatManager-and-FlatDHCPManager"><a href="#FlatManager-and-FlatDHCPManager" class="headerlink" title="FlatManager and FlatDHCPManager"></a>FlatManager and FlatDHCPManager</h3><p>顾名思义，flat即扁平化，也就是说所有的虚拟机都在一个大的二层网络空间内，这种网络模式一般生产环境中很少用，多用于POC阶段。<br>关于flat networking，我在openstack 上找到一篇<a href="https://wiki.openstack.org/wiki/UnderstandingFlatNetworking" target="_blank" rel="noopener">wiki</a>，讲解的比较清楚。可惜wiki 上只有讲解flat的，没有其他网络类型。</p>
 <p>这里借上文中的一张图简单说下flat这种网络类型，以多节点，多网卡为例：</p>
-<p><img src="http://oeptotikb.bkt.clouddn.com/2017-06-30-FlatNetworkMultInterface.png" alt="multi-host-1"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-06-30-FlatNetworkMultInterface.png" alt="multi-host-1"></p>
 <p>由图看出，计算节点内都有一个网桥br100与 物理网卡eth0相连，计算节点内的虚拟机通过该网桥与控制节点的对应物理网卡连接实现通信。<br>虚拟机实现南北通信大致如下图：</p>
-<p><img src="http://oeptotikb.bkt.clouddn.com/2017-06-30-MultiInterfaceOutbound_2.png" alt="multi-host-2"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-06-30-MultiInterfaceOutbound_2.png" alt="multi-host-2"></p>
 <p>flatDHCP 其实就是在计算节点再运行一个dnsmasp来提供DHCP服务，就不需要借助外部的DHCP服务，两者对比大致如下：</p>
 <p>flat networking :</p>
-<p><img src="http://oeptotikb.bkt.clouddn.com/2017-06-30-flatdhcp.png" alt="flat"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-06-30-flatdhcp.png" alt="flat"></p>
 <p>flatDHCP networking:</p>
-<p><img src="http://oeptotikb.bkt.clouddn.com/QQ%E6%88%AA%E5%9B%BE20170630144105.png" alt="flat-dhcp"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/QQ%E6%88%AA%E5%9B%BE20170630144105.png" alt="flat-dhcp"></p>
 <h3 id="VlanManager"><a href="#VlanManager" class="headerlink" title="VlanManager"></a>VlanManager</h3><p>flat networking 有一个很大的缺点就是所有虚拟机都在一个二层网络，没有租户间的网络隔离，不够灵活，且广播风暴的影响太大，这种情况下，vlan 就出现了。</p>
 <p>vlan 网络或给每个租户创建一个（或多个）二层网络，且这些二层网络相互隔离。不过这种网络类型需要支持vlan tag的交换机才可以使用。</p>
 <h2 id="nova-network-网络实现原理"><a href="#nova-network-网络实现原理" class="headerlink" title="nova-network 网络实现原理"></a>nova-network 网络实现原理</h2><p>简单介绍下各自的实现原理</p>
 <h3 id="Flat-FlatDHCP网络实现原理"><a href="#Flat-FlatDHCP网络实现原理" class="headerlink" title="Flat/FlatDHCP网络实现原理"></a>Flat/FlatDHCP网络实现原理</h3><p>Flat类型的基本上上文已经讲了，主要看下flatDHCP 的实现：</p>
-<p><img src="http://oeptotikb.bkt.clouddn.com/2017-06-30-flat-dhcp-real.png" alt="flat-dhcp"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-06-30-flat-dhcp-real.png" alt="flat-dhcp"></p>
 <p>跟flat类似，不过在计算节点的网桥上会有一个dnsmasq进程监听并实现该节点的虚拟机IP动态分配。<br>还有一点要注意的是，不同计算节点的虚拟机内网关也不同，比如，上图中，vm_1与vm_2的网关都是10.10.0.1，但在右边计算节点的vm_3 和vm_4的网关却是10.10.0.4。</p>
 <h3 id="Vlan实现原理"><a href="#Vlan实现原理" class="headerlink" title="Vlan实现原理"></a>Vlan实现原理</h3><p>一图胜千言：</p>
-<p><img src="http://oeptotikb.bkt.clouddn.com/2017-06-30-vlanmanager-2-hosts-2-tenants.png" alt="multi-host-vlan"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-06-30-vlanmanager-2-hosts-2-tenants.png" alt="multi-host-vlan"></p>
 <p>上面这幅图就是vlan模式部署最为广泛的场景，即multi-node模式，也就是说不光是网络节点需要运行nova-network服务，计算节点也要运行nova-network（还需要运行nova-api以提供metadata服务），这样就避免出现SPOF,也可以达到分流的作用（跟neutron 的DVR很类似，估计DVR就是借鉴了这里）。<br>需要注意的是每个vlan网桥都是租户独占的，且会创建vlan接口如vlan102,依据802.1q协议打vlanid，与网关eth0连接。Dnsmasq监听网桥网关，负责fixedip的分配。switch port设定为chunk mode。eth0负责vm之间的数据通信，另一网卡如eth1负责外网访问。上图只是显示了一个网卡，如下图是一个多网卡的情况：</p>
-<p><img src="http://oeptotikb.bkt.clouddn.com/2017-06-30-multi-host-vlan.png" alt="vlan-multi-host"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-06-30-multi-host-vlan.png" alt="vlan-multi-host"></p>
 <h2 id="nova-network-vs-neutron"><a href="#nova-network-vs-neutron" class="headerlink" title="nova-network vs neutron"></a>nova-network vs neutron</h2><p>之前总结过一篇关于<a href="https://zhangchenchen.github.io/2017/02/12/neutron-layer2-3-realization-discovry/">neutron 实现二三层网络的总结</a>,就功能性来说，nova-network 只支持两种网络类型，neutron增加了overlay network 的支持，如vxlan/gre, 突破了vlan id个数限制从而支持更多数目的二层网络。而且nova-network 即使是不同租户间，也不允许使用相同的网段，因为租户网络是通过ip+vlan的形式来区分，neutron 就完全可以。<br>但也不是nova-network 就一文不取，相比于neutron网络，虽说没有neutron那么多的功能插件，仅有bridge，但是其稳定性已得到大多数用户的验证，对于小规模的私有云(1千台虚机的规模)，nova-network是可以考虑的。</p>
 <h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a href="https://www.mirantis.com/blog/openstack-networking-flatmanager-and-flatdhcpmanager/" target="_blank" rel="noopener">OpenStack Networking – FlatManager and FlatDHCPManager</a></p>
 <p><a href="https://www.mirantis.com/blog/openstack-networking-vlanmanager/" target="_blank" rel="noopener">Openstack Networking for Scalability and Multi-tenancy with VlanManager</a></p>
@@ -688,7 +688,7 @@
           
             <h2 id="Cobbler-简介"><a href="#Cobbler-简介" class="headerlink" title="Cobbler 简介"></a>Cobbler 简介</h2><p>Cobbler 是由Python 语言开发，实现在网络安装环境中快速的安装linux 系统。<br>在没有出现Cobbler之前，我们通常是通过使用Kickstart 来进行自动化安装操作系统，但是kickstart 并未实现完全的自动化，我们依然需要安装配置各种服务（DHCP,TFTP,HTTP等），编写kickstart 脚本（即ks.cfg文件）等等。<br>Cobbler可以看做是在kickstart项目上的一层封装，融合了DHCP,TFTP，PXE等一系列服务，提供了CLI和web两种管理形式，使得网络安装操作系统更加方便，同时也提供了API接口方便二次开发。</p>
 <h2 id="Cobbler-原理概述"><a href="#Cobbler-原理概述" class="headerlink" title="Cobbler 原理概述"></a>Cobbler 原理概述</h2><p>Cobbler 是典型的CS架构，我们只需要在服务端做好相应的安装配置，客户端设置PXE网络启动即可。整体的运作流程如下，图片来自<a href="https://wsgzao.github.io/post/cobbler/" target="_blank" rel="noopener">Cobbler自动化安装配置实践</a>:</p>
-<p><img src="http://oeptotikb.bkt.clouddn.com/2017-06-25-cobbler-process.jpeg" alt="cobbler-process"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-06-25-cobbler-process.jpeg" alt="cobbler-process"></p>
 <h2 id="Cobbler-实践"><a href="#Cobbler-实践" class="headerlink" title="Cobbler 实践"></a>Cobbler 实践</h2><p>本次试验借助 VirtualBox 实现：</p>
 <h3 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h3><ul>
 <li>下载 centos7-minimal 镜像，并使用该镜像开启一个虚拟机guest#1</li>
@@ -902,9 +902,9 @@
 </ul>
 <h2 id="neutron-分布式虚拟路由（DVR）"><a href="#neutron-分布式虚拟路由（DVR）" class="headerlink" title="neutron 分布式虚拟路由（DVR）"></a>neutron 分布式虚拟路由（DVR）</h2><h3 id="整体架构"><a href="#整体架构" class="headerlink" title="整体架构"></a>整体架构</h3><p>neutron 的DVR 是属于openstack HA的一部分，主要解决虚拟路由器的HA（即neutron-l3-agent的HA）。之前写过一篇<a href="https://zhangchenchen.github.io/2017/04/14/openstack-ha/">记录openstack的HA</a>,但没有仔细研究过neutron DVR。</p>
 <p>在没有使用dvr时，我们的整体架构大致是这样的：</p>
-<p><img src="http://oeptotikb.bkt.clouddn.com/neutron-arc-1.png" alt="neutron-arc1"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/neutron-arc-1.png" alt="neutron-arc1"></p>
 <p>计算节点只需要安装L2 Agent就可以，而使用dvr模式后：</p>
-<p><img src="http://oeptotikb.bkt.clouddn.com/2017-06-20neutro-arc-2.png" alt="neutron-arc-2"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-06-20neutro-arc-2.png" alt="neutron-arc-2"></p>
 <p>计算节点除了L2 Agent外，还要安装L3 Agent以及Metadata Agent。也就是说，通过使用dvr，计算节点也有了网络节点的三层转发和NAT功能，起到了分流的作用。</p>
 <h3 id="安装配置"><a href="#安装配置" class="headerlink" title="安装配置"></a>安装配置</h3><ul>
 <li>控制节点：修改neutron.conf 如下，重启neutron-server</li>
@@ -1564,8 +1564,8 @@
 <p>可以利用删除backup 来证明一下，增量备份都会有一个 parent backup（父备份），就是基于父备份来做增量备份，通常来说，就是我们刚开始做的那个全量备份。在删除父备份之前，必须先把所有它的子备份删除，才可以成功删除父备份。示例如下：</p>
 <p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-05-09-cinder-backup.png" alt="cinder-backup"></p>
 <h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><p>关于备份的具体流程可以参考这张图：</p>
-<p><img src="http://oeptotikb.bkt.clouddn.com/backup_workflow.png" alt="backup-workflow"></p>
-<p><img src="http://oeptotikb.bkt.clouddn.com/2017-05-10-backup-detail.jpg" alt="detail-backup"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/backup_workflow.png" alt="backup-workflow"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-05-10-backup-detail.jpg" alt="detail-backup"></p>
 <p>熟悉ceph的话，应该知道ceph rbd的export-diff，import-diff 功能：</p>
 <ul>
 <li>export-diff ：将某个 rbd image 在两个不同时刻的数据状态比较不同后导出补丁文件。</li>
@@ -1742,9 +1742,9 @@
 <li>HAProxy：向 API，RabbitMQ 和 MariaDB 多活服务提供负载均衡，其自身由 Pacemaker 实现 A/P HA，提供 VIP，某一时刻只由一个HAProxy提供服务。在部署中，也可以部署单独的 HAProxy 集群。</li>
 <li>Memcached：它原生支持 A/A，只需要在 OpenStack 中配置它所有节点的名称即可，比如，memcached_servers = controller1:11211,controller2:11211。当 controller1:11211 失效时，OpenStack 组件会自动使用controller2:11211。</li>
 </ul>
-<p><img src="http://oeptotikb.bkt.clouddn.com/2017-04-21-openstack-con-ha.jpg" alt="openstack-con-ha"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-21-openstack-con-ha.jpg" alt="openstack-con-ha"></p>
 <p>从一个请求的角度大致时序如下：</p>
-<p><img src="http://oeptotikb.bkt.clouddn.com/2017-04-21-flow.jpg" alt="flow"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-21-flow.jpg" alt="flow"></p>
 <p>这里在重点说一下rabbitmq 与mysql用的HA方案：</p>
 <h3 id="rabbitmq-的HA"><a href="#rabbitmq-的HA" class="headerlink" title="rabbitmq 的HA"></a>rabbitmq 的HA</h3><p>首先了解下rabbitmq集群的消息传递模式，rabbitmq的集群有两种模式，如下：</p>
 <ul>
@@ -1767,11 +1767,11 @@
 <li>7）无单点故障,易扩展</li>
 </ul>
 <p>openstack doc 中提到在用HAproxy做galara cluster 的负载均衡时，因为该集群不支持跨节点对表加锁，也就是说如果OpenStack 某组件有两个会话分布在两个节点上同时写入某一条数据，会出现其中一个会话遇到死锁的情况。可以参考<a href="http://www.joinfu.com/2015/01/understanding-reservations-concurrency-locking-in-nova/" target="_blank" rel="noopener">Understanding reservations, concurrency, and locking in Nova</a>,讲解的比较清晰。</p>
-<p><img src="http://oeptotikb.bkt.clouddn.com/2017-04-15galera-update-certification-timeout.png" alt="galera-lock"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-15galera-update-certification-timeout.png" alt="galera-lock"></p>
 <p>解决方案上文作者就提出了一种方式，楼主看了下最新版代码已经没有with_lockmode(‘update’) 语句。</p>
 <p>安装配置参考<a href="https://docs.openstack.org/ha-guide/shared-database.html" target="_blank" rel="noopener">Database (Galera Cluster) for high availability</a></p>
 <h2 id="网络控制节点-HA"><a href="#网络控制节点-HA" class="headerlink" title="网络控制节点 HA"></a>网络控制节点 HA</h2><p>这里说的网络控制节点是为了方便描述，并不是neutron的所有服务都在该节点，看下图，</p>
-<p><img src="http://oeptotikb.bkt.clouddn.com/2017-04-15-net-con.jpg" alt="network-controller-node"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-15-net-con.jpg" alt="network-controller-node"></p>
 <p>可以认为neutron-service在控制节点，L3 agent,DHCP agent, Metadata agent,L2 agent等所在节点为网络控制节点，接下来就是针对具体的服务讨论HA 的方案，通常来说，我们只需考虑L3 agent,DHCP agent 这两个服务的HA即可，L2 agent只在所在的网络或者计算节点上提供服务，不需要HA。neutron-metadata-agent需要和 neutron-ns-metadata-proxy 通过soket 通信，可以在所有 neutron network 节点上都运行该 agent，只有 virtual router 所在的L3 Agent 上的 neutron-metadata-agent 才起作用，别的都standby。</p>
 <h3 id="L3-agent-HA"><a href="#L3-agent-HA" class="headerlink" title="L3 agent HA"></a>L3 agent HA</h3><p>L3 agent 的HA ,官方给出的方案有两种，一种是利用VRRP协议（虚拟路由冗余协议）实现，另一种是DVR(分布式虚拟路由)实现。<br>关于VRRP协议，可以参考<a href="http://www.cnblogs.com/sammyliu/p/4692081.html" target="_blank" rel="noopener">Neutron L3 Agent HA 之 虚拟路由冗余协议（VRRP）</a>, 具体配置以及网络的连接情况直接参考官方给的<a href="https://docs.openstack.org/newton/networking-guide/deploy-ovs-ha-vrrp.html" target="_blank" rel="noopener">guide</a></p>
 <p>同样，关于DVR的资料参考<a href="http://www.cnblogs.com/sammyliu/p/4713562.html" target="_blank" rel="noopener">Neutron 分布式虚拟路由（Neutron Distributed Virtual Routing）</a>,以及官方<a href="https://docs.openstack.org/newton/networking-guide/config-dvr-ha-snat.html" target="_blank" rel="noopener">guide</a></p>

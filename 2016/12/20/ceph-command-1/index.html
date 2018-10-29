@@ -92,13 +92,13 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="目录结构：ceph 数据组织方式 ceph  增加/删除OSD ceph  增加/删除MON  操作 ceph集群中的服务  监控 ceph 集群的一些命令 ceph 用户管理 ceph 数据管理命令 关于ceph 之前只是简单介绍过，并没有系统的去学习，总结过。之后几篇文章会详细介绍下ceph的常用运维命令。  ceph 数据组织方式首先看下ceph的数据组织方式，因为ceph与openstac">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://oeptotikb.bkt.clouddn.com/2016-12-20-ceph-data-organize.png">
-<meta property="og:image" content="http://oeptotikb.bkt.clouddn.com/2016-12-20-ceph-data-write.png">
-<meta property="og:updated_time" content="2018-05-28T07:57:22.522Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2016-12-20-ceph-data-organize.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2016-12-20-ceph-data-write.png">
+<meta property="og:updated_time" content="2018-10-29T08:52:18.680Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ceph系列-- ceph 运维(一)-----常用命令">
 <meta name="twitter:description" content="目录结构：ceph 数据组织方式 ceph  增加/删除OSD ceph  增加/删除MON  操作 ceph集群中的服务  监控 ceph 集群的一些命令 ceph 用户管理 ceph 数据管理命令 关于ceph 之前只是简单介绍过，并没有系统的去学习，总结过。之后几篇文章会详细介绍下ceph的常用运维命令。  ceph 数据组织方式首先看下ceph的数据组织方式，因为ceph与openstac">
-<meta name="twitter:image" content="http://oeptotikb.bkt.clouddn.com/2016-12-20-ceph-data-organize.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2016-12-20-ceph-data-organize.png">
 
 
 
@@ -373,7 +373,7 @@
 <p><a name="A"></a></p>
 <h2 id="ceph-数据组织方式"><a href="#ceph-数据组织方式" class="headerlink" title="ceph 数据组织方式"></a>ceph 数据组织方式</h2><p>首先看下ceph的数据组织方式，因为ceph与openstack结合时用到最多的便是块存储服务rbd，所以这里主要以rbd为例。</p>
 <p>ceph 数据的组织方式是在物理资源的基础上进行了多层映射。</p>
-<p><img src="http://oeptotikb.bkt.clouddn.com/2016-12-20-ceph-data-organize.png" alt="ceph data organize"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2016-12-20-ceph-data-organize.png" alt="ceph data organize"></p>
 <p>客户想要创建一个rbd设备前，必须创建 一个pool，需要为这个pool指定pg的数量，在一个pool中的pg数量是不一定的，同时这个pool中要指明保存数据的副本数量3个副本。再在这个pool中创建一个rbd设备rbd0，那么这个rbd0都会保存三份，在创建rbd0时必须指定rbd的size，对于这个rbd0的任何操作不能超过这个size。之后会将这个块设备进行切块，每个块的大小默认为4M，并且每个块都有一个名字，名字就是object+序号。将每个object通过pg进行副本位置的分配，pg会寻找3个osd，把这个object分别保存在这三个osd上。osd上实际是把底层的disk进行了格式化操作，一般部署工具会将它格式化为xfs文件系统。最后对于object的存储就变成了存储一个文件rbd0.object1.file。</p>
 <p>客户端使用rbd设备时，一般有两种方法。</p>
 <ul>
@@ -384,7 +384,7 @@
 </ul>
 <p>简单看下客户端写数据到osd的过程。</p>
 <p>假设这次采用的是librbd的形式，使用librbd创建一个块设备，这时向这个块设备中写入数据，在客户端本地同过调用librados接口，然后经过pool，rbd，object、pg进行层层映射,在PG这一层中，可以知道数据保存在哪3个OSD上，这3个OSD分为主从的关系，也就是一个primary OSD，两个replica OSD。客户端与primay OSD建立SOCKET 通信，将要写入的数据传给primary OSD，由primary OSD再将数据发送给其他replica OSD数据节点。</p>
-<p><img src="http://oeptotikb.bkt.clouddn.com/2016-12-20-ceph-data-write.png" alt="ceph-data-write"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2016-12-20-ceph-data-write.png" alt="ceph-data-write"></p>
 <p><a name="B"></a></p>
 <h2 id="ceph-增加-删除OSD"><a href="#ceph-增加-删除OSD" class="headerlink" title="ceph  增加/删除OSD"></a>ceph  增加/删除OSD</h2><p>在官方文档里已经非常非常详细，<a href="http://docs.ceph.org.cn/rados/operations/add-or-rm-osds/" target="_blank" rel="noopener">增加/删除 OSD</a></p>
 <p>简单总结一下：</p>

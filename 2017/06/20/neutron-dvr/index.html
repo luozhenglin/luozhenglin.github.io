@@ -92,14 +92,14 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="引出公司有个测试云平台的虚拟机密码初始化出现了问题，根据之前的经验可能跟这篇问题一样,没想到花费了将近一天的时间才将问题解决，发现最终是跟neutron 分布式虚拟路由有关，这里记录一下。 问题是这样的：nova boot的时候传入 user-data（user-data中含有需要修改的密码），instance起来的时候会执行cloud-init，然后会使用EC2的datasource方式（即“1">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://oeptotikb.bkt.clouddn.com/neutron-arc-1.png">
-<meta property="og:image" content="http://oeptotikb.bkt.clouddn.com/2017-06-20neutro-arc-2.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/neutron-arc-1.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-06-20neutro-arc-2.png">
 <meta property="og:image" content="https://docs.openstack.org/newton/networking-guide/_images/deploy-ovs-ha-dvr-compconn1.png">
-<meta property="og:updated_time" content="2018-05-28T07:57:22.528Z">
+<meta property="og:updated_time" content="2018-10-29T08:53:30.367Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="openstack-- neutron 分布式虚拟路由（DVR）">
 <meta name="twitter:description" content="引出公司有个测试云平台的虚拟机密码初始化出现了问题，根据之前的经验可能跟这篇问题一样,没想到花费了将近一天的时间才将问题解决，发现最终是跟neutron 分布式虚拟路由有关，这里记录一下。 问题是这样的：nova boot的时候传入 user-data（user-data中含有需要修改的密码），instance起来的时候会执行cloud-init，然后会使用EC2的datasource方式（即“1">
-<meta name="twitter:image" content="http://oeptotikb.bkt.clouddn.com/neutron-arc-1.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/neutron-arc-1.png">
 
 
 
@@ -377,9 +377,9 @@
 </ul>
 <h2 id="neutron-分布式虚拟路由（DVR）"><a href="#neutron-分布式虚拟路由（DVR）" class="headerlink" title="neutron 分布式虚拟路由（DVR）"></a>neutron 分布式虚拟路由（DVR）</h2><h3 id="整体架构"><a href="#整体架构" class="headerlink" title="整体架构"></a>整体架构</h3><p>neutron 的DVR 是属于openstack HA的一部分，主要解决虚拟路由器的HA（即neutron-l3-agent的HA）。之前写过一篇<a href="https://zhangchenchen.github.io/2017/04/14/openstack-ha/">记录openstack的HA</a>,但没有仔细研究过neutron DVR。</p>
 <p>在没有使用dvr时，我们的整体架构大致是这样的：</p>
-<p><img src="http://oeptotikb.bkt.clouddn.com/neutron-arc-1.png" alt="neutron-arc1"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/neutron-arc-1.png" alt="neutron-arc1"></p>
 <p>计算节点只需要安装L2 Agent就可以，而使用dvr模式后：</p>
-<p><img src="http://oeptotikb.bkt.clouddn.com/2017-06-20neutro-arc-2.png" alt="neutron-arc-2"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-06-20neutro-arc-2.png" alt="neutron-arc-2"></p>
 <p>计算节点除了L2 Agent外，还要安装L3 Agent以及Metadata Agent。也就是说，通过使用dvr，计算节点也有了网络节点的三层转发和NAT功能，起到了分流的作用。</p>
 <h3 id="安装配置"><a href="#安装配置" class="headerlink" title="安装配置"></a>安装配置</h3><ul>
 <li>控制节点：修改neutron.conf 如下，重启neutron-server</li>

@@ -93,9 +93,9 @@
 <meta property="og:description" content="配置首先如果想要实现 ceph backend cinder的增量备份的话，要保证cinder-volume 与 cinder-backup 的backend 都是ceph，涉及到具体实践的话就是openstack 与 ceph  integration 的 配置，ceph官网有详实的步骤 BLOCK DEVICES AND OPENSTACK ,当然，中文版的一搜也一大把openstack的gl">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2017-05-09-cinder-backup.png">
-<meta property="og:image" content="http://oeptotikb.bkt.clouddn.com/backup_workflow.png">
-<meta property="og:image" content="http://oeptotikb.bkt.clouddn.com/2017-05-10-backup-detail.jpg">
-<meta property="og:updated_time" content="2018-05-28T07:57:22.527Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/backup_workflow.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-05-10-backup-detail.jpg">
+<meta property="og:updated_time" content="2018-10-29T08:53:32.149Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="openstack-- cinder-backup 利用ceph实现增量备份">
 <meta name="twitter:description" content="配置首先如果想要实现 ceph backend cinder的增量备份的话，要保证cinder-volume 与 cinder-backup 的backend 都是ceph，涉及到具体实践的话就是openstack 与 ceph  integration 的 配置，ceph官网有详实的步骤 BLOCK DEVICES AND OPENSTACK ,当然，中文版的一搜也一大把openstack的gl">
@@ -374,8 +374,8 @@
 <p>可以利用删除backup 来证明一下，增量备份都会有一个 parent backup（父备份），就是基于父备份来做增量备份，通常来说，就是我们刚开始做的那个全量备份。在删除父备份之前，必须先把所有它的子备份删除，才可以成功删除父备份。示例如下：</p>
 <p><img src="http://7xrnwq.com1.z0.glb.clouddn.com/2017-05-09-cinder-backup.png" alt="cinder-backup"></p>
 <h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><p>关于备份的具体流程可以参考这张图：</p>
-<p><img src="http://oeptotikb.bkt.clouddn.com/backup_workflow.png" alt="backup-workflow"></p>
-<p><img src="http://oeptotikb.bkt.clouddn.com/2017-05-10-backup-detail.jpg" alt="detail-backup"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/backup_workflow.png" alt="backup-workflow"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-05-10-backup-detail.jpg" alt="detail-backup"></p>
 <p>熟悉ceph的话，应该知道ceph rbd的export-diff，import-diff 功能：</p>
 <ul>
 <li>export-diff ：将某个 rbd image 在两个不同时刻的数据状态比较不同后导出补丁文件。</li>

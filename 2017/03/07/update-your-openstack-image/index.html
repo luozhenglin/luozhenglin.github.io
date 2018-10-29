@@ -93,8 +93,8 @@
 <meta property="og:description" content="引出公司云平台有些镜像的密码注入出了点问题，问题的原因初步诊断为镜像问题，需要对这些镜像进行cloudinit/cloudbase的升级操作。对于已知密码的镜像，可以直接开启一个虚拟机，完成升级后，对该虚拟机做snapshot 操作（nova image-create）即可。对于不知道密码的镜像，经过一番搜索后，可以通过将镜像挂载到本地宿主机，然后chroot的方法进行升级,后来又从官网了解到利用">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://7xrnwq.com1.z0.glb.clouddn.com/2017-03-08-chroot-lvm.png">
-<meta property="og:image" content="http://oeptotikb.bkt.clouddn.com/2017-03-24-libguestfs.png">
-<meta property="og:updated_time" content="2018-05-28T07:57:22.526Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-03-24-libguestfs.png">
+<meta property="og:updated_time" content="2018-10-29T08:53:43.620Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="openstack-- 如何升级现有镜像">
 <meta name="twitter:description" content="引出公司云平台有些镜像的密码注入出了点问题，问题的原因初步诊断为镜像问题，需要对这些镜像进行cloudinit/cloudbase的升级操作。对于已知密码的镜像，可以直接开启一个虚拟机，完成升级后，对该虚拟机做snapshot 操作（nova image-create）即可。对于不知道密码的镜像，经过一番搜索后，可以通过将镜像挂载到本地宿主机，然后chroot的方法进行升级,后来又从官网了解到利用">
@@ -396,7 +396,7 @@
 <p>示例：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ guestfish --rw -a centos63.raw  <span class="comment"># 进入guestfish shell ,Mount the image in read-write mode as root</span></span><br></pre></td></tr></table></figure>
 <p>进入之后 ，先执行run ，会创建一个虚拟机实例。</p>
-<p><img src="http://oeptotikb.bkt.clouddn.com/2017-03-24-libguestfs.png" alt="libguestfs"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-03-24-libguestfs.png" alt="libguestfs"></p>
 <p>如果出现错误的话，可以 export LIBGUESTFS_DEBUG=1 打开debug模式查找错误。或者利用 libguestfs-test-tool 命令测试一下。<br>接下来示例编辑网卡配置：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&gt;&lt;fs&gt; list-filesystems  <span class="comment">#列出可挂载的文件系统</span></span><br><span class="line"></span><br><span class="line">&gt;&lt;fs&gt; mount /dev/vg_centosbase/lv_root /  <span class="comment">#挂载</span></span><br><span class="line"></span><br><span class="line">&gt;&lt;fs&gt; edit /etc/sysconfig/network-scripts/ifcfg-eth0 <span class="comment">#编辑文件</span></span><br><span class="line"></span><br><span class="line">&gt;&lt;fs&gt; <span class="built_in">exit</span> <span class="comment">#退出</span></span><br></pre></td></tr></table></figure>
 <h4 id="guestmount-讲解与示例"><a href="#guestmount-讲解与示例" class="headerlink" title="guestmount 讲解与示例"></a>guestmount 讲解与示例</h4><p>guestmount 可以实现直接将镜像的文件系统挂载到本地。示例如下：</p>

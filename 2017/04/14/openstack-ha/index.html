@@ -92,15 +92,15 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="概念所谓HA(High Availability),高可用,就是指在本地系统的某个组件出现故障的情况下，系统依然可访问,应用的能力。而为了达到这种目的，我们一般采用节点冗余的方法组成集群来提供服务。通常来说，可以分为两种冗余的方式：  Active/Passive HA: 即A/P模式，中文主备模式，通常会有一个主节点来提供服务，备用节点会同步/异步与主节点进行数据同步。当主节点故障时，备用节点会">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://oeptotikb.bkt.clouddn.com/2017-04-21-openstack-con-ha.jpg">
-<meta property="og:image" content="http://oeptotikb.bkt.clouddn.com/2017-04-21-flow.jpg">
-<meta property="og:image" content="http://oeptotikb.bkt.clouddn.com/2017-04-15galera-update-certification-timeout.png">
-<meta property="og:image" content="http://oeptotikb.bkt.clouddn.com/2017-04-15-net-con.jpg">
-<meta property="og:updated_time" content="2018-05-28T07:57:22.527Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-21-openstack-con-ha.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-21-flow.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-15galera-update-certification-timeout.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-15-net-con.jpg">
+<meta property="og:updated_time" content="2018-10-29T08:53:33.688Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="openstack-- 关于openstack HA 的一些记录">
 <meta name="twitter:description" content="概念所谓HA(High Availability),高可用,就是指在本地系统的某个组件出现故障的情况下，系统依然可访问,应用的能力。而为了达到这种目的，我们一般采用节点冗余的方法组成集群来提供服务。通常来说，可以分为两种冗余的方式：  Active/Passive HA: 即A/P模式，中文主备模式，通常会有一个主节点来提供服务，备用节点会同步/异步与主节点进行数据同步。当主节点故障时，备用节点会">
-<meta name="twitter:image" content="http://oeptotikb.bkt.clouddn.com/2017-04-21-openstack-con-ha.jpg">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-21-openstack-con-ha.jpg">
 
 
 
@@ -387,9 +387,9 @@
 <li>HAProxy：向 API，RabbitMQ 和 MariaDB 多活服务提供负载均衡，其自身由 Pacemaker 实现 A/P HA，提供 VIP，某一时刻只由一个HAProxy提供服务。在部署中，也可以部署单独的 HAProxy 集群。</li>
 <li>Memcached：它原生支持 A/A，只需要在 OpenStack 中配置它所有节点的名称即可，比如，memcached_servers = controller1:11211,controller2:11211。当 controller1:11211 失效时，OpenStack 组件会自动使用controller2:11211。</li>
 </ul>
-<p><img src="http://oeptotikb.bkt.clouddn.com/2017-04-21-openstack-con-ha.jpg" alt="openstack-con-ha"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-21-openstack-con-ha.jpg" alt="openstack-con-ha"></p>
 <p>从一个请求的角度大致时序如下：</p>
-<p><img src="http://oeptotikb.bkt.clouddn.com/2017-04-21-flow.jpg" alt="flow"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-21-flow.jpg" alt="flow"></p>
 <p>这里在重点说一下rabbitmq 与mysql用的HA方案：</p>
 <h3 id="rabbitmq-的HA"><a href="#rabbitmq-的HA" class="headerlink" title="rabbitmq 的HA"></a>rabbitmq 的HA</h3><p>首先了解下rabbitmq集群的消息传递模式，rabbitmq的集群有两种模式，如下：</p>
 <ul>
@@ -412,11 +412,11 @@
 <li>7）无单点故障,易扩展</li>
 </ul>
 <p>openstack doc 中提到在用HAproxy做galara cluster 的负载均衡时，因为该集群不支持跨节点对表加锁，也就是说如果OpenStack 某组件有两个会话分布在两个节点上同时写入某一条数据，会出现其中一个会话遇到死锁的情况。可以参考<a href="http://www.joinfu.com/2015/01/understanding-reservations-concurrency-locking-in-nova/" target="_blank" rel="noopener">Understanding reservations, concurrency, and locking in Nova</a>,讲解的比较清晰。</p>
-<p><img src="http://oeptotikb.bkt.clouddn.com/2017-04-15galera-update-certification-timeout.png" alt="galera-lock"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-15galera-update-certification-timeout.png" alt="galera-lock"></p>
 <p>解决方案上文作者就提出了一种方式，楼主看了下最新版代码已经没有with_lockmode(‘update’) 语句。</p>
 <p>安装配置参考<a href="https://docs.openstack.org/ha-guide/shared-database.html" target="_blank" rel="noopener">Database (Galera Cluster) for high availability</a></p>
 <h2 id="网络控制节点-HA"><a href="#网络控制节点-HA" class="headerlink" title="网络控制节点 HA"></a>网络控制节点 HA</h2><p>这里说的网络控制节点是为了方便描述，并不是neutron的所有服务都在该节点，看下图，</p>
-<p><img src="http://oeptotikb.bkt.clouddn.com/2017-04-15-net-con.jpg" alt="network-controller-node"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-04-15-net-con.jpg" alt="network-controller-node"></p>
 <p>可以认为neutron-service在控制节点，L3 agent,DHCP agent, Metadata agent,L2 agent等所在节点为网络控制节点，接下来就是针对具体的服务讨论HA 的方案，通常来说，我们只需考虑L3 agent,DHCP agent 这两个服务的HA即可，L2 agent只在所在的网络或者计算节点上提供服务，不需要HA。neutron-metadata-agent需要和 neutron-ns-metadata-proxy 通过soket 通信，可以在所有 neutron network 节点上都运行该 agent，只有 virtual router 所在的L3 Agent 上的 neutron-metadata-agent 才起作用，别的都standby。</p>
 <h3 id="L3-agent-HA"><a href="#L3-agent-HA" class="headerlink" title="L3 agent HA"></a>L3 agent HA</h3><p>L3 agent 的HA ,官方给出的方案有两种，一种是利用VRRP协议（虚拟路由冗余协议）实现，另一种是DVR(分布式虚拟路由)实现。<br>关于VRRP协议，可以参考<a href="http://www.cnblogs.com/sammyliu/p/4692081.html" target="_blank" rel="noopener">Neutron L3 Agent HA 之 虚拟路由冗余协议（VRRP）</a>, 具体配置以及网络的连接情况直接参考官方给的<a href="https://docs.openstack.org/newton/networking-guide/deploy-ovs-ha-vrrp.html" target="_blank" rel="noopener">guide</a></p>
 <p>同样，关于DVR的资料参考<a href="http://www.cnblogs.com/sammyliu/p/4713562.html" target="_blank" rel="noopener">Neutron 分布式虚拟路由（Neutron Distributed Virtual Routing）</a>,以及官方<a href="https://docs.openstack.org/newton/networking-guide/config-dvr-ha-snat.html" target="_blank" rel="noopener">guide</a></p>

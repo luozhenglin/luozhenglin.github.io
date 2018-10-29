@@ -92,14 +92,14 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="为什么做资源的分离openstack 作为一个云计算框架，需要统筹计算，存储，网络等资源，本身就已经够复杂了。如果是在一个非常大的环境中，节点众多，且复杂多样，这个时候就有必要根据这些节点的差异做一些逻辑上的分离，以达到不同资源的区分，这样，做水平扩展的时候也可以根据这个逻辑分区针对性的进行扩展。 openstack 中的资源分离策略openstack 的资源分离策略一定程度上借鉴了AWS的策略，">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://oeptotikb.bkt.clouddn.com/2017-08-08-rc-se.png">
-<meta property="og:image" content="http://oeptotikb.bkt.clouddn.com/2017-08-08-region1.png">
-<meta property="og:image" content="http://oeptotikb.bkt.clouddn.com/2018-08-08-az.png">
-<meta property="og:updated_time" content="2018-05-28T07:57:22.529Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-08-08-rc-se.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-08-08-region1.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2018-08-08-az.png">
+<meta property="og:updated_time" content="2018-10-29T08:53:23.147Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Openstack-- openstack 中的资源分离策略">
 <meta name="twitter:description" content="为什么做资源的分离openstack 作为一个云计算框架，需要统筹计算，存储，网络等资源，本身就已经够复杂了。如果是在一个非常大的环境中，节点众多，且复杂多样，这个时候就有必要根据这些节点的差异做一些逻辑上的分离，以达到不同资源的区分，这样，做水平扩展的时候也可以根据这个逻辑分区针对性的进行扩展。 openstack 中的资源分离策略openstack 的资源分离策略一定程度上借鉴了AWS的策略，">
-<meta name="twitter:image" content="http://oeptotikb.bkt.clouddn.com/2017-08-08-rc-se.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-08-08-rc-se.png">
 
 
 
@@ -365,16 +365,16 @@
       
         <h2 id="为什么做资源的分离"><a href="#为什么做资源的分离" class="headerlink" title="为什么做资源的分离"></a>为什么做资源的分离</h2><p>openstack 作为一个云计算框架，需要统筹计算，存储，网络等资源，本身就已经够复杂了。如果是在一个非常大的环境中，节点众多，且复杂多样，这个时候就有必要根据这些节点的差异做一些逻辑上的分离，以达到不同资源的区分，这样，做水平扩展的时候也可以根据这个逻辑分区针对性的进行扩展。</p>
 <h2 id="openstack-中的资源分离策略"><a href="#openstack-中的资源分离策略" class="headerlink" title="openstack 中的资源分离策略"></a>openstack 中的资源分离策略</h2><p>openstack 的资源分离策略一定程度上借鉴了AWS的策略，整体来说，如下：</p>
-<p><img src="http://oeptotikb.bkt.clouddn.com/2017-08-08-rc-se.png" alt="resource-segeration"></p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-08-08-rc-se.png" alt="resource-segeration"></p>
 <h3 id="Infrastructure-segregation"><a href="#Infrastructure-segregation" class="headerlink" title="Infrastructure segregation"></a>Infrastructure segregation</h3><p>主要是理解Regions, cells, Host aggregates, Availability zones这几个概念。</p>
 <ul>
-<li>Regions:借鉴自AWS，更像是一个地理上的概念（比如北京的数据中心可以作为一个region,南京的数据中心作为另一个region），每个region有自己独立的endpoint，regions之间完全隔离，不同regions之间可以共享keystone/dashboard。openstack默认新建一个region，即RegionOne，如果还想建立第二个Region，可以利用 keystone endpoint­create 命令添加。<br><img src="http://oeptotikb.bkt.clouddn.com/2017-08-08-region1.png" alt="region"></li>
+<li>Regions:借鉴自AWS，更像是一个地理上的概念（比如北京的数据中心可以作为一个region,南京的数据中心作为另一个region），每个region有自己独立的endpoint，regions之间完全隔离，不同regions之间可以共享keystone/dashboard。openstack默认新建一个region，即RegionOne，如果还想建立第二个Region，可以利用 keystone endpoint­create 命令添加。<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2017-08-08-region1.png" alt="region"></li>
 </ul>
 <ul>
 <li>Cells:cell主要是为了解决openstack 的扩展性以及规模瓶颈而引进的概念。当openstack达到一定规模后，依赖比较强的database以及AMQP便成为整个系统的瓶颈，引入cell后，每个cell有自己独立的database和AMQP。公司云平台只是一个小云，没有引入，所以不去深究。cell目前是有v1，v2两版，实现方式差异比较大，感兴趣可以参考<a href="https://www.ustack.com/news/what-is-nova-cells-v2/?utm_source=tuicool&amp;utm_medium=referral" target="_blank" rel="noopener">Nova Cells V2如何帮助OpenStack集群突破性能瓶颈？</a>。</li>
 <li>Host aggregates &amp;&amp; Availability zones：这两个概念有共通点，且要相互配合使用，都用来表示一组节点的集合，简单说，AZ(Availability zone)是一个面向用户的概念，(这里只讨论nova 范畴的AZ,cinder,neutron也有对应的AZ概念),AZ一般依据地址，网络部署或电力配置划分，可以是一个独立的机房，或者一个独立供电的机架等，用户在创建instance的时候可以指定AZ，从而使instance创建在指定的AZ中，而host aggregate是一个面向管理员的概念，主要用来给nova-scheduler调度使用，比如根据某一属性（例如含有固态硬盘）划分一个host aggregate，把所有含有固态硬盘的host都放到该host aggregate中，nova-scheduler调度时指定相关属性就可以调度到对应host aggregate中的host。</li>
 </ul>
-<p><img src="http://oeptotikb.bkt.clouddn.com/2018-08-08-az.png" alt="AZandHG"><br>如上图，有两个地理隔离的Region，四个AZ，以及若干个根据不同属性区分的host aggregate。host aggregate 创建的时候可以指定AZ（如果AZ没有就会自动创建一个AZ），一个host可以属于多个host aggregate，但只能属于一个AZ。如下为一个示例：</p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2018-08-08-az.png" alt="AZandHG"><br>如上图，有两个地理隔离的Region，四个AZ，以及若干个根据不同属性区分的host aggregate。host aggregate 创建的时候可以指定AZ（如果AZ没有就会自动创建一个AZ），一个host可以属于多个host aggregate，但只能属于一个AZ。如下为一个示例：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">nova aggregate­create storage­optimized storage­optimized-AZ  <span class="comment"># 创建一个host aggregate</span></span><br><span class="line">nova aggregate­<span class="built_in">set</span>­metadata <span class="variable">$aggregateID</span> fast­storage=<span class="literal">true</span> <span class="comment"># 设置 aggregate 的metadate</span></span><br><span class="line">nova aggregate­add­host <span class="variable">$aggregateID</span> host­1 <span class="comment">#添加host到aggregate</span></span><br><span class="line">nova flavor­key <span class="variable">$flavorID</span> <span class="built_in">set</span> fast­storage=<span class="literal">true</span> <span class="comment">#添加flavor的 条件</span></span><br></pre></td></tr></table></figure>
 <h3 id="Workload-segregation"><a href="#Workload-segregation" class="headerlink" title="Workload segregation"></a>Workload segregation</h3><p>负载这一块的策略是基于server-group来做的，相对比较简单。注意，这里的server-group不再是host的集合，而是instance的集合。比如，我要创建3个instance，因为这3个instance都比较吃内存，所以想要这3个instance在不同的host上，就可以这样做：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">nova server-group-create --policy anti-affinity group-1 <span class="comment"># 创建server-group，注意policy指定策略是不在同一节点</span></span><br><span class="line">nova boot --image IMAGE_ID --flavor 1 --hint group=group-1 inst1 <span class="comment">#创建instance1 </span></span><br><span class="line">nova boot --image IMAGE_ID --flavor 1 --hint group=group-1 inst2 <span class="comment">#创建instance2 </span></span><br><span class="line">nova boot --image IMAGE_ID --flavor 1 --hint group=group-1 inst3 <span class="comment">#创建instance3</span></span><br></pre></td></tr></table></figure>

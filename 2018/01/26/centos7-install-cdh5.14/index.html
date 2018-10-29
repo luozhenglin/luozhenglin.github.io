@@ -92,12 +92,12 @@
 <meta property="og:site_name" content="Solar">
 <meta property="og:description" content="概述目标是搭建一个CDH 的测试环境，图方便在网上找了一些中文的搭建博客，结果问题百出，还是回到官网浏览，找到对应的安装文档，花了一点时间搭建，这里记录一下。系统配置如下：  centos7.2 minimal,8G内存，100G磁盘(master节点) centos7.2 minimal,4G内存，100G磁盘(node节点) centos7.2 minimal,4G内存，100G磁盘(node">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://oeptotikb.bkt.clouddn.com/20180129200028-mysql-role.jpg">
-<meta property="og:updated_time" content="2018-05-28T07:57:22.533Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20180129200028-mysql-role.jpg">
+<meta property="og:updated_time" content="2018-10-29T08:53:08.979Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Bigdata-- Centos7 安装CDH5.14记录">
 <meta name="twitter:description" content="概述目标是搭建一个CDH 的测试环境，图方便在网上找了一些中文的搭建博客，结果问题百出，还是回到官网浏览，找到对应的安装文档，花了一点时间搭建，这里记录一下。系统配置如下：  centos7.2 minimal,8G内存，100G磁盘(master节点) centos7.2 minimal,4G内存，100G磁盘(node节点) centos7.2 minimal,4G内存，100G磁盘(node">
-<meta name="twitter:image" content="http://oeptotikb.bkt.clouddn.com/20180129200028-mysql-role.jpg">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20180129200028-mysql-role.jpg">
 
 
 
@@ -405,7 +405,7 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; create database database DEFAULT CHARACTER SET utf8;</span><br><span class="line">Query OK, 1 row affected (0.00 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; grant all on database.* TO <span class="string">'user'</span>@<span class="string">'%'</span> IDENTIFIED BY <span class="string">'password'</span>;</span><br><span class="line">Query OK, 0 rows affected (0.00 sec)</span><br></pre></td></tr></table></figure>
 </li>
 </ul>
-<p>数据库的名字，用户名等可以参考除了以下列出的，还需创建oozie的数据库以及用户名密码.<br><img src="http://oeptotikb.bkt.clouddn.com/20180129200028-mysql-role.jpg" alt="mysql"></p>
+<p>数据库的名字，用户名等可以参考除了以下列出的，还需创建oozie的数据库以及用户名密码.<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20180129200028-mysql-role.jpg" alt="mysql"></p>
 <h3 id="Cloudera-Manager-安装"><a href="#Cloudera-Manager-安装" class="headerlink" title="Cloudera Manager 安装"></a>Cloudera Manager 安装</h3><ul>
 <li><p>在master节点安装Cloudera Manager Server并启动。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ yum install cloudera-manager-daemons cloudera-manager-server</span><br><span class="line">$ systemctl start cloudera-scm-server</span><br></pre></td></tr></table></figure>
