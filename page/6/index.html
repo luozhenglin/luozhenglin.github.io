@@ -271,6 +271,183 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="https://zhangchenchen.github.io/2017/02/10/openstack-common-net-command/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="pekingzcc">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Solar">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Solar" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/02/10/openstack-common-net-command/" itemprop="url">
+                  openstack--openstack 常用网络调试命令
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-02-10T14:54:25+08:00">
+                2017-02-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/02/10/openstack-common-net-command/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/02/10/openstack-common-net-command/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="引出"><a href="#引出" class="headerlink" title="引出"></a>引出</h2><p>openstack网络部分应该算是最为复杂的，这里简单罗列下常用的命令作为备注，主要包括以下三个部分：</p>
+<ol>
+<li>neutron 命令</li>
+<li>ip netns 命令（即网络命名空间）</li>
+<li>ovs/brctl 命令（即ovs和网桥命令）</li>
+<li>iptables 命令</li>
+</ol>
+<h2 id="neutron-命令"><a href="#neutron-命令" class="headerlink" title="neutron 命令"></a>neutron 命令</h2><ul>
+<li>对net, subnet, port 这些core service的操作，略</li>
+<li>对ext service 的操作(略)，常见ext service 包括：<pre><code>1. router
+2. firewall 
+3. loadbalance
+4. security-group
+5. vpn
+6. floatingip 
+</code></pre></li>
+<li>查看agent列表：neutron agent-list</li>
+<li>查看service provider: neutron service-provider-list</li>
+</ul>
+<h2 id="ip-netns-命令"><a href="#ip-netns-命令" class="headerlink" title="ip netns 命令"></a>ip netns 命令</h2><ul>
+<li>列出宿主机所有网络命名空间：ip netns</li>
+<li>在某一网络命名空间执行命令：ip netns exec $NAMESPACE COMMAND  ,示例：<pre><code>1. ip netns  exec qrouter-a123f550-747b-4b67-8006-2c29a5dd4c6d ip a
+2. ip netns  exec qrouter-a123f550-747b-4b67-8006-2c29a5dd4c6d ping www.baidu.com 
+</code></pre></li>
+</ul>
+<h2 id="ovs-brctl-命令"><a href="#ovs-brctl-命令" class="headerlink" title="ovs/brctl 命令"></a>ovs/brctl 命令</h2><p>主要是针对 openvswitch 创造的网桥信息 和 linux bridge 创造的网桥信息</p>
+<ol>
+<li>显示ovs创建的网桥信息：ovs-vsctl show  </li>
+<li>查看网桥br-tun上的流表信息：ovs-ofctl dump-flows br-tun</li>
+<li>ovs 创建网桥br-eth0：ovs-vsctl add-br br-eth0</li>
+<li>将网卡eth0 桥接在br-eth0上：ovs-vsctl add-port br-eth0 eth0</li>
+<li>查看datapath统计信息：ovs-dpctl show -s</li>
+<li>显示linux bridge 创建的网桥信息：brctl show </li>
+<li>linux bridge 创建网桥br-eth1: brctl addbr br-eth1</li>
+<li>将网卡eth1 桥接在br-eth1上: brctl addif br-eth1 eth1</li>
+</ol>
+<h2 id="iptables-命令"><a href="#iptables-命令" class="headerlink" title="iptables 命令"></a>iptables 命令</h2><p>neutron 中的L3-agent 默认是用iptables来实现3层网络的实现，而且，security-group, Firewall的实现也都与iptables息息相关。</p>
+<ol>
+<li>新增规则到某个规则链的最后一个：iptables -A INPUT …  </li>
+<li>删除某个规则：iptables -D INPUT –dport 80 -j DROP </li>
+<li>取代现行规则，顺序不变：iptables -R INPUT 1 -s 192.168.0.1 -j DROP  </li>
+<li>插入一条规则：iptables -I INPUT 1 –dport 80 -j ACCEPT  </li>
+<li>列出某规则链中的所有规则：iptables -L INPUT  </li>
+<li>列出nat表所有链中的所有规则：iptables -t nat -L  </li>
+</ol>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a href="http://liaoph.com/iptables/" target="_blank" rel="noopener">Linux 防火墙和 iptables</a></p>
+<p><a href="https://cnzhx.net/blog/common-iptables-cli/" target="_blank" rel="noopener">Linux iptables 命令行操作常用指令</a></p>
+<p><strong><em>本篇文章由<a href="https://zhangchenchen.github.io/">pekingzcc</a>采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可,转载请注明。</em></strong></p>
+<p> <strong><em>END</em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
   <link itemprop="mainEntityOfPage" href="https://zhangchenchen.github.io/2017/02/03/form-jekyll-to-hexo-blog/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1841,164 +2018,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="https://zhangchenchen.github.io/2016/12/26/cinder-source-code explain-2/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="pekingzcc">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="/images/avatar.jpg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="Solar">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="Solar" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/12/26/cinder-source-code explain-2/" itemprop="url">
-                  openstack系列--cinder 源码解读(二)---常见cinder操作工作流程
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-12-26T09:57:25+08:00">
-                2016-12-26
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2016/12/26/cinder-source-code explain-2/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/12/26/cinder-source-code explain-2/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="目录结构："><a href="#目录结构：" class="headerlink" title="目录结构："></a>目录结构：</h2><p><a href="#A">cinder 源码大致解析</a></p>
-<p><a href="#B">以新建 cinder volume 为例 深入 cinder 代码</a></p>
-<ul>
-<li>关于cinder不再赘述，之前文章由介绍。</li>
-<li>cinder 的 API 目前有三个版本，本次讨论以v2为基准。</li>
-<li>因为版本不同，代码也可能不同，该版本为Openstack Liberty</li>
-</ul>
-<p><a name="A"></a></p>
-<h2 id="cinder-源码大致解析"><a href="#cinder-源码大致解析" class="headerlink" title="cinder 源码大致解析"></a>cinder 源码大致解析</h2><p>看下cinder项目的入口文件setup.cfg：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">console_scripts =</span><br><span class="line">    cinder-api = cinder.cmd.api:main</span><br><span class="line">    cinder-backup = cinder.cmd.backup:main</span><br><span class="line">    cinder-manage = cinder.cmd.manage:main</span><br><span class="line">    cinder-rootwrap = oslo_rootwrap.cmd:main</span><br><span class="line">    cinder-rtstool = cinder.cmd.rtstool:main</span><br><span class="line">    cinder-scheduler = cinder.cmd.scheduler:main</span><br><span class="line">    cinder-volume = cinder.cmd.volume:main</span><br><span class="line">    cinder-volume-usage-audit = cinder.cmd.volume_usage_audit:main</span><br></pre></td></tr></table></figure>
-<ul>
-<li>cinder-api: 启动cinder 的wsgi server,每一个API对应一种资源，在setup.cfg 的entry point 中进行了配置，使用stevedore进行加载。</li>
-<li>cinder-backup:将volume 备份到其他存储系统</li>
-<li>cinder-manage：提供对cinder其他服务的管理操作。</li>
-<li>cinder-rootwrap : 某些cinder操作需要root权限</li>
-<li>cinder-rtstool :如果iSCSI target管理工具不是使用的默认的tgtadm，而是使用LIO iSCSI的话，就可以使用该命令，能够让你创建，删除，和验证卷，以及决定target，且可添加iSCSI initiator到系统。</li>
-<li>cinder-scheduler :用于根据提供的策略调度cinder-volune节点</li>
-<li>cinder-volume：管理 volume的生命周期，与底层存储交互。</li>
-<li>cinder-volume-usage-audit：用于卷使用情况统计。</li>
-</ul>
-<p><a name="B"></a></p>
-<h2 id="以新建-cinder-volume-为例-深入-cinder-代码"><a href="#以新建-cinder-volume-为例-深入-cinder-代码" class="headerlink" title="以新建 cinder volume 为例 深入 cinder 代码"></a>以新建 cinder volume 为例 深入 cinder 代码</h2><p>首先看下cinder –debug create volume 都发送了那些请求：<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2016-12-26-cinder-create-api.png" alt="cinder create api"></p>
-<p>可以看到先去keystone验证，然后向cinder-api发送一个v2/{tenant-id}/volumes 的post请求，volume创建，然后发送一个v2/{tenant-id}/volumes/{volume-id} 的get请求获取创建的volume数据。</p>
-<p>接下来看下cinder-api中接受create volume 的post请求代码，路由过程略过：</p>
-<p>/cinder/api/v2/volumes.py 主要代码如下<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@wsgi.response(202)</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">create</span><span class="params">(self, req, body)</span>:</span></span><br><span class="line">        <span class="string">"""Creates a new volume."""</span></span><br><span class="line">        .....对传入参数的检测.......</span><br><span class="line"></span><br><span class="line">        kwargs[<span class="string">'metadata'</span>] = volume.get(<span class="string">'metadata'</span>, <span class="keyword">None</span>)</span><br><span class="line"></span><br><span class="line">        snapshot_id = volume.get(<span class="string">'snapshot_id'</span>)</span><br><span class="line">        <span class="keyword">if</span> snapshot_id <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">not</span> uuidutils.is_uuid_like(snapshot_id):</span><br><span class="line">                msg = _(<span class="string">"Snapshot ID must be in UUID form."</span>)</span><br><span class="line">                <span class="keyword">raise</span> exc.HTTPBadRequest(explanation=msg)</span><br><span class="line">            <span class="comment"># Not found exception will be handled at the wsgi level</span></span><br><span class="line">            kwargs[<span class="string">'snapshot'</span>] = self.volume_api.get_snapshot(context,</span><br><span class="line">                                                              snapshot_id)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            kwargs[<span class="string">'snapshot'</span>] = <span class="keyword">None</span></span><br><span class="line"></span><br><span class="line">        source_volid = volume.get(<span class="string">'source_volid'</span>)</span><br><span class="line">        <span class="keyword">if</span> source_volid <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</span><br><span class="line">            <span class="comment"># Not found exception will be handled at the wsgi level</span></span><br><span class="line">            kwargs[<span class="string">'source_volume'</span>] = \</span><br><span class="line">                self.volume_api.get_volume(context,</span><br><span class="line">                                           source_volid)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            kwargs[<span class="string">'source_volume'</span>] = <span class="keyword">None</span></span><br><span class="line"></span><br><span class="line">        source_replica = volume.get(<span class="string">'source_replica'</span>)</span><br><span class="line">        <span class="keyword">if</span> source_replica <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</span><br><span class="line">            <span class="comment"># Not found exception will be handled at the wsgi level</span></span><br><span class="line">            src_vol = self.volume_api.get_volume(context,</span><br><span class="line">                                                 source_replica)</span><br><span class="line">            <span class="keyword">if</span> src_vol[<span class="string">'replication_status'</span>] == <span class="string">'disabled'</span>:</span><br><span class="line">                explanation = _(<span class="string">'source volume id:%s is not'</span></span><br><span class="line">                                <span class="string">' replicated'</span>) % source_replica</span><br><span class="line">                <span class="keyword">raise</span> exc.HTTPBadRequest(explanation=explanation)</span><br><span class="line">            kwargs[<span class="string">'source_replica'</span>] = src_vol</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            kwargs[<span class="string">'source_replica'</span>] = <span class="keyword">None</span></span><br><span class="line"></span><br><span class="line">        consistencygroup_id = volume.get(<span class="string">'consistencygroup_id'</span>)</span><br><span class="line">        <span class="keyword">if</span> consistencygroup_id <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</span><br><span class="line">            <span class="comment"># Not found exception will be handled at the wsgi level</span></span><br><span class="line">            kwargs[<span class="string">'consistencygroup'</span>] = \</span><br><span class="line">                self.consistencygroup_api.get(context,</span><br><span class="line">                                              consistencygroup_id)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            kwargs[<span class="string">'consistencygroup'</span>] = <span class="keyword">None</span></span><br><span class="line"></span><br><span class="line">        size = volume.get(<span class="string">'size'</span>, <span class="keyword">None</span>)</span><br><span class="line">        <span class="keyword">if</span> size <span class="keyword">is</span> <span class="keyword">None</span> <span class="keyword">and</span> kwargs[<span class="string">'snapshot'</span>] <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</span><br><span class="line">            size = kwargs[<span class="string">'snapshot'</span>][<span class="string">'volume_size'</span>]</span><br><span class="line">        <span class="keyword">elif</span> size <span class="keyword">is</span> <span class="keyword">None</span> <span class="keyword">and</span> kwargs[<span class="string">'source_volume'</span>] <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</span><br><span class="line">            size = kwargs[<span class="string">'source_volume'</span>][<span class="string">'size'</span>]</span><br><span class="line">        <span class="keyword">elif</span> size <span class="keyword">is</span> <span class="keyword">None</span> <span class="keyword">and</span> kwargs[<span class="string">'source_replica'</span>] <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</span><br><span class="line">            size = kwargs[<span class="string">'source_replica'</span>][<span class="string">'size'</span>]</span><br><span class="line"></span><br><span class="line">        LOG.info(_LI(<span class="string">"Create volume of %s GB"</span>), size)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> self.ext_mgr.is_loaded(<span class="string">'os-image-create'</span>):</span><br><span class="line">            image_ref = volume.get(<span class="string">'imageRef'</span>)</span><br><span class="line">            <span class="keyword">if</span> image_ref <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</span><br><span class="line">                image_uuid = self._image_uuid_from_ref(image_ref, context)</span><br><span class="line">                kwargs[<span class="string">'image_id'</span>] = image_uuid</span><br><span class="line"></span><br><span class="line">        kwargs[<span class="string">'availability_zone'</span>] = volume.get(<span class="string">'availability_zone'</span>, <span class="keyword">None</span>)</span><br><span class="line">        kwargs[<span class="string">'scheduler_hints'</span>] = volume.get(<span class="string">'scheduler_hints'</span>, <span class="keyword">None</span>)</span><br><span class="line">        kwargs[<span class="string">'multiattach'</span>] = utils.get_bool_param(<span class="string">'multiattach'</span>, volume)</span><br><span class="line"></span><br><span class="line">        new_volume = self.volume_api.create(context,</span><br><span class="line">                                            size,</span><br><span class="line">                                            volume.get(<span class="string">'display_name'</span>),</span><br><span class="line">                                            volume.get(<span class="string">'display_description'</span>),</span><br><span class="line">                                            **kwargs)</span><br><span class="line"></span><br><span class="line">        retval = self._view_builder.detail(req, new_volume)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> retval</span><br></pre></td></tr></table></figure></p>
-<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a href="http://int32bit.me/2016/07/16/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Openstack-QoS%E6%8E%A7%E5%88%B6%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%AE%9E%E8%B7%B5/" target="_blank" rel="noopener">深入理解Openstack QoS控制实现与实践</a></p>
-<p><a href="http://www.jianshu.com/p/fd432c29f277" target="_blank" rel="noopener">Volume Transfer(volume过户)</a></p>
-<p><a href="http://int32bit.me/2016/10/25/Openstack%E4%BD%BF%E7%94%A8Ceph%E5%AD%98%E5%82%A8%E5%90%8E%E7%AB%AF%E5%88%9B%E5%BB%BA%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%BF%AB%E7%85%A7%E5%8E%9F%E7%90%86%E5%89%96%E6%9E%90/" target="_blank" rel="noopener">openstack使用Ceph存储后端创建虚拟机快照原理剖析</a></p>
-<p><strong><em>本篇文章由<a href="https://zhangchenchen.github.io/">pekingzcc</a>采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可,转载请注明。</em></strong></p>
-<p> <strong><em>END</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -2046,7 +2065,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">99</span>
+                <span class="site-state-item-count">100</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -2057,7 +2076,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">46</span>
+                <span class="site-state-item-count">48</span>
                 <span class="site-state-item-name">tags</span>
               </a>
             </div>
@@ -2114,7 +2133,7 @@
         <div class="copyright" >
   
   &copy;  2016 - 
-  <span itemprop="copyrightYear">2018</span>
+  <span itemprop="copyrightYear">2019</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

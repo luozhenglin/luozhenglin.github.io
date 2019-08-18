@@ -271,6 +271,192 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="https://zhangchenchen.github.io/2016/12/06/novaConductor-sourcecode-explain/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="pekingzcc">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Solar">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Solar" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/12/06/novaConductor-sourcecode-explain/" itemprop="url">
+                  openstack系列--novaConductor 源代码解读
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-12-06T16:06:25+08:00">
+                2016-12-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/12/06/novaConductor-sourcecode-explain/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/12/06/novaConductor-sourcecode-explain/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="目录结构："><a href="#目录结构：" class="headerlink" title="目录结构："></a>目录结构：</h2><p><a href="#A">novaConductor 介绍</a></p>
+<p><a href="#B">以nova boot 为例解读代码 </a></p>
+<p><a name="A"></a></p>
+<h2 id="novaConductor-介绍"><a href="#novaConductor-介绍" class="headerlink" title="novaConductor 介绍"></a>novaConductor 介绍</h2><ul>
+<li>关于nova不再赘述，之前文章由介绍。</li>
+<li>根据<a href="http://docs.openstack.org/developer/nova/conductor.html" target="_blank" rel="noopener">wiki</a>介绍，NovaConductor更像是一个编排工具，它会接受novaapi的请求，将创建虚拟机等任务交给novacompute处理，将寻找host的任务交给novascheduler，同时，会负责跟数据库的交互。</li>
+<li>因为版本不同，代码也可能不同，该版本为Openstack Liberty</li>
+</ul>
+<p><a name="B"></a></p>
+<h2 id="以nova-boot-为例解读代码"><a href="#以nova-boot-为例解读代码" class="headerlink" title="以nova boot 为例解读代码"></a>以nova boot 为例解读代码</h2><ul>
+<li>先简略叙述下nova boot 在novaapi的过程，novaapi接收restful请求（post /servers）,根据apipaste配置文件,APIrouter,该请求最终路由到nova/api/openstack/servers.py.ServersController.create ,该方法完成参数的转换，解析，以及policy认证等工作后，调用nova/compute/api.py.API.create，再转给_create_instance 方法。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">_create_instance</span><span class="params">(self, context, instance_type,</span></span></span><br><span class="line"><span class="function"><span class="params">               image_href, kernel_id, ramdisk_id,</span></span></span><br><span class="line"><span class="function"><span class="params">               min_count, max_count,</span></span></span><br><span class="line"><span class="function"><span class="params">               display_name, display_description,</span></span></span><br><span class="line"><span class="function"><span class="params">               key_name, key_data, security_groups,</span></span></span><br><span class="line"><span class="function"><span class="params">               availability_zone, user_data, metadata, injected_files,</span></span></span><br><span class="line"><span class="function"><span class="params">               admin_password, access_ip_v4, access_ip_v6,</span></span></span><br><span class="line"><span class="function"><span class="params">               requested_networks, config_drive,</span></span></span><br><span class="line"><span class="function"><span class="params">               block_device_mapping, auto_disk_config, filter_properties,</span></span></span><br><span class="line"><span class="function"><span class="params">               reservation_id=None, legacy_bdm=True, shutdown_terminate=False,</span></span></span><br><span class="line"><span class="function"><span class="params">               check_server_group_quota=False)</span>:</span></span><br><span class="line">        <span class="string">"""Verify all the input parameters regardless of the provisioning</span></span><br><span class="line"><span class="string">        strategy being performed and schedule the instance(s) for</span></span><br><span class="line"><span class="string">        creation.</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        <span class="comment"># Normalize and setup some parameters</span></span><br><span class="line">        <span class="keyword">if</span> reservation_id <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            reservation_id = utils.generate_uid(<span class="string">'r'</span>)</span><br><span class="line">        security_groups = security_groups <span class="keyword">or</span> [<span class="string">'default'</span>]</span><br><span class="line">        min_count = min_count <span class="keyword">or</span> <span class="number">1</span></span><br><span class="line">        max_count = max_count <span class="keyword">or</span> min_count</span><br><span class="line">        block_device_mapping = block_device_mapping <span class="keyword">or</span> []</span><br><span class="line">        <span class="comment">#获取image相关信息（metadata）</span></span><br><span class="line">        <span class="keyword">if</span> image_href:</span><br><span class="line">            image_id, boot_meta = self._get_image(context, image_href)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            image_id = <span class="keyword">None</span></span><br><span class="line">            boot_meta = self._get_bdm_image_metadata(</span><br><span class="line">                context, block_device_mapping, legacy_bdm)</span><br><span class="line"></span><br><span class="line">        self._check_auto_disk_config(image=boot_meta,</span><br><span class="line">                                     auto_disk_config=auto_disk_config)</span><br><span class="line">        <span class="comment">#生成instance配置</span></span><br><span class="line">        base_options, max_net_count, key_pair = \</span><br><span class="line">                self._validate_and_build_base_options(</span><br><span class="line">                    context, instance_type, boot_meta, image_href, image_id,</span><br><span class="line">                    kernel_id, ramdisk_id, display_name, display_description,</span><br><span class="line">                    key_name, key_data, security_groups, availability_zone,</span><br><span class="line">                    user_data, metadata, access_ip_v4, access_ip_v6,</span><br><span class="line">                    requested_networks, config_drive, auto_disk_config,</span><br><span class="line">                    reservation_id, max_count)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># max_net_count is the maximum number of instances requested by the</span></span><br><span class="line">        <span class="comment"># user adjusted for any network quota constraints, including</span></span><br><span class="line">        <span class="comment"># consideration of connections to each requested network</span></span><br><span class="line">        <span class="keyword">if</span> max_net_count &lt; min_count:</span><br><span class="line">            <span class="keyword">raise</span> exception.PortLimitExceeded()</span><br><span class="line">        <span class="keyword">elif</span> max_net_count &lt; max_count:</span><br><span class="line">            LOG.info(_LI(<span class="string">"max count reduced from %(max_count)d to "</span></span><br><span class="line">                         <span class="string">"%(max_net_count)d due to network port quota"</span>),</span><br><span class="line">                        &#123;<span class="string">'max_count'</span>: max_count,</span><br><span class="line">                         <span class="string">'max_net_count'</span>: max_net_count&#125;)</span><br><span class="line">            max_count = max_net_count</span><br><span class="line">        <span class="comment">#确定块设备映射</span></span><br><span class="line">        block_device_mapping = self._check_and_transform_bdm(context,</span><br><span class="line">            base_options, instance_type, boot_meta, min_count, max_count,</span><br><span class="line">            block_device_mapping, legacy_bdm)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># We can't do this check earlier because we need bdms from all sources</span></span><br><span class="line">        <span class="comment"># to have been merged in order to get the root bdm.</span></span><br><span class="line">        self._checks_for_create_and_rebuild(context, image_id, boot_meta,</span><br><span class="line">                instance_type, metadata, injected_files,</span><br><span class="line">                block_device_mapping.root_bdm())</span><br><span class="line"></span><br><span class="line">        instance_group = self._get_requested_instance_group(context,</span><br><span class="line">                                   filter_properties)</span><br><span class="line">        <span class="comment">#创建instance对象，并写入数据库</span></span><br><span class="line">        instances = self._provision_instances(context, instance_type,</span><br><span class="line">                min_count, max_count, base_options, boot_meta, security_groups,</span><br><span class="line">                block_device_mapping, shutdown_terminate,</span><br><span class="line">                instance_group, check_server_group_quota, filter_properties,</span><br><span class="line">                key_pair)</span><br><span class="line">        <span class="comment">#更新instance状态为create</span></span><br><span class="line">        <span class="keyword">for</span> instance <span class="keyword">in</span> instances:</span><br><span class="line">            self._record_action_start(context, instance,</span><br><span class="line">                                      instance_actions.CREATE)</span><br><span class="line">        <span class="comment">#调用conductor api，之后会通过conductor rpc将请求转发给conductor manager</span></span><br><span class="line">        self.compute_task_api.build_instances(context,</span><br><span class="line">                instances=instances, image=boot_meta,</span><br><span class="line">                filter_properties=filter_properties,</span><br><span class="line">                admin_password=admin_password,</span><br><span class="line">                injected_files=injected_files,</span><br><span class="line">                requested_networks=requested_networks,</span><br><span class="line">                security_groups=security_groups,</span><br><span class="line">                block_device_mapping=block_device_mapping,</span><br><span class="line">                legacy_bdm=<span class="keyword">False</span>)</span><br><span class="line">        <span class="keyword">return</span> (instances, reservation_id)</span><br></pre></td></tr></table></figure>
+<p> -nova/conductor/api.py.ComputeTaskAPI.build_instance 直接将请求转发给nova/conductor/rpcapi.py.ComputeTaskAPI.build_instance。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">build_instances</span><span class="params">(self, context, instances, image, filter_properties,</span></span></span><br><span class="line"><span class="function"><span class="params">           admin_password, injected_files, requested_networks,</span></span></span><br><span class="line"><span class="function"><span class="params">           security_groups, block_device_mapping, legacy_bdm=True)</span>:</span></span><br><span class="line">       image_p = jsonutils.to_primitive(image)</span><br><span class="line">       version = <span class="string">'1.10'</span></span><br><span class="line">       <span class="keyword">if</span> <span class="keyword">not</span> self.client.can_send_version(version):</span><br><span class="line">           version = <span class="string">'1.9'</span></span><br><span class="line">           <span class="keyword">if</span> <span class="string">'instance_type'</span> <span class="keyword">in</span> filter_properties:</span><br><span class="line">               flavor = filter_properties[<span class="string">'instance_type'</span>]</span><br><span class="line">               flavor_p = objects_base.obj_to_primitive(flavor)</span><br><span class="line">               filter_properties = dict(filter_properties,</span><br><span class="line">                                        instance_type=flavor_p)</span><br><span class="line">       kw = &#123;<span class="string">'instances'</span>: instances, <span class="string">'image'</span>: image_p,</span><br><span class="line">              <span class="string">'filter_properties'</span>: filter_properties,</span><br><span class="line">              <span class="string">'admin_password'</span>: admin_password,</span><br><span class="line">              <span class="string">'injected_files'</span>: injected_files,</span><br><span class="line">              <span class="string">'requested_networks'</span>: requested_networks,</span><br><span class="line">              <span class="string">'security_groups'</span>: security_groups&#125;</span><br><span class="line">       <span class="keyword">if</span> <span class="keyword">not</span> self.client.can_send_version(version):</span><br><span class="line">           version = <span class="string">'1.8'</span></span><br><span class="line">           kw[<span class="string">'requested_networks'</span>] = kw[<span class="string">'requested_networks'</span>].as_tuples()</span><br><span class="line">       <span class="keyword">if</span> <span class="keyword">not</span> self.client.can_send_version(<span class="string">'1.7'</span>):</span><br><span class="line">           version = <span class="string">'1.5'</span></span><br><span class="line">           bdm_p = objects_base.obj_to_primitive(block_device_mapping)</span><br><span class="line">           kw.update(&#123;<span class="string">'block_device_mapping'</span>: bdm_p,</span><br><span class="line">                      <span class="string">'legacy_bdm'</span>: legacy_bdm&#125;)</span><br><span class="line">       <span class="comment">#生成RPCClient对象，准备发送</span></span><br><span class="line">       cctxt = self.client.prepare(version=version)</span><br><span class="line">       <span class="comment">#发送异步rpc消息到消息队列，conductor-manager会收到该消息</span></span><br><span class="line">       cctxt.cast(context, <span class="string">'build_instances'</span>, **kw)</span><br></pre></td></tr></table></figure>
+<p>顺便说下这个生成的cctxt其实是一个RPCClient对象，在oslo.messaging项目中，调用的call,cast方法就是RPCClient对象对应的方法。</p>
+<ul>
+<li>在讲conductor-manage之前，先说一下rabbitmq服务端的创建过程，该过程在服务启动的时候创建。其实server创建的主要目的就是监听端口，而openstack的服务主要通过两种方式调用：AMQP和restful。所以server的创建也主要有两种：一种是监听AMQP请求（Service），一种是监听restful请求（WSGIService）。大致看下nova-conductor的启动过程。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">()</span>:</span></span><br><span class="line">    config.parse_args(sys.argv) <span class="comment">#解析配置文件</span></span><br><span class="line">    logging.setup(CONF, <span class="string">"nova"</span>) <span class="comment"># 日志模块</span></span><br><span class="line">    utils.monkey_patch() <span class="comment">#eventlet模块的补丁</span></span><br><span class="line">    objects.register_all() <span class="comment"># object模块注册（与数据库访问有关）</span></span><br><span class="line">    objects.Service.enable_min_version_cache()</span><br><span class="line"></span><br><span class="line">    gmr.TextGuruMeditation.setup_autorun(version)</span><br><span class="line">    <span class="comment">#生成一个server对象</span></span><br><span class="line">    server = service.Service.create(binary=<span class="string">'nova-conductor'</span>,</span><br><span class="line">                                    topic=CONF.conductor.topic,</span><br><span class="line">                                    manager=CONF.conductor.manager)</span><br><span class="line">    workers = CONF.conductor.workers <span class="keyword">or</span> processutils.get_worker_count()</span><br><span class="line">    <span class="comment">#启动service</span></span><br><span class="line">    service.serve(server, workers=workers)</span><br><span class="line">    service.wait()</span><br></pre></td></tr></table></figure>
+<p>看下server对象的创建过程service.Service.create：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">create</span><span class="params">(cls, host=None, binary=None, topic=None, manager=None,</span></span></span><br><span class="line"><span class="function"><span class="params">           report_interval=None, periodic_enable=None,</span></span></span><br><span class="line"><span class="function"><span class="params">           periodic_fuzzy_delay=None, periodic_interval_max=None,</span></span></span><br><span class="line"><span class="function"><span class="params">           db_allowed=True)</span>:</span></span><br><span class="line">    <span class="string">"""Instantiates class and passes back application object.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    :param host: defaults to CONF.host</span></span><br><span class="line"><span class="string">    :param binary: defaults to basename of executable</span></span><br><span class="line"><span class="string">    :param topic: defaults to bin_name - 'nova-' part</span></span><br><span class="line"><span class="string">    :param manager: defaults to CONF.&lt;topic&gt;_manager</span></span><br><span class="line"><span class="string">    :param report_interval: defaults to CONF.report_interval</span></span><br><span class="line"><span class="string">    :param periodic_enable: defaults to CONF.periodic_enable</span></span><br><span class="line"><span class="string">    :param periodic_fuzzy_delay: defaults to CONF.periodic_fuzzy_delay</span></span><br><span class="line"><span class="string">    :param periodic_interval_max: if set, the max time to wait between runs</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    <span class="comment"># 下面的参数解释见上面的英文注释</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> host:</span><br><span class="line">        host = CONF.host</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> binary:</span><br><span class="line">        binary = os.path.basename(sys.argv[<span class="number">0</span>])</span><br><span class="line">    <span class="comment">#topic就是rabbitmq中连接queue 的依据</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> topic:</span><br><span class="line">        topic = binary.rpartition(<span class="string">'nova-'</span>)[<span class="number">2</span>]</span><br><span class="line">    <span class="comment">#真正执行代码的manager类</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> manager:</span><br><span class="line">        manager_cls = (<span class="string">'%s_manager'</span> %</span><br><span class="line">                       binary.rpartition(<span class="string">'nova-'</span>)[<span class="number">2</span>])</span><br><span class="line">        manager = CONF.get(manager_cls, <span class="keyword">None</span>)</span><br><span class="line">    <span class="keyword">if</span> report_interval <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">        report_interval = CONF.report_interval</span><br><span class="line">    <span class="keyword">if</span> periodic_enable <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">        periodic_enable = CONF.periodic_enable</span><br><span class="line">    <span class="keyword">if</span> periodic_fuzzy_delay <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">        periodic_fuzzy_delay = CONF.periodic_fuzzy_delay</span><br><span class="line"></span><br><span class="line">    debugger.init()</span><br><span class="line">    <span class="comment">#传参，完成初始化</span></span><br><span class="line">    service_obj = cls(host, binary, topic, manager,</span><br><span class="line">                      report_interval=report_interval,</span><br><span class="line">                      periodic_enable=periodic_enable,</span><br><span class="line">                      periodic_fuzzy_delay=periodic_fuzzy_delay,</span><br><span class="line">                      periodic_interval_max=periodic_interval_max,</span><br><span class="line">                      db_allowed=db_allowed)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> service_obj</span><br></pre></td></tr></table></figure>
+<p> 再看下service.serve()完成的工作,该函数直接调用oslo-service的launch()方法:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">launch</span><span class="params">(conf, service, workers=<span class="number">1</span>, restart_method=<span class="string">'reload'</span>)</span>:</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> workers <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span> <span class="keyword">and</span> workers &lt;= <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">raise</span> ValueError(_(<span class="string">"Number of workers should be positive!"</span>))</span><br><span class="line">    <span class="comment">#只起一个进程来运行服务</span></span><br><span class="line">    <span class="keyword">if</span> workers <span class="keyword">is</span> <span class="keyword">None</span> <span class="keyword">or</span> workers == <span class="number">1</span>:</span><br><span class="line">        launcher = ServiceLauncher(conf, restart_method=restart_method)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">    <span class="comment">#起woker个进程运行服务</span></span><br><span class="line">        launcher = ProcessLauncher(conf, restart_method=restart_method)</span><br><span class="line">    launcher.launch_service(service, workers=workers)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> launcher</span><br></pre></td></tr></table></figure>
+<p>进入launcher.launch_service,调用一个add方法，看下代码（此处为起一个进程的launcher为例）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add</span><span class="params">(self, service)</span>:</span></span><br><span class="line">    <span class="string">"""Add a service to a list and create a thread to run it.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    :param service: service to run</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    <span class="comment">#将一个service加入service list,并起一个thread去执行</span></span><br><span class="line">    self.services.append(service)</span><br><span class="line">    self.tg.add_thread(self.run_service, service, self.done)</span><br></pre></td></tr></table></figure>
+<p>add_thread会起一个green thread，执行callback这个回调，在这里就是server.start():</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">start</span><span class="params">(self)</span>:</span></span><br><span class="line"> </span><br><span class="line">          .......................................</span><br><span class="line">        target = messaging.Target(topic=self.topic, server=self.host)</span><br><span class="line"></span><br><span class="line">        endpoints = [</span><br><span class="line">            self.manager,</span><br><span class="line">            baserpc.BaseRPCAPI(self.manager.service_name, self.backdoor_port)</span><br><span class="line">        ]</span><br><span class="line">        endpoints.extend(self.manager.additional_endpoints)</span><br><span class="line"></span><br><span class="line">        serializer = objects_base.NovaObjectSerializer()</span><br><span class="line">        <span class="comment">#获取rpcserver并监听对应端口</span></span><br><span class="line">        self.rpcserver = rpc.get_server(target, endpoints, serializer)</span><br><span class="line">        self.rpcserver.start()</span><br><span class="line"></span><br><span class="line">        self.manager.post_start_hook()</span><br><span class="line">        ...................................</span><br></pre></td></tr></table></figure>
+<ul>
+<li>接下来看conductor-manage的处理过程。nova-conductor收到rpc请求，根据路由映射，该请求会交给对应manager的函数处理，nova/conductor/manager.py.ComputeTaskManager.build_instances</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">build_instances</span><span class="params">(self, context, instances, image, filter_properties,</span></span></span><br><span class="line"><span class="function"><span class="params">            admin_password, injected_files, requested_networks,</span></span></span><br><span class="line"><span class="function"><span class="params">            security_groups, block_device_mapping=None, legacy_bdm=True)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> (requested_networks <span class="keyword">and</span></span><br><span class="line">                <span class="keyword">not</span> isinstance(requested_networks,</span><br><span class="line">                               objects.NetworkRequestList)):</span><br><span class="line">            requested_networks = objects.NetworkRequestList.from_tuples(</span><br><span class="line">                requested_networks)</span><br><span class="line">        <span class="comment"># </span></span><br><span class="line">        flavor = filter_properties.get(<span class="string">'instance_type'</span>)</span><br><span class="line">        <span class="keyword">if</span> flavor <span class="keyword">and</span> <span class="keyword">not</span> isinstance(flavor, objects.Flavor):</span><br><span class="line">            <span class="comment"># Code downstream may expect extra_specs to be populated since it</span></span><br><span class="line">            <span class="comment"># is receiving an object, so lookup the flavor to ensure this.</span></span><br><span class="line">            flavor = objects.Flavor.get_by_id(context, flavor[<span class="string">'id'</span>])</span><br><span class="line">            filter_properties = dict(filter_properties, instance_type=flavor)</span><br><span class="line">        request_spec = &#123;&#125;</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            <span class="comment"># check retry policy. Rather ugly use of instances[0]...</span></span><br><span class="line">            <span class="comment"># but if we've exceeded max retries... then we really only</span></span><br><span class="line">            <span class="comment"># have a single instance.</span></span><br><span class="line">            <span class="comment">#生成发送给scheduler的信息</span></span><br><span class="line">            request_spec = scheduler_utils.build_request_spec(</span><br><span class="line">                context, image, instances)</span><br><span class="line">            scheduler_utils.populate_retry(</span><br><span class="line">                filter_properties, instances[<span class="number">0</span>].uuid)</span><br><span class="line">            <span class="comment">#发送同步消息给nova-scheduler，选取用于创建云主机的主机(留给下篇文章)</span></span><br><span class="line">            hosts = self._schedule_instances(</span><br><span class="line">                    context, request_spec, filter_properties)</span><br><span class="line">        <span class="keyword">except</span> Exception <span class="keyword">as</span> exc:</span><br><span class="line">            updates = &#123;<span class="string">'vm_state'</span>: vm_states.ERROR, <span class="string">'task_state'</span>: <span class="keyword">None</span>&#125;</span><br><span class="line">            <span class="comment">#设置虚拟机state,taskstate</span></span><br><span class="line">            <span class="keyword">for</span> instance <span class="keyword">in</span> instances:</span><br><span class="line">                self._set_vm_state_and_notify(</span><br><span class="line">                    context, instance.uuid, <span class="string">'build_instances'</span>, updates,</span><br><span class="line">                    exc, request_spec)</span><br><span class="line">                <span class="keyword">try</span>:</span><br><span class="line">                    <span class="comment"># If the BuildRequest stays around then instance show/lists</span></span><br><span class="line">                    <span class="comment"># will pull from it rather than the errored instance.</span></span><br><span class="line">                    self._destroy_build_request(context, instance)</span><br><span class="line">                <span class="keyword">except</span> exception.BuildRequestNotFound:</span><br><span class="line">                    <span class="keyword">pass</span></span><br><span class="line">                self._cleanup_allocated_networks(</span><br><span class="line">                    context, instance, requested_networks)</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">            .............................</span><br><span class="line">            <span class="comment">#发送异步消息给nova-compute，完成instance的boot(下篇文章)</span></span><br><span class="line">            self.compute_rpcapi.build_and_run_instance(context,</span><br><span class="line">                    instance=instance, host=host[<span class="string">'host'</span>], image=image,</span><br><span class="line">                    request_spec=request_spec,</span><br><span class="line">                    filter_properties=local_filter_props,</span><br><span class="line">                    admin_password=admin_password,</span><br><span class="line">                    injected_files=injected_files,</span><br><span class="line">                    requested_networks=requested_networks,</span><br><span class="line">                    security_groups=security_groups,</span><br><span class="line">                    block_device_mapping=bdms, node=host[<span class="string">'nodename'</span>],</span><br><span class="line">                    limits=host[<span class="string">'limits'</span>])</span><br></pre></td></tr></table></figure>
+<p>从上面的源码可以看出，build_instances方法主要实现过滤参数的组装，然后通过客户端scheduler_client发送rpc请求到scheduler完成host的选取，最后发送rpc请求到选取的host上，由nova-compute完成云主机的启动。</p>
+<ul>
+<li>对nova boot在 Novaconductor的分析就完成了。简单从整体源码层面分析一下novaconductor,源码目录结构如下：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2016-12-07-nova-conductor-code.png" alt="nova conductor"></p>
+<p>一般来说，rpcapi.py都是与rpc相关的，别的服务只需导入该模块便可以使用它提供的远程调用Novaconductor的服务，Novaconductor注册的RPCServer接收到rpc请求，然后由manager.py中的ConductorManager真正完成数据库的访问。由于数据库访问的特殊性，api.py又对rpc.api做了一层封装，所以其他模块需要导入的是api.py，api.py的封装主要是区分访问数据库是否需要通过RPC,如果数据库就在本地host,那么无需通过RPC调用。所以api.py中包含了四个类：LocalAPI,API,LocalComputerTaskAPI,ComputerTaskAPI。前两个类是Novaconductor访问数据库的接口，后两个是TaskaAPI接口，TaskaAPI接口主要包含耗时较长的任务，比如新建虚拟机，迁移虚拟机等。如果Novacompute与Novaconductor模块在同一台机器上，那么不用通过RPC,直接通过LocalAPI访问数据库，同理TaskAPI也不需要RPC,使用LocalTaskAPI。看下nova/conductor/<strong>init</strong>.py</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">API</span><span class="params">(*args, **kwargs)</span>:</span></span><br><span class="line">    <span class="comment">#根据配置选项use_local判断Novacompute与novaconductor是否在同一节点，决定使用哪一类API</span></span><br><span class="line">    use_local = kwargs.pop(<span class="string">'use_local'</span>, <span class="keyword">False</span>)</span><br><span class="line">    <span class="keyword">if</span> CONF.conductor.use_local <span class="keyword">or</span> use_local:</span><br><span class="line">        api = conductor_api.LocalAPI</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        api = conductor_api.API</span><br><span class="line">    <span class="keyword">return</span> api(*args, **kwargs)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">ComputeTaskAPI</span><span class="params">(*args, **kwargs)</span>:</span></span><br><span class="line">    <span class="comment">#分析同上</span></span><br><span class="line">    use_local = kwargs.pop(<span class="string">'use_local'</span>, <span class="keyword">False</span>)</span><br><span class="line">    <span class="keyword">if</span> CONF.conductor.use_local <span class="keyword">or</span> use_local:</span><br><span class="line">        api = conductor_api.LocalComputeTaskAPI</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        api = conductor_api.ComputeTaskAPI</span><br><span class="line">    <span class="keyword">return</span> api(*args, **kwargs)</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>接下来看下novaconductor与数据库交互的部分，在manager.py文件中有两个类，一个ConductorManager,一个ComputerTaskManager,对应两种API。与数据库交互的主要是ConductorManager。但当我打开这个类时瞬间懵圈了：</p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2016-12-07-conductor-manager.png" alt="conductor-manager"></p>
+</li>
+</ul>
+<p>类里面不是我们期待的数据库操作方法，而是关于object的一些方法。这里要讲下object Model。</p>
+<ul>
+<li><p>Object Model算是nova访问数据库的分水岭。之前，对某一个表的操作都是放在一个同名文件中,例如flavor.py,使用时直接调用文件中的函数操作数据库。Object Model引入后，新建flavor对象与flavor表对应，将对flavor 的操作封装在flavor对象中。这么做的原因大致是：1，nova-computer 与数据库升级时的版本问题。2，减少写入数据库的数据量。3，数据库的传值类型问题。<br>看下图Object Model 工作流程：</p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2016-12-07-object-model.jpg" alt="object model process"></p>
+<p>novaComputer 与novaConductor不在同一个节点时，虚线为引入ObjectModel之前NovaComputer访问数据库的流程。实现表示引入objectModel后的流程。可以看到，Novacomputer需要做数据库的操作时，将通过ObjectModel调用nova.conductor.rpcapi.ConductorAPI提供的RPC接口，novaConductor 接受到RPC请求后，通过本地ObjectModel完成数据库的更新。<br>ObjectModel的代码位于nova/objects目录，里面的每一个类对应数据库中的一个表，如下instance.py</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"> @obj_base.NovaObjectRegistry.register</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Network</span><span class="params">(obj_base.NovaPersistentObject, obj_base.NovaObject,</span></span></span><br><span class="line"><span class="class"><span class="params">              obj_base.NovaObjectDictCompat)</span>:</span></span><br><span class="line">    <span class="comment"># Version 1.0: Initial version</span></span><br><span class="line">    <span class="comment"># Version 1.1: Added in_use_on_host()</span></span><br><span class="line">    <span class="comment"># Version 1.2: Added mtu, dhcp_server, enable_dhcp, share_address</span></span><br><span class="line">    VERSION = <span class="string">'1.2'</span></span><br><span class="line">    <span class="comment">#基类base.NovaObject 会记录变化的字段，更新数据库时只更新这些变化的字段。</span></span><br><span class="line">    <span class="comment">#字典field是ComputerNode对象维护的信息，该字典的值不一定包含ComputerNode表内所有信息，每一个值的类型都是nova.object.fields模块定义的类型，若数据类型不匹配，就会抛出异常。</span></span><br><span class="line">    fields = &#123;</span><br><span class="line">        <span class="string">'id'</span>: fields.IntegerField(),</span><br><span class="line">        <span class="string">'label'</span>: fields.StringField(),</span><br><span class="line">        <span class="string">'injected'</span>: fields.BooleanField(),</span><br><span class="line">        <span class="string">'cidr'</span>: fields.IPV4NetworkField(nullable=<span class="keyword">True</span>),</span><br><span class="line">        <span class="string">'cidr_v6'</span>: fields.IPV6NetworkField(nullable=<span class="keyword">True</span>),</span><br><span class="line">        <span class="string">'multi_host'</span>: fields.BooleanField(),</span><br><span class="line">        <span class="string">'netmask'</span>: fields.IPV4AddressField(nullable=<span class="keyword">True</span>),</span><br><span class="line">        <span class="string">'gateway'</span>: fields.IPV4AddressField(nullable=<span class="keyword">True</span>),</span><br><span class="line">        <span class="string">'broadcast'</span>: fields.IPV4AddressField(nullable=<span class="keyword">True</span>),</span><br><span class="line">        <span class="string">'netmask_v6'</span>: fields.IPV6AddressField(nullable=<span class="keyword">True</span>),</span><br><span class="line">        <span class="string">'gateway_v6'</span>: fields.IPV6AddressField(nullable=<span class="keyword">True</span>),</span><br><span class="line">        <span class="string">'bridge'</span>: fields.StringField(nullable=<span class="keyword">True</span>),</span><br><span class="line">        <span class="string">'bridge_interface'</span>: fields.StringField(nullable=<span class="keyword">True</span>),</span><br><span class="line">        <span class="string">'dns1'</span>: fields.IPAddressField(nullable=<span class="keyword">True</span>),</span><br><span class="line">        <span class="string">'dns2'</span>: fields.IPAddressField(nullable=<span class="keyword">True</span>),</span><br><span class="line">        <span class="string">'vlan'</span>: fields.IntegerField(nullable=<span class="keyword">True</span>),</span><br><span class="line">        <span class="string">'vpn_public_address'</span>: fields.IPAddressField(nullable=<span class="keyword">True</span>),</span><br><span class="line">        <span class="string">'vpn_public_port'</span>: fields.IntegerField(nullable=<span class="keyword">True</span>),</span><br><span class="line">        <span class="string">'vpn_private_address'</span>: fields.IPAddressField(nullable=<span class="keyword">True</span>),</span><br><span class="line">        <span class="string">'dhcp_start'</span>: fields.IPV4AddressField(nullable=<span class="keyword">True</span>),</span><br><span class="line">        <span class="string">'rxtx_base'</span>: fields.IntegerField(nullable=<span class="keyword">True</span>),</span><br><span class="line">        <span class="string">'project_id'</span>: fields.UUIDField(nullable=<span class="keyword">True</span>),</span><br><span class="line">        <span class="string">'priority'</span>: fields.IntegerField(nullable=<span class="keyword">True</span>),</span><br><span class="line">        <span class="string">'host'</span>: fields.StringField(nullable=<span class="keyword">True</span>),</span><br><span class="line">        <span class="string">'uuid'</span>: fields.UUIDField(),</span><br><span class="line">        <span class="string">'mtu'</span>: fields.IntegerField(nullable=<span class="keyword">True</span>),</span><br><span class="line">        <span class="string">'dhcp_server'</span>: fields.IPAddressField(nullable=<span class="keyword">True</span>),</span><br><span class="line">        <span class="string">'enable_dhcp'</span>: fields.BooleanField(),</span><br><span class="line">        <span class="string">'share_address'</span>: fields.BooleanField(),</span><br><span class="line">        &#125;</span><br><span class="line">     ......................................</span><br><span class="line"></span><br><span class="line"><span class="meta">    @obj_base.remotable_classmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_by_id</span><span class="params">(cls, context, network_id, project_only=<span class="string">'allow_none'</span>)</span>:</span></span><br><span class="line">        db_network = db.network_get(context, network_id,</span><br><span class="line">                                    project_only=project_only)</span><br><span class="line">        <span class="keyword">return</span> cls._from_db_object(context, cls(), db_network)</span><br><span class="line"></span><br><span class="line"><span class="meta">    @obj_base.remotable_classmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_by_uuid</span><span class="params">(cls, context, network_uuid)</span>:</span></span><br><span class="line">        db_network = db.network_get_by_uuid(context, network_uuid)</span><br><span class="line">        <span class="keyword">return</span> cls._from_db_object(context, cls(), db_network)</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>nova.object.base 中有定义两个重要的修饰函数：remotable_classmethod 和remotable,前者用于修饰类的方法，后者用于修饰实例的方法。<br>如果novacomputer 与novaconductor不在同一节点，novacomputer 初始化时会将novaObject.indirection_api初始化为nova.conductor.rpcapi.ConductorAPI,此时调用remotable_classmethod修饰的函数时，会通过rpc交给Novaconductor处理，rpc请求中包含了该函数名，novaconductor接收到该rpc请求会调用相应的object model 函数完成数据库操作。</p>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a href="http://docs.openstack.org/developer/nova/conductor.html" target="_blank" rel="noopener">nova wiki</a></p>
+<p><a href="http://blog.csdn.net/lzw06061139/article/details/51488899" target="_blank" rel="noopener">Openstack liberty源码分析 之 云主机的启动过程1</a></p>
+<p><a href="https://book.douban.com/subject/26374647/" target="_blank" rel="noopener">openstack 设计与实现</a></p>
+<p><strong><em>本篇文章由<a href="https://zhangchenchen.github.io/">pekingzcc</a>采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可,转载请注明。</em></strong></p>
+<p> <strong><em>END</em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
   <link itemprop="mainEntityOfPage" href="https://zhangchenchen.github.io/2016/12/01/novaApi-sourcecode-explain/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1903,185 +2089,6 @@ On termination (typically registered via atexit):
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="https://zhangchenchen.github.io/2016/09/29/ceph-intro/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="pekingzcc">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="/images/avatar.jpg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="Solar">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="Solar" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/09/29/ceph-intro/" itemprop="url">
-                  ceph系列--ceph存储介绍
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-09-29T14:24:25+08:00">
-                2016-09-29
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2016/09/29/ceph-intro/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/09/29/ceph-intro/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="目录结构："><a href="#目录结构：" class="headerlink" title="目录结构："></a>目录结构：</h2><p><a href="#A">关于分布式存储</a></p>
-<p><a href="#B">ceph 是什么 </a></p>
-<p><a href="#B">ceph 架构</a></p>
-<p><a href="#C">what makes ceph unique</a></p>
-<p><a name="A"></a></p>
-<h2 id="关于分布式存储"><a href="#关于分布式存储" class="headerlink" title="关于分布式存储"></a>关于分布式存储</h2><p>在了解ceph之前，我们最好还是先了解一下分布式存储的一些概念。分布式存储是随着存储容量的需求变大而出现的概念。由于存储需求变大，出现了两种解决方案，一种是scale up,采用容量更大，价格更昂贵的存储机器。</p>
-<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/scale-up.png" alt="scale-up"> </p>
-<p>另一种是scale out,利用众多的普通存储机器（PC机）横向扩展成一个大的存储集群。</p>
-<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929scale-out.png" alt="scale-out"></p>
-<p>第二种就是分布式存储的概念了。相对采用昂贵的专用商业存储设备来说，这种存储的性价比更高，但也因此引出了分布式存储几个比较棘手的问题，比如数据如何组织存储，如何保证高可用性，如何保证冗余数据的一致性，是否支持分布式事务，如何避免单点失败等等，这些概念可以参考这两篇文章，<a href="http://wuchong.me/blog/2014/08/07/distributed-storage-system-knowledge/" target="_blank" rel="noopener">分布式存储系统 知识体系</a>,<a href="http://webdam.inria.fr/Jorge/html/wdmch15.html" target="_blank" rel="noopener">An Introduction to Distributed Systems</a>。</p>
-<p><a name="B"></a></p>
-<h2 id="ceph-是什么"><a href="#ceph-是什么" class="headerlink" title="ceph 是什么"></a>ceph 是什么</h2><p>以下篇目是基于这场presentation，<a href="https://www.youtube.com/watch?v=7I9uxoEhUdY" target="_blank" rel="noopener">Ceph Intro &amp; Architectural Overview</a>.</p>
-<p>我们首先看一下ceph 的设计哲学：</p>
-<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-ceph-design.png" alt="ceph design"></p>
-<p>由此我们也可以看出ceph的一些特点：开源，社区驱动，可扩展，无单点故障，软件层面，自我管理。</p>
-<p>那具体提供什么服务呢？看下图</p>
-<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-ceph-service.png" alt="ceph service"></p>
-<p>对应过来就是对象存储，块存储，文件系统存储。</p>
-<p><a name="C"></a></p>
-<h2 id="ceph-架构"><a href="#ceph-架构" class="headerlink" title="ceph 架构"></a>ceph 架构</h2><p>再从技术层面看下ceph架构</p>
-<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2016-09-29ceph-architect.png" alt="ceph-architect"></p>
-<p>我们从底往上一层层的介绍，首先是RADOS,我们从上图的介绍中也可以看出，RADOS是一系列的节点，这些节点上跑着两种程序，跑着OSD程序的我们称为OSD节点（storage node），跑着MON程序的我们称为MON节点（monitor node）。</p>
-<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2016-09-29-rados-1.png" alt="rados-1"></p>
-<p>我们再详细看下OSD节点。</p>
-<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-rados-osd.png" alt="rados-osd"></p>
-<p>每个OSD节点内，有多个磁盘disk,这些磁盘上是对应的文件系统（官网推荐 xfs），在往上就是我们的逻辑存储单元OSD，每个磁盘对应一个OSD。我们的数据就是存储在OSD里。<br>OSD与MON节点各自功能如下：</p>
-<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-OSD-MON.png" alt="OSD VS MON"></p>
-<p>可以看出MON节点只负责集群状态的维护，具体存储交给OSD处理。</p>
-<p>再看下LIBRADOS的作用。</p>
-<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929ceph-librados-service.png" alt="ceph-librados-service"></p>
-<p>简而言之，就是为Application的调用提供了多种语言版本的接口。通信机制为SOCKET。</p>
-<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-librados.png" alt="librados"></p>
-<p>再往上是RADOSGW.</p>
-<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-radosgw-1.png" alt="RADOSGW-1"></p>
-<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-radosgw-2.png" alt="RADOSGW-1"></p>
-<p>简而言之，就是在LIBRADOS提供的API的基础上进行封装对外提供对象存储的REST服务。</p>
-<p>与之并列的是RBD，也就是ceph提供的块存储服务。我们最常用的就是attach到某台虚拟机上（如下图），Ross Turk还提到了另外两种用法，感兴趣可以去看一下。</p>
-<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929ceph-rbd-1.png" alt="ceph-rbd"></p>
-<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-ceph-rbd-2.png" alt="ceph-rbd"></p>
-<p>关于ceph提供的文件系统因为用的不多，不再详述。</p>
-<p><a name="D"></a></p>
-<h2 id="what-makes-ceph-unique"><a href="#what-makes-ceph-unique" class="headerlink" title="what makes ceph unique"></a>what makes ceph unique</h2><p>第一个就是crush算法，一种计算寻址而非查找寻址的方法。</p>
-<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-crush-3.png" alt="crush-3"></p>
-<p> 图中的placement group 有很重要的作用，有了它，我们底层添加节点或节点崩溃，ceph都会自动更新，而对用户是透明的。<br><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-crush-1.png" alt="crush-1"></p>
-<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20160929-crush-2.png" alt="crush-2"></p>
-<p>其次是 rbdlayering ,参考这里<a href="http://docs.ceph.com/docs/master/dev/rbd-layering/" target="_blank" rel="noopener">RBD LAYERING</a></p>
-<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a href="https://www.youtube.com/watch?v=7I9uxoEhUdY" target="_blank" rel="noopener">Ceph Intro &amp; Architectural Overview</a></p>
-<p><a href="http://www.slideshare.net/buildacloud/ceph-intro-and-architectural-overview-by-ross-turk" target="_blank" rel="noopener">Ceph Intro and Architectural Overview by Ross Turk</a></p>
-<p><a href="http://www.cnblogs.com/sammyliu/p/4836014.html" target="_blank" rel="noopener">理解 OpenStack + Ceph （2）：Ceph 的物理和逻辑结构 [Ceph Architecture]</a></p>
-<p><a href="http://docs.ceph.com/docs/master/" target="_blank" rel="noopener">ceph doc</a><br><strong><em>本篇文章由<a href="https://zhangchenchen.github.io/">pekingzcc</a>采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可,转载请注明。</em></strong></p>
-<p> <strong><em>END</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -2129,7 +2136,7 @@ On termination (typically registered via atexit):
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">99</span>
+                <span class="site-state-item-count">100</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -2140,7 +2147,7 @@ On termination (typically registered via atexit):
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">46</span>
+                <span class="site-state-item-count">48</span>
                 <span class="site-state-item-name">tags</span>
               </a>
             </div>
@@ -2197,7 +2204,7 @@ On termination (typically registered via atexit):
         <div class="copyright" >
   
   &copy;  2016 - 
-  <span itemprop="copyrightYear">2018</span>
+  <span itemprop="copyrightYear">2019</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
