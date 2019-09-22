@@ -271,6 +271,204 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="https://zhangchenchen.github.io/2016/12/07/novaScheduler-sourcecode-explain/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="pekingzcc">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Solar">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Solar" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/12/07/novaScheduler-sourcecode-explain/" itemprop="url">
+                  openstack系列--novaScheduler 源代码解读
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-12-07T16:00:25+08:00">
+                2016-12-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/12/07/novaScheduler-sourcecode-explain/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/12/07/novaScheduler-sourcecode-explain/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="目录结构："><a href="#目录结构：" class="headerlink" title="目录结构："></a>目录结构：</h2><p><a href="#A">novaScheduler 介绍</a></p>
+<p><a href="#B">以nova boot 为例解读代码 </a></p>
+<p><a href="#C">novascheduler 整体讲解</a></p>
+<p><a href="#D">Filtering 讲解 </a></p>
+<p><a href="#E">Weighting 讲解 </a></p>
+<p><a name="A"></a></p>
+<h2 id="novaScheduler-介绍"><a href="#novaScheduler-介绍" class="headerlink" title="novaScheduler 介绍"></a>novaScheduler 介绍</h2><ul>
+<li>关于nova不再赘述，之前文章由介绍。</li>
+<li>nova-scheduler的主要作用就是就是根据各种规则为虚拟机选择一个合适的主机。</li>
+<li>同nova-volume被单独剥离为cinder项目一样，社区也致力于将nova-scheduler剥离为gantt,作为一个通用的调度服务。</li>
+<li>因为版本不同，代码也可能不同，该版本为Openstack Liberty</li>
+</ul>
+<p><a name="B"></a></p>
+<h2 id="以nova-boot-为例解读代码"><a href="#以nova-boot-为例解读代码" class="headerlink" title="以nova boot 为例解读代码"></a>以nova boot 为例解读代码</h2><ul>
+<li>由之前解读novaConductor时，我们把牵扯到调度novascheduler的部分拿过来：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">_schedule_instances</span><span class="params">(self, context, request_spec, filter_properties)</span>:</span></span><br><span class="line">    scheduler_utils.setup_instance_group(context, request_spec,</span><br><span class="line">                                         filter_properties)</span><br><span class="line">    <span class="comment"># TODO(sbauza): Hydrate here the object until we modify the</span></span><br><span class="line">    <span class="comment"># scheduler.utils methods to directly use the RequestSpec object</span></span><br><span class="line">    spec_obj = objects.RequestSpec.from_primitives(</span><br><span class="line">        context, request_spec, filter_properties)</span><br><span class="line">    <span class="comment">#调用scheduler_client,获取可用host列表</span></span><br><span class="line">    hosts = self.scheduler_client.select_destinations(context, spec_obj)</span><br><span class="line">    <span class="keyword">return</span> hosts</span><br></pre></td></tr></table></figure>
+<p>找到scheduler_client.select_destinations函数</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#有一个装饰器，当发送失败的时候retry</span></span><br><span class="line"><span class="meta">@utils.retry_select_destinations</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">select_destinations</span><span class="params">(self, context, spec_obj)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> self.queryclient.select_destinations(context, spec_obj)</span><br></pre></td></tr></table></figure>
+<p>最终调用rpcapi中的select_destinations方法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">select_destinations</span><span class="params">(self, ctxt, spec_obj)</span>:</span></span><br><span class="line">    version = <span class="string">'4.3'</span></span><br><span class="line">    msg_args = &#123;<span class="string">'spec_obj'</span>: spec_obj&#125;</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> self.client.can_send_version(version):</span><br><span class="line">        <span class="keyword">del</span> msg_args[<span class="string">'spec_obj'</span>]</span><br><span class="line">        msg_args[<span class="string">'request_spec'</span>] = spec_obj.to_legacy_request_spec_dict()</span><br><span class="line">        msg_args[<span class="string">'filter_properties'</span></span><br><span class="line">                 ] = spec_obj.to_legacy_filter_properties_dict()</span><br><span class="line">        version = <span class="string">'4.0'</span></span><br><span class="line">    <span class="comment">#生成 RPCClient </span></span><br><span class="line">    cctxt = self.client.prepare(version=version)</span><br><span class="line">    <span class="comment">#发送rpc call 同步请求</span></span><br><span class="line">    <span class="keyword">return</span> cctxt.call(ctxt, <span class="string">'select_destinations'</span>, **msg_args)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>接下来看下novascheduler 接收到’select_destinations’ 的rpc请求之后的动作，之前说Novaconductor的时候说到接受请求执行的函数都在manager文件中。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@messaging.expected_exceptions(exception.NoValidHost)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">select_destinations</span><span class="params">(self, ctxt,</span></span></span><br><span class="line"><span class="function"><span class="params">                        request_spec=None, filter_properties=None,</span></span></span><br><span class="line"><span class="function"><span class="params">                        spec_obj=_sentinel)</span>:</span></span><br><span class="line">    <span class="string">"""Returns destinations(s) best suited for this RequestSpec.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    The result should be a list of dicts with 'host', 'nodename' and</span></span><br><span class="line"><span class="string">    'limits' as keys.</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    <span class="keyword">if</span> spec_obj <span class="keyword">is</span> self._sentinel:</span><br><span class="line">        spec_obj = objects.RequestSpec.from_primitives(ctxt,</span><br><span class="line">                                                       request_spec,</span><br><span class="line">                                                       filter_properties)</span><br><span class="line">    <span class="comment">#调用driver中的方法，该driver即典型的stevedore中的driver插件导入</span></span><br><span class="line">    dests = self.driver.select_destinations(ctxt, spec_obj)</span><br><span class="line">    <span class="keyword">return</span> jsonutils.to_primitive(dests)</span><br></pre></td></tr></table></figure>
+<p>看下driver的相关代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, scheduler_driver=None, *args, **kwargs)</span>:</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> scheduler_driver:</span><br><span class="line">        scheduler_driver = CONF.scheduler.driver</span><br><span class="line">    <span class="comment">#根据nova配置文件选取scheduler_driver，利用stevedore的driver载入方式载入setup.cfg中对应scheduler_driver。</span></span><br><span class="line">    self.driver = driver.DriverManager(</span><br><span class="line">            <span class="string">"nova.scheduler.driver"</span>,</span><br><span class="line">            scheduler_driver,</span><br><span class="line">            invoke_on_load=<span class="keyword">True</span>).driver</span><br><span class="line">    super(SchedulerManager, self).__init__(service_name=<span class="string">'scheduler'</span>,</span><br><span class="line">                                           *args, **kwargs)</span><br></pre></td></tr></table></figure>
+<p>一般setup.cfg 中对应的scheduler.driver有：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">nova.scheduler.driver =</span><br><span class="line">    filter_scheduler = nova.scheduler.filter_scheduler:FilterScheduler</span><br><span class="line">    caching_scheduler = nova.scheduler.caching_scheduler:CachingScheduler</span><br><span class="line">    chance_scheduler = nova.scheduler.chance:ChanceScheduler</span><br><span class="line">    fake_scheduler = nova.tests.unit.scheduler.fakes:FakeScheduler</span><br></pre></td></tr></table></figure>
+<p>默认获取到的scheduler.driver是filter_scheduler，关于stevedore的用法，<a href="http://yansu.org/2013/06/09/learn-python-stevedore-module-in-detail.html" target="_blank" rel="noopener">check this</a></p>
+<p>找到filter_scheduler的select_destinations方法，该方法做一些参数的处理，然后调用_schedule方法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">_schedule</span><span class="params">(self, context, spec_obj)</span>:</span></span><br><span class="line">      <span class="string">"""Returns a list of hosts that meet the required specs,</span></span><br><span class="line"><span class="string">      ordered by their fitness.</span></span><br><span class="line"><span class="string">      """</span></span><br><span class="line">      elevated = context.elevated()</span><br><span class="line"></span><br><span class="line">      config_options = self._get_configuration_options()</span><br><span class="line">      <span class="comment">#获取所有的host列表</span></span><br><span class="line">      hosts = self._get_all_host_states(elevated)</span><br><span class="line"></span><br><span class="line">      selected_hosts = []</span><br><span class="line">      num_instances = spec_obj.num_instances</span><br><span class="line">      <span class="comment"># NOTE(sbauza): Adding one field for any out-of-tree need</span></span><br><span class="line">      spec_obj.config_options = config_options</span><br><span class="line">      <span class="comment">#此处num_instances 猜测是新建虚拟机的个数，因为 boot 命令中有一个参数新建多个虚拟机</span></span><br><span class="line">      <span class="keyword">for</span> num <span class="keyword">in</span> range(num_instances):</span><br><span class="line">          <span class="comment"># Filter local hosts based on requirements ...</span></span><br><span class="line">          <span class="comment">#根据过滤条件筛选符合filter 的host，具体filter代码位于filters/目录下</span></span><br><span class="line">          hosts = self.host_manager.get_filtered_hosts(hosts,</span><br><span class="line">                  spec_obj, index=num)</span><br><span class="line">          <span class="keyword">if</span> <span class="keyword">not</span> hosts:</span><br><span class="line">              <span class="comment"># Can't get any more locally.</span></span><br><span class="line">              <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line">          LOG.debug(<span class="string">"Filtered %(hosts)s"</span>, &#123;<span class="string">'hosts'</span>: hosts&#125;)</span><br><span class="line">          <span class="comment">#根据weight条件将host列表按权重排序，具体weight代码位于weights/目录下</span></span><br><span class="line">          weighed_hosts = self.host_manager.get_weighed_hosts(hosts,</span><br><span class="line">                  spec_obj)</span><br><span class="line"></span><br><span class="line">          LOG.debug(<span class="string">"Weighed %(hosts)s"</span>, &#123;<span class="string">'hosts'</span>: weighed_hosts&#125;)</span><br><span class="line"></span><br><span class="line">          host_subset_size = max(<span class="number">1</span>, CONF.filter_scheduler.host_subset_size)</span><br><span class="line">          <span class="keyword">if</span> host_subset_size &lt; len(weighed_hosts):</span><br><span class="line">              weighed_hosts = weighed_hosts[<span class="number">0</span>:host_subset_size]</span><br><span class="line">          chosen_host = random.choice(weighed_hosts)</span><br><span class="line"></span><br><span class="line">          LOG.debug(<span class="string">"Selected host: %(host)s"</span>, &#123;<span class="string">'host'</span>: chosen_host&#125;)</span><br><span class="line">          selected_hosts.append(chosen_host)</span><br><span class="line"></span><br><span class="line">          <span class="comment"># Now consume the resources so the filter/weights</span></span><br><span class="line">          <span class="comment"># will change for the next instance.</span></span><br><span class="line">          chosen_host.obj.consume_from_request(spec_obj)</span><br><span class="line">          <span class="keyword">if</span> spec_obj.instance_group <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</span><br><span class="line">              spec_obj.instance_group.hosts.append(chosen_host.obj.host)</span><br><span class="line">              <span class="comment"># hosts has to be not part of the updates when saving</span></span><br><span class="line">              spec_obj.instance_group.obj_reset_changes([<span class="string">'hosts'</span>])</span><br><span class="line">      <span class="keyword">return</span> selected_hosts</span><br></pre></td></tr></table></figure>
+<ul>
+<li>先看下获取所有的host列表的代码_get_all_host_states，直接调用host_manager.get_all_host_states，</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_all_host_states</span><span class="params">(self, context)</span>:</span></span><br><span class="line">    <span class="string">"""Returns a list of HostStates that represents all the hosts</span></span><br><span class="line"><span class="string">    the HostManager knows about. Also, each of the consumable resources</span></span><br><span class="line"><span class="string">    in HostState are pre-populated and adjusted based on data in the db.</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    <span class="comment">#从数据库获取nova-computer服务的service列表</span></span><br><span class="line">    service_refs = &#123;service.host: service</span><br><span class="line">                    <span class="keyword">for</span> service <span class="keyword">in</span> objects.ServiceList.get_by_binary(</span><br><span class="line">                        context, <span class="string">'nova-compute'</span>, include_disabled=<span class="keyword">True</span>)&#125;</span><br><span class="line">    <span class="comment"># Get resource usage across the available compute nodes:</span></span><br><span class="line">    <span class="comment">#从数据库获取所有计算节点的资源使用情况</span></span><br><span class="line">    compute_nodes = objects.ComputeNodeList.get_all(context)</span><br><span class="line">    seen_nodes = set()</span><br><span class="line">    <span class="comment">#更新计算节点的资源使用情况</span></span><br><span class="line">    <span class="keyword">for</span> compute <span class="keyword">in</span> compute_nodes:</span><br><span class="line">        service = service_refs.get(compute.host)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> service:</span><br><span class="line">            LOG.warning(_LW(</span><br><span class="line">                <span class="string">"No compute service record found for host %(host)s"</span>),</span><br><span class="line">                &#123;<span class="string">'host'</span>: compute.host&#125;)</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">        host = compute.host</span><br><span class="line">        node = compute.hypervisor_hostname</span><br><span class="line">        state_key = (host, node)</span><br><span class="line">        host_state = self.host_state_map.get(state_key)</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> host_state:</span><br><span class="line">            <span class="comment">#获取host_state,如果本身维护的数据更新时间比数据库的早晚，就不用从数据库获取了。</span></span><br><span class="line">            host_state = self.host_state_cls(host, node, compute=compute)</span><br><span class="line">            self.host_state_map[state_key] = host_state</span><br><span class="line">        <span class="comment"># We force to update the aggregates info each time a new request</span></span><br><span class="line">        <span class="comment"># comes in, because some changes on the aggregates could have been</span></span><br><span class="line">        <span class="comment"># happening after setting this field for the first time</span></span><br><span class="line">        host_state.update(compute,</span><br><span class="line">                          dict(service),</span><br><span class="line">                          self._get_aggregates_info(host),</span><br><span class="line">                          self._get_instance_info(context, compute))</span><br><span class="line"></span><br><span class="line">        seen_nodes.add(state_key)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># remove compute nodes from host_state_map if they are not active</span></span><br><span class="line">    <span class="comment">#去掉状态为inactive的node</span></span><br><span class="line">    dead_nodes = set(self.host_state_map.keys()) - seen_nodes</span><br><span class="line">    <span class="keyword">for</span> state_key <span class="keyword">in</span> dead_nodes:</span><br><span class="line">        host, node = state_key</span><br><span class="line">        LOG.info(_LI(<span class="string">"Removing dead compute node %(host)s:%(node)s "</span></span><br><span class="line">                     <span class="string">"from scheduler"</span>), &#123;<span class="string">'host'</span>: host, <span class="string">'node'</span>: node&#125;)</span><br><span class="line">        <span class="keyword">del</span> self.host_state_map[state_key]</span><br><span class="line">    <span class="comment">#返回一个node的迭代器</span></span><br><span class="line">    <span class="keyword">return</span> six.itervalues(self.host_state_map)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>再看下根据filter过滤host的函数host_manager.get_filtered_hosts</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_filtered_hosts</span><span class="params">(self, hosts, spec_obj, index=<span class="number">0</span>)</span>:</span></span><br><span class="line">        <span class="string">"""Filter hosts and return only ones passing all filters."""</span></span><br><span class="line">        <span class="comment">#若filter_properties中指定了ignore_hosts,则排除相应host</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">_strip_ignore_hosts</span><span class="params">(host_map, hosts_to_ignore)</span>:</span></span><br><span class="line">            .................................</span><br><span class="line">        <span class="comment">##若filter_properties中指定了forced_hosts,则排除不在forced_hosts中的host</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">_match_forced_hosts</span><span class="params">(host_map, hosts_to_force)</span>:</span></span><br><span class="line">            .................................</span><br><span class="line">        <span class="comment">#若filter_properties中指定了forced_nodes,则排除不在forced_nodes中的host</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">_match_forced_nodes</span><span class="params">(host_map, nodes_to_force)</span>:</span></span><br><span class="line">            .................................</span><br><span class="line">        <span class="comment">#若指定了requested_destination，则在指定requested_destination中filter host</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">_get_hosts_matching_request</span><span class="params">(hosts, requested_destination)</span>:</span></span><br><span class="line">            ..................................</span><br><span class="line"></span><br><span class="line">        ignore_hosts = spec_obj.ignore_hosts <span class="keyword">or</span> []</span><br><span class="line">        force_hosts = spec_obj.force_hosts <span class="keyword">or</span> []</span><br><span class="line">        force_nodes = spec_obj.force_nodes <span class="keyword">or</span> []</span><br><span class="line">        requested_node = spec_obj.requested_destination</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> requested_node <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</span><br><span class="line">            <span class="comment"># NOTE(sbauza): Reduce a potentially long set of hosts as much as</span></span><br><span class="line">            <span class="comment"># possible to any requested destination nodes before passing the</span></span><br><span class="line">            <span class="comment"># list to the filters</span></span><br><span class="line">            hosts = _get_hosts_matching_request(hosts, requested_node)</span><br><span class="line">        <span class="keyword">if</span> ignore_hosts <span class="keyword">or</span> force_hosts <span class="keyword">or</span> force_nodes:</span><br><span class="line">            <span class="comment"># NOTE(deva): we can't assume "host" is unique because</span></span><br><span class="line">            <span class="comment">#             one host may have many nodes.</span></span><br><span class="line">            name_to_cls_map = &#123;(x.host, x.nodename): x <span class="keyword">for</span> x <span class="keyword">in</span> hosts&#125;</span><br><span class="line">            <span class="keyword">if</span> ignore_hosts:</span><br><span class="line">                _strip_ignore_hosts(name_to_cls_map, ignore_hosts)</span><br><span class="line">                <span class="keyword">if</span> <span class="keyword">not</span> name_to_cls_map:</span><br><span class="line">                    <span class="keyword">return</span> []</span><br><span class="line">            <span class="comment"># NOTE(deva): allow force_hosts and force_nodes independently</span></span><br><span class="line">            <span class="keyword">if</span> force_hosts:</span><br><span class="line">                _match_forced_hosts(name_to_cls_map, force_hosts)</span><br><span class="line">            <span class="keyword">if</span> force_nodes:</span><br><span class="line">                _match_forced_nodes(name_to_cls_map, force_nodes)</span><br><span class="line">            <span class="keyword">if</span> force_hosts <span class="keyword">or</span> force_nodes:</span><br><span class="line">                <span class="comment"># NOTE(deva): Skip filters when forcing host or node</span></span><br><span class="line">                <span class="keyword">if</span> name_to_cls_map:</span><br><span class="line">                    <span class="keyword">return</span> name_to_cls_map.values()</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    <span class="keyword">return</span> []</span><br><span class="line">            <span class="comment">#获得经过上述条件后满足条件的host列表</span></span><br><span class="line">            hosts = six.itervalues(name_to_cls_map)</span><br><span class="line">        <span class="comment">#调用配置文件中规定的filter对host列表进行过滤，筛选host</span></span><br><span class="line">        <span class="keyword">return</span> self.filter_handler.get_filtered_objects(self.enabled_filters,</span><br><span class="line">                hosts, spec_obj, index)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>再看下根据weight条件将host列表按权重排序host_manager.get_weighed_hosts方法，直接调用host_manager.get_weighed_hosts：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_weighed_objects</span><span class="params">(self, weighers, obj_list, weighing_properties)</span>:</span></span><br><span class="line">    <span class="string">"""Return a sorted (descending), normalized list of WeighedObjects."""</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">#获取WeighedObject对象 ，就是对host做一层抽象</span></span><br><span class="line">    weighed_objs = [self.object_class(obj, <span class="number">0.0</span>) <span class="keyword">for</span> obj <span class="keyword">in</span> obj_list]</span><br><span class="line">    <span class="comment">#如果只有一个WeighedObject，直接返回</span></span><br><span class="line">    <span class="keyword">if</span> len(weighed_objs) &lt;= <span class="number">1</span>:</span><br><span class="line">        <span class="keyword">return</span> weighed_objs</span><br><span class="line">    <span class="comment">#逐一调用各权重过滤器。</span></span><br><span class="line">    <span class="keyword">for</span> weigher <span class="keyword">in</span> weighers:</span><br><span class="line">        weights = weigher.weigh_objects(weighed_objs, weighing_properties)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># Normalize the weights</span></span><br><span class="line">        weights = normalize(weights,</span><br><span class="line">                            minval=weigher.minval,</span><br><span class="line">                            maxval=weigher.maxval)</span><br><span class="line">        <span class="comment">#累加权重值</span></span><br><span class="line">        <span class="keyword">for</span> i, weight <span class="keyword">in</span> enumerate(weights):</span><br><span class="line">            obj = weighed_objs[i]</span><br><span class="line">            obj.weight += weigher.weight_multiplier() * weight</span><br><span class="line">    <span class="comment">#根据权重值降序排列并返回</span></span><br><span class="line">    <span class="keyword">return</span> sorted(weighed_objs, key=<span class="keyword">lambda</span> x: x.weight, reverse=<span class="keyword">True</span>)</span><br></pre></td></tr></table></figure>
+<p>到这里，Novascheduler的分析就基本结束了。</p>
+<p><a name="C"></a></p>
+<h2 id="novascheduler-整体讲解"><a href="#novascheduler-整体讲解" class="headerlink" title="novascheduler 整体讲解"></a>novascheduler 整体讲解</h2><ul>
+<li><p>novascheduler 源码目录架构：</p>
+<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/2016-12-08-openstack-nova-scheduler-code.png" alt="novascheduler code"></p>
+</li>
+<li><p>nova scheduler实现了三种调度器：ChanceScheduler(随机调度器)，FilterScheduler(过滤调度器)，CachingScheduler(缓存调度器，在FilterScheduler的基础上将主机资源缓存在本地，通过后台定时任务从数据库更新缓存信息)。如果我们想自己实现定制的调度器，需要实现的接口在nova.scheduler.driver.Scheduler,继承类SchedulerDriver.</p>
+</li>
+<li><p>一般来说，scheduler的过程大致是这样的：从nova.scheduler.rpcapi.SchedulerAPI发送RPC请求到nova.scheduler.manager.SchedulerManager;从SchedulerManager到调度器（类SchedulerDriver）;从SchedulerDriver到Filters;从Filters到权重计算排序Weights。</p>
+</li>
+</ul>
+<p><a name="D"></a></p>
+<h2 id="Filtering-讲解"><a href="#Filtering-讲解" class="headerlink" title="Filtering 讲解"></a>Filtering 讲解</h2><ul>
+<li>所有的filter都在/nova/scheduler/filters目录，继承自nova.scheduler.filters.BaseHostFilter。实现一个host_passes()函数。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DiskFilter</span><span class="params">(filters.BaseHostFilter)</span>:</span></span><br><span class="line">    <span class="string">"""Disk Filter with over subscription flag."""</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_get_disk_allocation_ratio</span><span class="params">(self, host_state, spec_obj)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> host_state.disk_allocation_ratio</span><br><span class="line">    <span class="comment">#重点在实现该函数</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">host_passes</span><span class="params">(self, host_state, spec_obj)</span>:</span></span><br><span class="line">        <span class="string">"""Filter based on disk usage."""</span></span><br><span class="line">        requested_disk = (<span class="number">1024</span> * (spec_obj.root_gb +</span><br><span class="line">                                  spec_obj.ephemeral_gb) +</span><br><span class="line">                          spec_obj.swap)</span><br><span class="line"></span><br><span class="line">        free_disk_mb = host_state.free_disk_mb</span><br><span class="line">        total_usable_disk_mb = host_state.total_usable_disk_gb * <span class="number">1024</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># Do not allow an instance to overcommit against itself, only against</span></span><br><span class="line">        <span class="comment"># other instances.  In other words, if there isn't room for even just</span></span><br><span class="line">        <span class="comment"># this one instance in total_usable_disk space, consider the host full.</span></span><br><span class="line">        <span class="keyword">if</span> total_usable_disk_mb &lt; requested_disk:</span><br><span class="line">            LOG.debug(<span class="string">"%(host_state)s does not have %(requested_disk)s "</span></span><br><span class="line">                      <span class="string">"MB usable disk space before overcommit, it only "</span></span><br><span class="line">                      <span class="string">"has %(physical_disk_size)s MB."</span>,</span><br><span class="line">                      &#123;<span class="string">'host_state'</span>: host_state,</span><br><span class="line">                       <span class="string">'requested_disk'</span>: requested_disk,</span><br><span class="line">                       <span class="string">'physical_disk_size'</span>:</span><br><span class="line">                           total_usable_disk_mb&#125;)</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">False</span></span><br><span class="line"></span><br><span class="line">        ...............................</span><br><span class="line">        disk_gb_limit = disk_mb_limit / <span class="number">1024</span></span><br><span class="line">        host_state.limits[<span class="string">'disk_gb'</span>] = disk_gb_limit</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">True</span></span><br></pre></td></tr></table></figure>
+<p><a name="E"></a></p>
+<h2 id="Weighting-讲解"><a href="#Weighting-讲解" class="headerlink" title="Weighting 讲解"></a>Weighting 讲解</h2><ul>
+<li>所有weighter位于nova/scheduler/weights目录，继承自weights.BaseWeighter;</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RAMWeigher</span><span class="params">(weights.BaseHostWeigher)</span>:</span></span><br><span class="line">    <span class="comment">#可以设置maxval ,minval指明权重的最大最小值。</span></span><br><span class="line">    minval = <span class="number">0</span></span><br><span class="line">   <span class="comment">#权重的系数，最终排序时需要将各种weighter得到的权重乘上对应的系数，有多个weighter时才有意义，可以通过配置选项ram_weight_multiplier配置，默认为1.0</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">weight_multiplier</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""Override the weight multiplier."""</span></span><br><span class="line">        <span class="keyword">return</span> CONF.filter_scheduler.ram_weight_multiplier</span><br><span class="line">    <span class="comment">#计算权重值，对于RAMWeighter直接返回可用内存大小即可</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_weigh_object</span><span class="params">(self, host_state, weight_properties)</span>:</span></span><br><span class="line">        <span class="string">"""Higher weights win.  We want spreading to be the default."""</span></span><br><span class="line">        <span class="keyword">return</span> host_state.free_ram_mb</span><br></pre></td></tr></table></figure>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a href="https://book.douban.com/subject/26374647/" target="_blank" rel="noopener">openstack 设计与实现</a></p>
+<p><a href="http://blog.csdn.net/lzw06061139/article/details/51491891" target="_blank" rel="noopener">Openstack liberty源码分析 之 云主机的启动过程2</a></p>
+<p><a href="http://yansu.org/2013/06/09/learn-python-stevedore-module-in-detail.html" target="_blank" rel="noopener">学习Python动态扩展包stevedore</a></p>
+<p><strong><em>本篇文章由<a href="https://zhangchenchen.github.io/">pekingzcc</a>采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可,转载请注明。</em></strong></p>
+<p> <strong><em>END</em></strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
   <link itemprop="mainEntityOfPage" href="https://zhangchenchen.github.io/2016/12/06/novaConductor-sourcecode-explain/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1914,186 +2112,11 @@ On termination (typically registered via atexit):
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="https://zhangchenchen.github.io/2016/10/17/github-tips/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="pekingzcc">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="/images/avatar.jpg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="Solar">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="Solar" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/10/17/github-tips/" itemprop="url">
-                  git系列--关于github 的碎碎念
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-10-17T22:01:21+08:00">
-                2016-10-17
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2016/10/17/github-tips/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/10/17/github-tips/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="目录结构"><a href="#目录结构" class="headerlink" title="目录结构"></a>目录结构</h2><p><a href="#A">github 快捷键 </a></p>
-<p><a href="#B">github trending &amp;&amp; github subscribe </a></p>
-<p><a href="#C">为开源项目贡献代码</a></p>
-<p><a href="#D">git 常用命令</a></p>
-<p><a name="A"></a></p>
-<h2 id="github-快捷键"><a href="#github-快捷键" class="headerlink" title="github 快捷键"></a>github 快捷键</h2><p>逛v2ex的时候逛到了这个帖子，<a href="https://www.v2ex.com/t/313267#reply54" target="_blank" rel="noopener">录了几个有关 Github 的视频，我觉得你也应该知道这些</a>,很有意思,把视频看了一遍，都不是很长，强烈推荐。顺手记录下这些信息。<br>首先是github的一些快捷键：</p>
-<ul>
-<li><p>项目中搜索含有某个关键字的文件：在github 项目的code目录按下 “t”,即可进入搜索页面，如下图：</p>
-<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161017github-search.jpg" alt="search"></p>
-</li>
-<li><p>列出github的快捷键：在项目目录按下 “？” 即可出现：</p>
-</li>
-</ul>
-<p><img src="https://raw.githubusercontent.com/zhangchenchen/zhangchenchen.github.io/hexo/images/20161017shortcut.jpg" alt="github shortcut"></p>
-<ul>
-<li>进入 issue页面：按下“g” 与 “i”键，就是goto issue 的缩写</li>
-<li>进入code页面：按下“g”与“c”键，goto code</li>
-</ul>
-<p>其他的按下“？”自己探索吧。</p>
-<p><a name="B"></a></p>
-<h2 id="github-trending-amp-amp-github-subscribe"><a href="#github-trending-amp-amp-github-subscribe" class="headerlink" title="github trending &amp;&amp; github subscribe"></a>github trending &amp;&amp; github subscribe</h2><ul>
-<li>github trending:进入这个页面<a href="github.com/trending">github trending</a>就可以看到最近按照stars数排序靠前的比较优秀的项目，可以按照语言分类。</li>
-<li>github subscribe:进入这个页面<a href="https://github.com/explore/subscribe" target="_blank" rel="noopener">github subscribe</a>,我们可以订阅我们关注的大牛，他们的动态会按周/月发送到你的邮箱。</li>
-</ul>
-<p><a name="C"></a></p>
-<h2 id="为开源项目贡献代码"><a href="#为开源项目贡献代码" class="headerlink" title="为开源项目贡献代码"></a>为开源项目贡献代码</h2><p>关于这个，强烈推荐看下视频吧，直观易懂。这里简短记录下过程：</p>
-<ul>
-<li>fork and clone </li>
-<li>github remote -add upstream <a href="mailto:ssh@xxxxxxxx.git" target="_blank" rel="noopener">ssh@xxxxxxxx.git</a> :标示我们fork的上级，master分支要与upstream分支保持一致</li>
-<li>github checkout -b feature/bug-fixed : 创建并切换分支，在此分支上编码。</li>
-<li>git add &amp;&amp; commit </li>
-<li>git checkout master &amp;&amp; git pull upstream master：在push之前我们先要保证master与upstream一致。</li>
-<li>git checkout feature/bug-fixed &amp;&amp; git rebase master：将在bug-fixed上的commit log 打到master分支的最上面。</li>
-<li>git push origin featue/bug-fixed</li>
-<li>git pull request: 现在可以向开源作者pull request了</li>
-</ul>
-<p><a name="D"></a></p>
-<h2 id="git-常用命令"><a href="#git-常用命令" class="headerlink" title="git 常用命令"></a>git 常用命令</h2><ul>
-<li><p>切换分支后，清理本地目录：git reset –hard HEAD &amp;&amp; git clean -i </p>
-</li>
-<li><p>不详细写了，以后用得着直接去这个页面找吧：<br><a href="https://github.com/521xueweihan/git-tips" target="_blank" rel="noopener">git-tips</a></p>
-</li>
-</ul>
-<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a href="https://www.v2ex.com/t/313267#reply54" target="_blank" rel="noopener">v2ex</a></p>
-<p><a href="https://github.com/521xueweihan/git-tips" target="_blank" rel="noopener">git-tips</a></p>
-<p><strong><em>本篇文章由<a href="https://zhangchenchen.github.io/">pekingzcc</a>采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可,转载请注明。</em></strong></p>
-<p> <strong><em>END</em></strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/7/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/9/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/7/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/9/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -2136,7 +2159,7 @@ On termination (typically registered via atexit):
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">100</span>
+                <span class="site-state-item-count">101</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
